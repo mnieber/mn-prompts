@@ -1,7 +1,7 @@
 import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { queryClient } from '/src/api/queryClient';
 import { setAuthTokens } from '/src/api/restClient';
-import { AuthState } from '/src/auth/AuthState';
+import { AuthState, anonymous } from '/src/auth/AuthState';
 import { ObjT } from '/src/utils/types';
 
 export type SignOutArgsT = {};
@@ -28,6 +28,7 @@ export const useSignOut = (authState?: AuthState) => {
       // will never see results from the previous user.
       queryClient.getQueryCache().clear();
       if (authState) authState.onUpdated(queryName, data);
+      authState?.setUserId(anonymous);
     },
     onError: (error: Error) => {
       if (authState) authState.onErrored(queryName, error.message);
