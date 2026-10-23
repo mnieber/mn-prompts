@@ -8,6 +8,9 @@ The new features are described in a design doc (`extra/spec_src/design/design.md
 happen, and the decisions that were made. The design doc only describes the work that is not yet in the
 scenarios.
 
+`RULE`: when I ask you to review a design then focus on weaknesses and gaps in the main features and workflows. Details
+and less important edge-cases can be identified later.
+
 ## 2. Tests
 
 Translate the design doc into a test_plan.md document that contains a high-level description of the tests. Group the tests
