@@ -1,0 +1,26 @@
+.MainView {
+  input:focus,
+  textarea:focus {
+    @apply outline-0;
+    @apply border;
+    border-color: transparent;
+  }
+}
+
+.MainView .FormField {
+  @apply rounded-lg;
+  @apply text-white text-base;
+  @apply bg-gray-300;
+  @apply border;
+  border-color: transparent;
+
+  &:focus-within {
+    @apply border border-gray-text;
+  }
+
+  .FormField__Button {
+    @apply px-2;
+    @apply bg-gray-100 text-teal-primary font-bold m-0.5;
+    @apply rounded-lg;
+  }
+}

@@ -1,0 +1,23 @@
+#
+# React
+#
+
+install:
+    yarn install
+
+run-server:
+    yarn dev --host
+
+storybook:
+    yarn storybook dev --port 6008
+
+#
+# Stack
+#
+
+init-dev: install
+
+create-opt-paths:
+    sudo mkdir -p /opt/projects/blogs/blogs_fe
+    sudo echo     "- cmd: echo 'start of the fish history'" >> /opt/projects/blogs/blogs_fe/fish_history
+    sudo chmod -R 777 /opt/projects/blogs

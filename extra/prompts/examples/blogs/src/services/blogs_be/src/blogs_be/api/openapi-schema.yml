@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: Blogs API
+  version: 1.0.0
+  description: Blogs REST API
+paths:
+  /api/blogs/blogs/{blog_id}/blog-posts/:
+    post:
+      operationId: blogs_blogs_blog_posts_create
+      parameters:
+        - in: path
+          name: blog_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      tags:
+        - blogs
+      security:
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+          description: ''
+components:
+  schemas:
+    BlogPost:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        content:
+          type: string
+          nullable: true
+        title:
+          type: string
+        blog:
+          type: string
+          format: uuid
+      required:
+        - blog
+        - created_at
+        - id
+        - modified_at
+        - title
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

@@ -1,0 +1,22 @@
+[project]
+name = "mn-prompts"
+description = "Maarten Nieber's code generation prompts"
+version = "1.0.0"
+readme = "README.md"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+mn-prompts = "mn_prompts.runtime.entrypoints.mn_prompts:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=64"]  # 64+ is needed for PEP 660 editable installs
+build-backend = "setuptools.build_meta"

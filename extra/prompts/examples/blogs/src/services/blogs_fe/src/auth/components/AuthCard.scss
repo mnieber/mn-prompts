@@ -1,0 +1,10 @@
+.AuthCard {
+  a {
+    @apply underline;
+  }
+
+  .AuthCard__Inner {
+    @apply rounded-lg bg-blue-950;
+    @apply text-gray-text;
+  }
+}

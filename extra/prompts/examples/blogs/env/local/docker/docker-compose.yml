@@ -1,0 +1,39 @@
+services:
+  blogs_be:
+    container_name: blogs_be
+    build:
+      context: ${ROOT_DIR}/src
+      dockerfile: services/blogs_be/Dockerfile
+    command: sleep infinity
+    depends_on:
+      - postgres
+    env_file:
+      - ./env_files/blogs_be.env
+    image: blogs_be
+    ports:
+      - 8000:8000 # Django
+  blogs_fe:
+    container_name: blogs_fe
+    build:
+      context: ${ROOT_DIR}/src
+      dockerfile: services/blogs_fe/Dockerfile
+    command: sleep infinity
+    depends_on:
+      - blogs_be
+    env_file:
+      - ./env_files/blogs_fe.env
+    image: blogs_fe
+    ports:
+      - 3000:3000 # React
+      - 6008:6008 # Storybook
+  postgres:
+    container_name: blogs_postgres
+    env_file:
+      - ./env_files/postgres.env
+    image: postgres:14.0
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data: {}

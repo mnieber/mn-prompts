@@ -1,0 +1,25 @@
+.AuthPage {
+  input:focus,
+  textarea:focus {
+    @apply outline-0;
+  }
+}
+
+.AuthPage {
+  @media screen and (max-width: 1000px) {
+    @apply flex flex-col justify-center;
+  }
+  @media screen and (min-width: 1000px) {
+    @apply flex flex-row justify-center;
+  }
+}
+
+.AuthPage__Gap {
+  @media screen and (max-width: 1400px) {
+    @apply w-[100px];
+    @apply h-[100px];
+  }
+  @media screen and (min-width: 1400px) {
+    @apply w-[300px];
+  }
+}

@@ -1,0 +1,21 @@
+[project]
+name = "woodstock"
+version = "0.1.0"
+readme = "README.md"
+dependencies = ["dataclassy", "boto3", "bottle"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "moto[s3]>=4.0.0"]
+
+[project.scripts]
+woodstock = "woodstock.server.entrypoints.woodstock:main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"

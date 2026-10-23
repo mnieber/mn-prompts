@@ -1,0 +1,16 @@
+[project]
+name = "blogs_be"
+description = "Blogs Backend Application"
+version = "0.1.0"
+readme = "README.md"
+dependencies = []
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"

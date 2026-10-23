@@ -1,0 +1,17 @@
+.BlogListViewItem {
+  display: flex;
+  cursor: pointer;
+  flex-direction: row;
+  margin-bottom: 2px;
+  color: white;
+  user-select: none;
+}
+
+.BlogListViewItem--selected {
+  @apply text-blue-400;
+}
+
+.BlogListViewItem--highlighted {
+  text-decoration: underline;
+  @apply font-bold;
+}

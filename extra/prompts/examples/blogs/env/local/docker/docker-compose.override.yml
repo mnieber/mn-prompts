@@ -1,0 +1,28 @@
+services:
+  blogs_be:
+    volumes:
+      # General overlays
+      - $HOME/.config/pudb:/root/.config/pudb
+      - /opt/projects/sunya/blogs_be/assets:/app/assets
+      - /opt/projects/sunya/blogs_be/dumps:/app/dumps
+      - /opt/projects/sunya/blogs_be/fish_history:/root/.local/share/fish/fish_history
+      - /opt/projects/sunya/blogs_be/ipython:/root/.ipython
+      - /opt/projects/sunya/blogs_be/log:/app/log
+      - /opt/projects/sunya/blogs_be/pytest_report.html:/app/pytest_report.html
+      # Django-specific overlays
+      - /opt/projects/sunya/blogs_be/media:/app/media
+      - /opt/projects/sunya/blogs_be/static:/app/static
+      # Lib code overlays
+      - /home/maarten/projects/woodstock/src/libs/woodstock:/app/libs/woodstock
+  blogs_fe:
+    volumes:
+      # General overlays
+      - /opt/projects/sunya/blogs_fe/fish_history:/root/.local/share/fish/fish_history
+      # Npm package overlays
+      - /home/maarten/projects/skandha-facets/src:/npm/skandha-facets
+      - /home/maarten/projects/skandha-mobx/src:/npm/skandha-mobx
+      - /home/maarten/projects/skandha/src:/npm/skandha
+      - /home/maarten/projects/mobx-resource-states/src:/npm/mobx-resource-states
+      - /home/maarten/projects/react-props-from-context/src:/npm/react-props-from-context
+      - /home/maarten/projects/react-form-state-context/src:/npm/react-form-state-context
+      - /home/maarten/projects/react-nav-handler/src:/npm/react-nav-handler

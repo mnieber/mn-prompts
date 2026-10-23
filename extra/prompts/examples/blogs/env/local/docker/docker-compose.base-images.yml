@@ -1,0 +1,6 @@
+services:
+  base_python:
+    build:
+      context: ./base_images
+      dockerfile: Dockerfile.base.python
+    image: blogs_base_python

@@ -1,0 +1,2 @@
+pip-compile:
+    uv pip compile --python-version=3.12 --upgrade requirements.in requirements.editable -o requirements.txt

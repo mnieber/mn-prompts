@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+# install pkg dependencies
+RUN apk update && apk add \
+    make
+
+RUN corepack enable
+
+# install dev pkg dependencies
+RUN apk update && apk add \
+    bash \
+    curl \
+    fish \
+    nano
+
+# Install just
+RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+WORKDIR /app/src
