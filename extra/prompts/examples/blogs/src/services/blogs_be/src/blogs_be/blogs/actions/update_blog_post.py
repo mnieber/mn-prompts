@@ -30,7 +30,9 @@ def update_blog_post(update_blog_post_form: UpdateBlogPostForm, blog_post: BlogP
 def _validate_args(update_blog_post_form: UpdateBlogPostForm, blog_post: BlogPost):
     if (
         update_blog_post_form.title
-        and BlogPost.objects.filter(title=update_blog_post_form.title)
+        and BlogPost.objects.filter(
+            title=update_blog_post_form.title, blog=blog_post.blog
+        )
         .exclude(id=blog_post.id)
         .exists()
     ):

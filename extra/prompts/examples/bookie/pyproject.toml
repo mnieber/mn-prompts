@@ -3,7 +3,10 @@ name = "bookie"
 description = "Bookie Application"
 version = "0.1.0"
 readme = "README.md"
-dependencies = []
+dependencies = ["dataclassy", "lorem"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
 
 [project.scripts]
 bookie = "bookie.runtime.entrypoints.bookie:main"
@@ -13,6 +16,9 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["setuptools>=45", "wheel"]

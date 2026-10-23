@@ -38,7 +38,7 @@ class DeleteBlogPostsApiView(APIView):
                 request_data.delete_blog_posts_form, blog=blog
             )
         except BlogPostsNotFoundError as e:
-            return ValidationError(
+            raise ValidationError(
                 code="BLOG_POSTS_NOT_FOUND", detail=f"{e.missing_ids}"
             )
         return Response(

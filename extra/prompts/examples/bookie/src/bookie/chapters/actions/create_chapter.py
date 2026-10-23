@@ -15,7 +15,7 @@ class CreateChapterForm:
 
     title: str
     nr_of_paragraphs: int
-    content_mode: TitleStyles
+    content_mode: TitleStyles = TitleStyles.NORMAL
 
 
 def create_chapter(book: Book, create_chapter_form: CreateChapterForm) -> Chapter:

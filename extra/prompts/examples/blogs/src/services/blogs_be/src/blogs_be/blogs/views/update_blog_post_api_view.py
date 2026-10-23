@@ -1,5 +1,6 @@
 from blogs_be.blogs.actions.update_blog_post import (
     BlogPostWithTitleAlreadyExistsError,
+    UpdateBlogPostFormContainsForbiddenWordsError,
     update_blog_post,
 )
 from blogs_be.blogs.permissions import user_is_blog_owner
@@ -44,6 +45,8 @@ class UpdateBlogPostApiView(APIView):
             )
         except BlogPostWithTitleAlreadyExistsError:
             raise ValidationError(code="BLOG_WITH_THIS_TITLE_ALREADY_EXISTS")
+        except UpdateBlogPostFormContainsForbiddenWordsError as e:
+            raise ValidationError(code="FORM_CONTAINS_FORBIDDEN_WORDS", detail=str(e))
 
         return Response(
             BlogPostSerializer(updated_blog_post).data, status=status.HTTP_200_OK

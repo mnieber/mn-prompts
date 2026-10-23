@@ -36,7 +36,9 @@ def _validate_args(create_blog_form: CreateBlogForm):
     if has_forbidden_words(create_blog_form.name):
         raise CreateBlogFormContainsForbiddenWordsError("name")
 
-    if has_forbidden_words(create_blog_form.description):
+    if create_blog_form.description and has_forbidden_words(
+        create_blog_form.description
+    ):
         raise CreateBlogFormContainsForbiddenWordsError("description")
 
 

@@ -56,7 +56,7 @@ Shortcut function patterns.
 
 ### Tests
 
-Tests for actions, API views, and permissions.
+Workflow tests and impl tests that use the API like the frontend does (Django additions to `py-write-workflow-tests`).
 → [dj-write-tests](./skills/dj-write-tests.md)
 
 ### Settings

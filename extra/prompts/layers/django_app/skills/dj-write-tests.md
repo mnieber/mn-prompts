@@ -1,161 +1,106 @@
 # Skill: dj-write-tests
 
-Applies when writing tests for actions, API views, and permissions in a Django app module.
+Applies when writing tests for a Django app. The tests are workflow tests and impl tests: follow the
+`py-write-workflow-tests` skill of the python_lib layer. This skill only adds what is specific to Django.
 
 Primary references:
-- `blogs_be/src/blogs_be/blogs/tests/actions/create_blog_post/test_create_blog_post_action.py`
-- `blogs_be/src/blogs_be/blogs/tests/views/create_blog_post_api_view/test_create_blog_post_api_view.py`
-- `blogs_be/src/blogs_be/blogs/tests/permissions/test_user_is_blog_owner_permission.py`
+
+- `blogs_be/tests/blogs_be_test_env.py` (the base `Context` and `TestEnv`)
+- `blogs_be/tests/blogs_tests/blogs_test_env.py` (the API actions of a feature)
+- `blogs_be/tests/blogs_tests/test_blogs/test_a_user_edits_and_deletes_a_blog_post.py` (a workflow test)
+- `blogs_be/tests/blogs_tests/test_blogs_impl/test_blog_ownership.py` (permissions)
 
 ---
 
-## File locations
+## File layout
 
-```
-<module>/tests/actions/<action_name>/test_<action_name>_action.py
-<module>/tests/views/<view_name>/test_<view_name>.py
-<module>/tests/permissions/test_<permission_name>_permission.py
-```
+The tests live in the `tests/` directory of the service (not inside the app package), with one test package per
+module (e.g. `blogs_tests`, `users_tests`). Add `testpaths = ["tests"]` to the `[tool.pytest.ini_options]` of
+`pyproject.toml`.
 
-## Action tests
+The impl tests are grouped by theme, e.g. `test_create_blog_post_validation.py`, `test_update_blog_post_validation.py` and
+`test_blog_ownership.py`.
 
-Test the action function directly. Use pytest fixtures to create the database state, and assert on the returned object or on raised exceptions.
+## Use the API like the frontend does
 
-```python
-import pytest
-from blogs_be.blogs.actions.create_blog_post import (
-    BlogPostWithTitleAlreadyExistsError,
-    CreateBlogPostForm,
-    create_blog_post,
-)
-from blogs_be.blogs.tests.factories import BlogFactory, BlogPostFactory
-from blogs_be.users.tests.factories import UserFactory
-
-
-class TestCreateBlogPostAction:
-    @pytest.fixture()
-    def blog_owner(self):
-        return UserFactory()
-
-    @pytest.fixture
-    def blog(self, blog_owner):
-        return BlogFactory(owner=blog_owner)
-
-    @pytest.mark.django_db
-    def test_create_blog_post_action_success(self, blog):
-        create_blog_post_form = CreateBlogPostForm(title="Test BlogPost", content="A test blog post")
-        blog_post = create_blog_post(create_blog_post_form, blog=blog)
-        assert blog_post.title == "Test BlogPost"
-
-    @pytest.mark.django_db
-    def test_create_blog_post_action_with_existing_title(self, blog):
-        BlogPostFactory(title="Existing BlogPost", blog=blog)
-        create_blog_post_form = CreateBlogPostForm(title="Existing BlogPost", content="...")
-        with pytest.raises(BlogPostWithTitleAlreadyExistsError):
-            create_blog_post(create_blog_post_form, blog=blog)
-```
-
-RULE: Test one success case and one case per exception the action can raise. Do not test every combination of inputs — keep action tests focused on boundary conditions that the action itself enforces.
-
-## API view tests
-
-Use `APIClient` and `reverse()`. Verify the HTTP status code and the response JSON shape using `deepdiff.DeepDiff`.
-
-Always include a separate `test_<view_name>_permissions` test that uses `checks_permission` to verify the view is wired to the correct permission function. This test does not require `@pytest.mark.django_db`.
+The scenarios start with the frontend calling an API view, so the tests do the same. An action posts to (or gets
+from) a url with the `APIClient`, and stores the response in `env.response`:
 
 ```python
-import deepdiff
-import pytest
-from blogs_be.blogs.permissions import user_is_blog_owner
-from blogs_be.blogs.tests.factories import BlogFactory
-from blogs_be.blogs.views.create_blog_post_api_view import CreateBlogPostApiView
-from django.urls import reverse
-from rest_framework.test import APIClient
-
-from blogs_be.api.utils.extend_schema.permissions import checks_permission
-from blogs_be.common.utils.test_utils import DeepDiffOperator, rhs_is_not_none
-from blogs_be.users.tests.factories import UserFactory
-
-
-class TestCreateBlogPostApiView:
-    @pytest.fixture()
-    def api_client(self):
-        return APIClient()
-
-    @pytest.fixture()
-    def blog_owner(self):
-        return UserFactory()
-
-    @pytest.fixture()
-    def blog(self, blog_owner):
-        return BlogFactory(owner=blog_owner)
-
-    @pytest.mark.django_db()
-    def test_create_blog_post_api_view_success(self, api_client, blog_owner, blog):
-        api_client.force_authenticate(user=blog_owner)
-        url = reverse("create-blog-post", kwargs=dict(blog_key=blog.slug))
-        response = api_client.post(
-            url,
-            data=dict(create_blog_post_form=dict(title="My blog title", content="My blog content")),
+class TestEnv(BlogsBeTestEnv):
+    def create_blog_post(self, blog_slug: str, title: str, content=None):
+        self._post(
+            "create-blog-post",
+            url_kwargs=dict(blog_key=blog_slug),
+            create_blog_post_form=dict(title=title, content=content),
         )
-        assert response.status_code == 201
-        result = response.json()
-        diff = deepdiff.DeepDiff(
-            {"id": "some id", "blog_id": str(blog.id), "title": "My blog title"},
-            result,
-            custom_operators=[DeepDiffOperator(rhs_is_not_none, "id")],
-        )
-        assert not diff, f"JSON response differs: {diff.pretty()}"
-
-    def test_create_blog_post_api_view_permissions(self):
-        assert checks_permission(CreateBlogPostApiView.post, user_is_blog_owner)
 ```
 
-RULE: Do not re-test that the api-view handles every exception the underlying action may raise. Since the action tests already verify those conditions, duplicating them in the api-view test bloats the test suite without adding value.
+- `_post` and `_get` are private helpers of the base `TestEnv` that call `reverse()` with the url name.
+- Use the slug (not the id) as the url key when the view accepts both: it makes the test easier to read.
 
-## Permission tests
+## Errors are responses
 
-Test each permission function directly, verifying both the allow and deny branches.
+An API view turns an error into a response, so the tests don't need `*_and_catch_error` actions. Assert on the
+status code, and on the error codes (via the `env.error_codes()` query):
 
 ```python
-import pytest
-from blogs_be.blogs.permissions import user_is_blog_owner
-from blogs_be.blogs.tests.factories import BlogFactory
-from blogs_be.users.tests.factories import UserFactory
+    # Alice creates a second blog post with the same title in the same blog.
+    #
+    # It should fail with BLOG_POST_TITLE_ALREADY_EXISTS.
+    if env.step(
+        env.create_blog_post(JAZZ_NOTES, TITLE),
+    ):
+        assert env.response.status_code == 400
+        assert env.error_codes() == ["BLOG_POST_TITLE_ALREADY_EXISTS"]
+```
 
+## Users and permissions
 
-class TestUserIsBlogOwnerPermission:
-    @pytest.fixture()
-    def blog_owner(self):
-        return UserFactory()
+- Users sign up and sign in through the API (`env.sign_up_and_sign_in(ALICE)`). Signing in makes the `APIClient`
+  send the access token in the next requests, and `env.sign_out()` stops it. Don't use `force_authenticate`.
+- A test can switch between users by signing in as another user.
+- Permissions are tested through their behaviour: another user tries the action, gets a 403, and nothing changes
+  (see `test_blog_ownership.py`). There are no separate tests of the permission functions.
 
-    @pytest.fixture()
-    def other_user(self):
-        return UserFactory()
+## The database
 
-    @pytest.fixture
-    def blog(self, blog_owner):
-        return BlogFactory(owner=blog_owner)
+- The `context` fixture in the `conftest.py` of the test package depends on the `db` fixture of pytest-django, so
+  the tests don't need a `@pytest.mark.django_db` marker:
 
-    @pytest.mark.django_db
-    def test_user_is_blog_owner_success(self, blog, blog_owner):
-        result = user_is_blog_owner(blog_owner, blog)
-        assert result.permission_allowed
-        assert result.reason is None
+  ```python
+  @pytest.fixture
+  def context(db):
+      return Context(api_client=APIClient())
+  ```
 
-    @pytest.mark.django_db
-    def test_user_is_blog_owner_failure_not_owner(self, blog, other_user):
-        result = user_is_blog_owner(other_user, blog)
-        assert not result.permission_allowed
-        assert result.reason == "User must be the blog owner"
+- Queries may read the database, e.g. to get the id of a blog post (`env.blog_post_id(TITLE)`), or to check that
+  nothing was deleted (`env.blog_post_titles(BLOG_SLUG)`).
+- Create the starting state through the API. Use a factory (see [dj-write-factories](./dj-write-factories.md))
+  only for a state that the API can't create (e.g. an inactive user), in an action whose docstring says why.
+
+## Checking a response
+
+Compare the JSON of a response with a plain dict. Get the expected ids from the database (or from
+`env.user_ids`), not from the response itself:
+
+```python
+        assert env.response_json() == {
+            "id": env.blog_post_id(TITLE),
+            "title": TITLE,
+            "slug": "kind-of-blue",
+            "blog_id": env.blog_id(BLOG_SLUG),
+            "content": CONTENT,
+            "is_published": False,
+            "level": "medium",
+        }
 ```
 
 ## Checklist
 
-- [ ] Action tests: one success case + one case per exception type
-- [ ] Action tests: use `pytest.raises` to assert exceptions
-- [ ] API view tests: include a `test_..._permissions` test using `checks_permission`
-- [ ] API view tests: do not duplicate action exception coverage
-- [ ] API view tests: use `deepdiff.DeepDiff` for response JSON comparison
-- [ ] Permission tests: cover both `allow` and `deny` branches
-- [ ] All database tests marked with `@pytest.mark.django_db`
+- [ ] The tests follow the `py-write-workflow-tests` skill
+- [ ] Each scenario has a workflow test; the edge cases are in impl tests, grouped by theme
+- [ ] Actions call the API with the `APIClient`, and store the response in `env.response`
+- [ ] Errors are checked with the status code and `env.error_codes()`
+- [ ] Users sign in through the API; permissions are tested through their behaviour (403)
+- [ ] The `context` fixture depends on `db`; factories are only used for states that the API can't create
