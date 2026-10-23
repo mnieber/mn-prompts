@@ -1,4 +1,5 @@
 import React from 'react';
+import { observer } from 'mobx-react-lite';
 import { AuthState } from '/src/auth/AuthState';
 import { useLoadUserId } from '/src/auth/endpoints/queries';
 import { States } from '/src/auth/endpoints/states';
@@ -8,7 +9,7 @@ import { useBuilder } from '/src/utils/hooks/useBuilder';
 
 type PropsT = React.PropsWithChildren<{}>;
 
-export const AuthStateProvider = (props: PropsT) => {
+export const AuthStateProvider = observer((props: PropsT) => {
   const authState = useBuilder(() => new AuthState(States.INITIAL));
   useLoadUserId(authState);
 
@@ -23,4 +24,4 @@ export const AuthStateProvider = (props: PropsT) => {
       {props.children}
     </AuthStateContext.Provider>
   );
-};
+});
