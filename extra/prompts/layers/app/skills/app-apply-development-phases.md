@@ -34,7 +34,7 @@ You write the code that makes the tests pass, following the skills of the layer.
 ## 4. Scenarios
 
 The scenarios (`extra/spec_src/scenarios/`) are updated with the changes that affect the high-level workflows and
-features (see [writing specs](./writing_specs/instructions-for-writing-specs.md)). Edge cases and details are left
+features (see [writing specs](./app-write-specs.md)). Edge cases and details are left
 to the tests.
 
 - Split the affected scenarios in one ore more suitable batches (as you see fit), write/update the scenarios for a batch, and ask me to review.

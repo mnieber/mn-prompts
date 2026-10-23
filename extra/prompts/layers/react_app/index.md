@@ -73,16 +73,6 @@ Write isolated stories for standalone views and reusable components, backed by M
 
 ---
 
-### Key Principles
-
-- **camelCase file names** - File and directory names match the spec name in camelCase (e.g. `BlogPostsState/`, `useCreateBlog.ts`)
-- **One file per code unit** - Each mutation hook, query hook, State, StateProvider, or component gets its own file
-- **Props not unpacked** - Component props are accessed as `props.foo`, not destructured
-- **MobX + React Context** - State is MobX-observable; Contexts pass it to consuming components
-- **Types in api module** - TypeScript types often live in the `api/types/` directory since they cut across feature modules
-- **Follow the examples** - The blogs_fe example serves as the primary reference template
-- **Explicit is better** - When in doubt, ask for spec clarification rather than guessing
-
 ## Key Principles
 
 - **camelCase file names** - File and directory names match the spec name in camelCase (e.g. `BlogPostsState/`, `useCreateBlog.ts`)

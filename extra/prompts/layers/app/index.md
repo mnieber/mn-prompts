@@ -1,40 +1,35 @@
-# General instructions for writing applications
+# Development of Applications
 
-Start with the [development workflow](./development_workflow.md): it describes the phases (design, tests, code
-and scenarios), and what to do in each of them.
+When you are asked to work on an application (in any phase: design, tests, code or scenarios), identify which of the below skills are needed and apply them.
 
-# Using specifications
+## Skills
 
-## 1. Writing Specifications
+### Development phases
 
-If you're writing specifications:
+The four phases of developing a feature (design, tests, code and scenarios), and what to do in each of them. Start here.
+→ [app-apply-development-phases](./skills/app-apply-development-phases.md)
 
-- Start with [./writing_specs/instructions-for-writing-specs.md](./writing_specs/instructions-for-writing-specs.md)
-- See examples in [examples/bookie/extra/spec_src/scenarios/](./examples/bookie/extra/spec_src/scenarios/)
+### Writing specs
 
-**[instructions-for-writing-specs.md](./writing_specs/instructions-for-writing-specs.md)**
+How to write scenario specs: implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section.
+→ [app-write-specs](./skills/app-write-specs.md)
 
-- How to write scenario specs
-- Implicit code-unit declarations in scenarios
-- Scenario syntax and DSL (goals, steps, markdown sections)
-- The `sunya` package and special modules
+### Mapping specs to implementation
 
-## 2. Mapping Specs to Implementation
+How the module namespaces and code-units in the scenario specs map onto feature packages and source files.
+→ [app-map-specs-to-implementation](./skills/app-map-specs-to-implementation.md)
 
-If you're implementing from specifications:
+### Generating code
 
-- Start with [./using_specs/instructions-for-mapping-specs-to-implementation.md](./using_specs/instructions-for-mapping-specs-to-implementation.md)
-- Then read [general code generation instructions](./general_code_generation_instructions/) — rules for following project instructions and using example code as templates
+General rules for generating code: following `RULE:`s closely, using the code-unit specific skills, and using example code as a template.
+→ [app-generate-code](./skills/app-generate-code.md)
 
-**[instructions-for-mapping-specs-to-implementation.md](./using_specs/instructions-for-mapping-specs-to-implementation.md)**
+---
 
-- Section naming conventions (PascalCase → snake_case)
-- File structure patterns
-- Settings consolidation
-- Validation by the tests
+## Key Principles
 
-## Notes
-
-- The `External` module is virtual and only used for external actors in scenarios
-- All code-units (actions, models, rules, etc.) are implicitly declared in scenario specs
-- The `sunya` package renders specs to Markdown but this is optional for implementation
+- **Specs describe the high-level design** — edge cases and details are left to the tests
+- **Implicit declarations** — all code-units (actions, models, rules, etc.) are implicitly declared in scenario specs
+- **The External module is virtual** — it is only used for external actors in scenarios
+- **Follow the examples** — the example spec_src and src directories show how specs map to code
+- **Explicit is better** — when in doubt, ask for spec clarification rather than guessing

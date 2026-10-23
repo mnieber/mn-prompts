@@ -5,7 +5,7 @@ This directory contains instructions for a spec-driven software development proc
 ## Overview
 
 The development process has four phases (design, tests, code and scenarios), which are described in the
-[development workflow](./app_layer/development_workflow.md). Before you write code (or a plan for it), read
+[development workflow](./app_layer/skills/app-apply-development-phases.md). Before you write code (or a plan for it), read
 [python_lib/index.md](./python_lib_layer/index.md) to identify the skills that apply to the code units, and follow
 them closely.
 
