@@ -16,4 +16,7 @@ RUN apk update && apk add \
 # Install just
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
+# Install claude code
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
 WORKDIR /app/src

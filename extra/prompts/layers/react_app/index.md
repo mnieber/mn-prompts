@@ -71,6 +71,11 @@ Compose providers, `AppBody`, and Switch components in `App.tsx`.
 Write isolated stories for standalone views and reusable components, backed by MSW handlers.
 → [fe-add-storybook](./skills/fe-add-storybook.md)
 
+### Workflow tests
+
+Write Playwright workflow tests (and impl, state and unit tests) that read like a story and serve as the spec for the code.
+→ [fe-write-workflow-tests](./skills/fe-write-workflow-tests.md)
+
 ### Npm overlays
 
 Use the source code of an npm library on the developer's machine (via a `portal:` dependency and a volume in `docker-compose.override.yml`) instead of the published package.

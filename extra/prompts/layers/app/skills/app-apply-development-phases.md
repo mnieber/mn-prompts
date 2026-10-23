@@ -15,13 +15,15 @@ and less important edge-cases can be identified later.
 
 Translate the design doc into a test_plan.md document that contains a high-level description of the tests. Group the tests
 in in batches (one feature or group of related features per batch). The described tests will be written before the code exists.
-The tests follow the workflow-test skill file of the layer (for Python: the `py-write-workflow-tests` skill).
+The tests follow the workflow-test skill file of the layer (for Python: the `py-write-workflow-tests` skill; for React
+apps: the `fe-write-workflow-tests` skill).
 
 - Before writing a batch, ask me about the design choices that change what the tests assert, and propose an
   answer. I often refine the proposal.
 - Record every decision in the design doc, so that it stays the single description of the design.
 - The tests are the spec of the code structure: what they import (e.g. the action file that defines an error)
-  implies which code units exist and where they live.
+  implies which code units exist and where they live. Browser tests import no app code; there, the urls, component
+  names, fake endpoints and field labels that they use play this role.
 
 ## 3. Code
 
