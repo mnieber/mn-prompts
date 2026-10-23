@@ -19,9 +19,3 @@ RULE: Please inspect the example code and example spec_src to understand how the
 ## Mapping of specs onto filenames and function names
 
 Note that usually each source code file is focussed on one particular function or class (plus helper functions). Group files (that group a family of related functions or classes) are used rarely.
-
-## Validation
-
-The tests validate that the implementation matches the specs: what they import and call implies the code units
-and where they live (see the [development workflow](../development_workflow.md)). If you think something is missing
-in the specs or the tests, ask me to clarify it before you generate the code.
