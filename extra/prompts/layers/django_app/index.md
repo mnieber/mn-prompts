@@ -4,6 +4,11 @@ When you are asked to generate code, or to plan for generating code, identify wh
 
 ## Skills
 
+### Use django specs
+
+An instruction on how to construct filenames for a Django code-base from the specification contents.
+→ [dj-use-django-specs](./skills/dj-use-django-specs.md)
+
 ### Django model
 
 A Django ORM model class (e.g. using `SingleLineTextField` for short strings).
