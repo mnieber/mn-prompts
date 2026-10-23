@@ -57,6 +57,8 @@ export const useFieldProps = (props: FieldPropsT) => {
 
   return {
     ...formFieldProps,
+    // Matches the htmlFor of the FormFieldLabel
+    id: fieldName,
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
       onFocus && onFocus(e);
       if (autoSelect) {

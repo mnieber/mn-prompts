@@ -3,5 +3,7 @@ export function wait<T>(ms: number, value: T) {
 }
 
 export function waitOnDev<T>(ms: number, value: T) {
-  return wait(import.meta.env.DEV ? ms : 0, value);
+  // No simulated latency in the tests
+  const isDev = import.meta.env.DEV && import.meta.env.MODE !== 'test';
+  return wait(isDev ? ms : 0, value);
 }

@@ -38,15 +38,18 @@ Rules of thumb:
 ## File layout
 
 ```
-playwright.config.ts                   ← enabledTestPackages (see below), webServer, baseURL
+playwright.config.ts                   ← enabledTestPackages (see below), webServer, browser settings
 tests/
+  tsconfig.json                        ← adds the `/tests/*` import path
   testEnv/
     TestEnv.ts                         ← the shared TestEnv base class
     FakeBackend.ts                     ← the fake REST backend (records requests, in-memory data)
     fixtures.ts                        ← `test` (with the `ctx` fixture) and the `Ctx` type
+    urls.ts                            ← baseURL and apiUrl (shared with playwright.config.ts)
     endpoints/
+      index.ts                         ← the list of all fake endpoints
       getBlogs.ts                      ← one fake endpoint per query or mutation
-      createBlogPost.ts
+      createBlog.ts
   <feature>/
     <Feature>TestEnv.ts                ← the shared Env base class of the feature
     workflows/
@@ -84,7 +87,7 @@ test('a user creates a blog post', async ({ ctx }) => {
   const env = createEnv(ctx);
 
   // We are signed in, and we have the blog Judo without blog posts.
-  if (env.step(await env.signIn('maarten'), await env.backend.addBlog(JUDO))) {
+  if (env.step(await env.signIn('maarten'), await env.addBlog(JUDO))) {
   }
 
   // We visit the Judo blog.
@@ -177,15 +180,15 @@ encodes the code structure through what it touches. Use these on purpose, becaus
 
 An Env holds the **state** of a test (attributes) and the **actions** that change it (methods).
 
-- `Ctx` is a type with the Playwright fixtures that the tests need (`page`, `baseURL`). The `ctx` fixture is defined
-  with `test.extend` in `tests/testEnv/fixtures.ts`, and tests take `{ ctx }` as their only argument. (Don't call it
-  `context`: Playwright already has a `context` fixture.)
+- `Ctx` is a type with what the tests need: the Playwright `page`, the installed `backend` and the `pageErrors`. The
+  `ctx` fixture is defined with `test.extend` in `tests/testEnv/fixtures.ts`: it installs the fake backend on the page
+  (this is async, so it can't happen in a constructor) and collects uncaught page errors. Tests take `{ ctx }` as their
+  only argument. (Don't call it `context`: Playwright already has a `context` fixture.)
 - The base `TestEnv` lives in `tests/testEnv/TestEnv.ts`. Its constructor declares the common state (every attribute
-  initialized to `undefined` or empty, so that a reader sees which state exists): `page`, `backend`, `pageErrors`. It
-  installs the fake backend on the page, collects uncaught page errors in `pageErrors`, and calls the hook
-  `postInit()`. `step(..._: unknown[])` ignores its arguments and returns `true`.
-- The `ctx` fixture fails the test in its teardown when `env.pageErrors` or `env.backend.unexpectedRequests` is not
-  empty (unless the test cleared them on purpose).
+  initialized, so that a reader sees which state exists): `page`, `backend`, `pageErrors`, copied from `ctx`. It
+  calls the hook `postInit()`. `step(..._: unknown[])` ignores its arguments and returns `true`.
+- The `ctx` fixture fails the test in its teardown when `pageErrors` or `backend.unexpectedRequests` is not empty.
+  (Console errors are not page errors: they don't fail the test.)
 - A feature with many shared actions gets an intermediate base class in `tests/<feature>/<Feature>TestEnv.ts` (e.g.
   `blogListItem(name)`, `addBlogWithPosts(...)`).
 - Each test file ends with its own `class Env extends ...`, which adds only the actions that this file needs. Prefer
@@ -207,10 +210,11 @@ Rules for actions:
 ## The fake backend
 
 The backend is the boundary of the app, and the only thing that is faked. `FakeBackend` intercepts the requests to
-the api host with `page.route(...)`.
+the api url with `page.route(...)`.
 
-- It holds a small in-memory data set (e.g. `blogs`, `blogPosts`, `userId`). Actions seed it (`env.backend.addBlog(...)`,
-  `env.signIn(...)`) before the page is visited.
+- It holds a small in-memory data set (e.g. `blogs`, `blogPosts`, `userId`), with rows in the shape of the real
+  backend (`BlogRowT`, snake_case). Env actions seed it (`env.addBlog(...)`, `env.signIn(...)`) before the page is
+  visited.
 - Each query and mutation of the app has one fake endpoint in `tests/testEnv/endpoints/`, named after the hook
   (`getBlogs`, `createBlogPost`). It matches the method and url, reads/updates the data set, and returns json in the
   shape of the real backend (snake_case). A mutation updates the data set, so that a following query (after cache
@@ -227,11 +231,17 @@ the api host with `page.route(...)`.
 
 ## Running the app under test
 
+- `yarn test:workflows` runs the Playwright tests.
 - `playwright.config.ts` starts the app with `webServer` (`yarn vite --mode test --port 3100`), with
-  `VITE_LOCALHOST_API_ENDPOINT` set to a fake host (`http://api.test/`) that the fake backend intercepts.
+  `VITE_LOCALHOST_API_ENDPOINT` set to `http://localhost:3100/fake-api/`, which the fake backend intercepts. The api
+  url has the same origin as the app, so that CORS plays no role.
 - `serviceWorkers: 'block'` in the config, so that MSW can never answer instead of the fake backend.
 - `waitOnDev` returns immediately in test mode (`import.meta.env.MODE === 'test'`), so that the tests don't wait for
   simulated latency.
+- Playwright's own browsers don't run on Alpine (our `node:20-alpine` image). There, install `chromium` with `apk`;
+  the config uses `/usr/bin/chromium` when it exists.
+- Form inputs get `id={fieldName}` (in `useFieldProps`), so that the `FormFieldLabel` (`htmlFor={fieldName}`) labels
+  them and `getByLabel` finds them.
 - Make the environment deterministic: a fixed `locale`, `timezoneId` and viewport in the config, `page.clock` when the
   app shows dates, a fresh browser context (and so an empty `localStorage`) per test, and never depend on the
   developer's browser or shell.

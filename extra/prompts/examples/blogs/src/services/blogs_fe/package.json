@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",
+    "@playwright/test": "1.64.0",
     "@storybook/addon-essentials": "^8.2.6",
     "@storybook/addon-interactions": "^8.2.6",
     "@storybook/addon-links": "^8.2.6",
@@ -75,7 +76,8 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6008 --no-open",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test:workflows": "playwright test"
   },
   "packageManager": "yarn@4.16.0",
   "type": "module",
