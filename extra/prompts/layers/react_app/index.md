@@ -71,6 +71,11 @@ Compose providers, `AppBody`, and Switch components in `App.tsx`.
 Write isolated stories for standalone views and reusable components, backed by MSW handlers.
 → [fe-add-storybook](./skills/fe-add-storybook.md)
 
+### Npm overlays
+
+Use the source code of an npm library on the developer's machine (via a `portal:` dependency and a volume in `docker-compose.override.yml`) instead of the published package.
+→ [fe-use-npm-overlays](./skills/fe-use-npm-overlays.md)
+
 ---
 
 ## Key Principles
