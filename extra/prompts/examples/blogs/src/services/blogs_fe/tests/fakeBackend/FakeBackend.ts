@@ -7,7 +7,12 @@ import type {
 } from '/tests/fakeBackend/types';
 
 export class FakeBackend {
-  data: DataT = { userId: undefined, blogs: [], blogPosts: [] };
+  data: DataT = {
+    userId: undefined,
+    blogs: [],
+    blogPosts: [],
+    blogTags: [],
+  };
   requests: RequestT[] = [];
   unexpectedRequests: string[] = [];
 

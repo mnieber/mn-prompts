@@ -11,6 +11,10 @@ export class BlogsTestEnv extends TestEnv {
     addBlog(this.backend, values);
   }
 
+  async clickBlog(name: string) {
+    await this.blogListItem(name).click();
+  }
+
   //
   // Queries
   //

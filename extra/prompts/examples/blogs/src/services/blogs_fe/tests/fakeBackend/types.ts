@@ -21,6 +21,7 @@ export type DataT = {
   userId: string | undefined;
   blogs: BlogRowT[];
   blogPosts: BlogPostRowT[];
+  blogTags: string[];
 };
 
 export type RequestT = {

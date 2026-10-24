@@ -3,7 +3,7 @@ import fs from 'fs';
 import { apiUrl, baseURL, port } from './tests/testEnv/urls';
 
 // The test packages are enabled in the order in which their code is implemented.
-const enabledTestPackages = ['blogs'];
+const enabledTestPackages = ['blogs', 'blogPosts'];
 
 // Playwright's own browsers don't run on Alpine, so use the system chromium when it exists.
 const systemChromium = '/usr/bin/chromium';

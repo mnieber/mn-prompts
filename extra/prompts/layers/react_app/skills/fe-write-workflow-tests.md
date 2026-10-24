@@ -28,7 +28,8 @@ what differs is the tool (Playwright) and the boundary that is faked (the REST b
 
 Rules of thumb:
 
-- One workflow per test. When a workflow is finished, the next one starts in a new test.
+- One workflow per test. When a workflow is finished, the next one starts in a new test. A scenario with several
+  goals (e.g. editing and deleting blog posts) has one test per goal, in the file of the scenario.
 - Many independent edge cases are split by theme into a handful of impl tests, not one test per assert and not one
   giant test. Within a test, later steps may continue on the same page and check again.
 - Every test is self-contained: it builds its own environment (backend data, signed-in user, start url).
@@ -64,7 +65,7 @@ tests/
     <Feature>TestEnv.ts                ← the shared Env base class of the feature
     exampleData.ts                     ← example data (e.g. `JUDO`), shared with the playgrounds
     workflows/
-      <scenarioName>.spec.ts           ← one test per file, named after the scenario
+      <scenarioName>.spec.ts           ← named after the scenario, one test per goal of the scenario
     impl/
       <edgeCaseTheme>.spec.ts
     state/                             ← optional Vitest tests of the State layer
@@ -333,7 +334,7 @@ the container layout of that State.
 
 ## Checklist
 
-- [ ] One test per file, named after the scenario, in `<feature>/workflows/` or `<feature>/impl/`
+- [ ] A workflow test file is named after the scenario, and has one test per goal of the scenario (usually one)
 - [ ] Every step has a comment block (action, then "should" results) and an `if (env.step(await ...))` with asserts only
 - [ ] Asserts are web-first (`expect(locator)`) or polled (`expect.poll`); no `waitForTimeout`
 - [ ] Elements are located by role/label/text, scoped by component class; no Tailwind or structural selectors
