@@ -1,7 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as R from 'ramda';
 import { queryClient } from '/src/api/queryClient';
-import { flags } from '/src/app/flags';
 import { AuthStateProvider } from '/src/auth/components/AuthStateProvider';
 import { AuthSwitch } from '/src/auth/components/AuthSwitch';
 import { BlogPostsStateProvider } from '/src/blogPosts/components/BlogPostsStateProvider';
@@ -10,16 +9,11 @@ import { BlogsSwitch } from '/src/blogs/components/BlogsSwitch';
 import { DashboardFrame } from '/src/frames/components/DashboardFrame';
 import { MainView } from '/src/frames/components/MainView';
 import { L } from '/src/frames/layout';
-import { MockApp } from '/src/mocks/app/components/MockApp';
 import { NavStateProvider } from '/src/routes/components/NavStateProvider';
 import { cn } from '/src/utils/classnames';
 
 export const App = () => {
-  return flags.mockApp ? (
-    <AppBody>
-      <MockApp />
-    </AppBody>
-  ) : (
+  return (
     <QueryClientProvider client={queryClient}>
       <AuthStateProvider>
         <NavStateProvider>
