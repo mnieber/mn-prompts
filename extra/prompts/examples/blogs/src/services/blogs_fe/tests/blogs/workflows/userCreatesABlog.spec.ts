@@ -66,7 +66,7 @@ test('a user creates a blog', async ({ ctx }) => {
   ) {
     await expect
       .poll(() => env.backend.lastRequest('createBlog')?.body)
-      .toMatchObject({
+      .toEqual({
         create_blog_form: { name: NAME, slug: SLUG, description: DESCRIPTION },
       });
     // The slug is derived from the name (with a trailing dash).

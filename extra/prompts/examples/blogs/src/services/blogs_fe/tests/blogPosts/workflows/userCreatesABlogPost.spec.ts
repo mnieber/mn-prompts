@@ -73,9 +73,19 @@ test('a user creates a blog post', async ({ ctx }) => {
       .toMatchObject({
         // The blog is identified by its id
         path: '/blogs/blog-1/blog-posts/create/',
-        body: {
-          create_blog_post_form: { title: TITLE, slug: SLUG, content: CONTENT },
+      });
+    // The form data has exactly these fields
+    await expect
+      .poll(() => env.backend.lastRequest('createBlogPost')?.body)
+      .toEqual({
+        create_blog_post_form: {
+          title: TITLE,
+          slug: SLUG,
+          content: CONTENT,
+          level: 'medium',
+          tags: null,
         },
+        blog_id: 'blog-1',
       });
     // The slug is derived from the title (with a trailing dash).
     await expect(env.page).toHaveURL(`/blogs/judo/blog-posts/${SLUG}`);

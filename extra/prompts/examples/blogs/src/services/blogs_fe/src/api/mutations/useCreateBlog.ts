@@ -1,4 +1,5 @@
 import snakecaseKeys from 'snakecase-keys';
+import { z } from 'zod';
 import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { invalidateGetBlogs } from '/src/api/queries/useGetBlogs';
 import { post } from '/src/api/restClient';
@@ -7,17 +8,21 @@ import { parseResponse } from '/src/api/utils/parseResponse';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
+export const CreateBlogFormSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullish(),
+});
+
 export type CreateBlogArgsT = {
-  createBlogForm: {
-    name: string;
-    description: string;
-  };
+  createBlogForm: z.input<typeof CreateBlogFormSchema>;
 };
 
 export const createBlog = (args: CreateBlogArgsT) => {
   const url = `/blogs/create/`;
+  const createBlogForm = CreateBlogFormSchema.parse(args.createBlogForm);
   return post(url, {
-    create_blog_form: snakecaseKeys(args.createBlogForm),
+    create_blog_form: snakecaseKeys(createBlogForm),
   })
     .then((response) => {
       const res = parseResponse(BlogSchema, response);

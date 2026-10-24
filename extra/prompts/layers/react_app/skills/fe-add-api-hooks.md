@@ -110,28 +110,42 @@ Reference: `blogs_fe/src/api/mutations/useCreateBlogPost.ts`
 
 ```ts
 import snakecaseKeys from 'snakecase-keys';
+import { z } from 'zod';
 import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { invalidateGetBlogPosts } from '/src/api/queries/useGetBlogPosts';
 import { post } from '/src/api/restClient';
-import { BlogPostSchema } from '/src/api/types/BlogPostSchema';
+import {
+  BlogPostLevelSchema,
+  BlogPostSchema,
+} from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
 import { parseResponse } from '/src/api/utils/parseResponse';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
+// The fields that we send. Parsing the form with this schema drops the other fields
+// (e.g. isTransient).
+export const CreateBlogPostFormSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  content: z.string().nullish(),
+  level: BlogPostLevelSchema,
+  tags: z.array(z.string()).nullish(),
+});
+
 export type CreateBlogPostArgsT = {
   blog: BlogT;
-  createBlogPostForm: {
-    title: string;
-    content: string;
-  };
+  createBlogPostForm: z.input<typeof CreateBlogPostFormSchema>;
 };
 
 export const createBlogPost = (args: CreateBlogPostArgsT) => {
   const url = `/blogs/${args.blog.id}/blog-posts/create/`;
+  const createBlogPostForm = CreateBlogPostFormSchema.parse(
+    args.createBlogPostForm
+  );
   return post(url, {
-    create_blog_post_form: snakecaseKeys(args.createBlogPostForm),
-    blogId: args.blog.id,
+    create_blog_post_form: snakecaseKeys(createBlogPostForm),
+    blog_id: args.blog.id,
   })
     .then((response) => {
       const res = parseResponse(BlogPostSchema, response);
@@ -159,6 +173,13 @@ export const useCreateBlogPost = () => {
 ### Key rules
 
 - **`useObservableMutation`** — always use this instead of tanstack-query's `useMutation` directly. It wraps the result in a MobX-observable object so that `isRunning(mutation)` works in the StateProvider's `updateSources`.
+- **Form schema** — a mutation that posts a form defines the exact fields that it sends in a Zod schema
+  (`XxxFormSchema`), and derives the type of the form in `XxxArgsT` from it (`z.input<typeof XxxFormSchema>`). It
+  parses the form with the schema and posts the parsed result: this drops the fields that the form state holds but
+  that must not be sent (e.g. `isTransient`), and throws when a field is missing or has the wrong type. Use the
+  default `z.object` (not `.strict()`), because the form state always holds extra fields. Other args (e.g. `blog`)
+  keep their TypeScript type. An update form that sends the same fields as the create form uses
+  `CreateXxxFormSchema.partial()`.
 - **`snakecaseKeys`** — use to convert camelCase form keys to snake_case before posting. The server expects snake_case; the frontend works in camelCase.
 - **`post(url, body)`** — the `post` function from `restClient` does not convert keys automatically; apply `snakecaseKeys` manually on the form payload.
 - **`onSuccess` → invalidate** — always invalidate the relevant query cache in `onSuccess` so the list refreshes after a write.
@@ -178,6 +199,7 @@ export const useCreateBlogPost = () => {
 - [ ] Query hook: `OptionsT` with `enabled` added when query depends on another resource
 - [ ] Query hook: response shape wraps array/object in a named property
 - [ ] Mutation hook: uses `useObservableMutation`, not `useMutation`
+- [ ] Mutation hook: the form is parsed with an `XxxFormSchema`, and `XxxArgsT` derives the form type from it
 - [ ] Mutation hook: `snakecaseKeys` applied to form payloads before posting
 - [ ] Mutation hook: `onSuccess` invalidates the relevant query cache
 - [ ] Fake endpoint written for every query and mutation — see `fe-write-workflow-tests` skill

@@ -1,25 +1,37 @@
 import snakecaseKeys from 'snakecase-keys';
+import { z } from 'zod';
 import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { invalidateGetBlogPosts } from '/src/api/queries/useGetBlogPosts';
 import { post } from '/src/api/restClient';
-import { BlogPostSchema } from '/src/api/types/BlogPostSchema';
+import {
+  BlogPostLevelSchema,
+  BlogPostSchema,
+} from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
 import { parseResponse } from '/src/api/utils/parseResponse';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
+export const CreateBlogPostFormSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  content: z.string().nullish(),
+  level: BlogPostLevelSchema,
+  tags: z.array(z.string()).nullish(),
+});
+
 export type CreateBlogPostArgsT = {
   blog: BlogT;
-  createBlogPostForm: {
-    title: string;
-    content: string;
-  };
+  createBlogPostForm: z.input<typeof CreateBlogPostFormSchema>;
 };
 
 export const createBlogPost = (args: CreateBlogPostArgsT) => {
   const url = `/blogs/${args.blog.id}/blog-posts/create/`;
+  const createBlogPostForm = CreateBlogPostFormSchema.parse(
+    args.createBlogPostForm
+  );
   return post(url, {
-    create_blog_post_form: snakecaseKeys(args.createBlogPostForm),
+    create_blog_post_form: snakecaseKeys(createBlogPostForm),
     blog_id: args.blog.id,
   })
     .then((response) => {

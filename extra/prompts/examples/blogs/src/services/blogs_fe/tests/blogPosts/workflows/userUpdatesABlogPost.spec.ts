@@ -84,14 +84,21 @@ test('a user edits a blog post', async ({ ctx }) => {
       .toMatchObject({
         // The blog and the blog post are identified by their ids
         path: '/blogs/blog-1/blog-posts/blog-post-2/update/',
-        body: {
-          update_blog_post_form: {
-            title: NEW_TITLE,
-            // The slug does not change when the title changes
-            slug: 'o-soto-gari',
-            content: NEW_CONTENT,
-          },
+      });
+    // The form data has exactly these fields
+    await expect
+      .poll(() => env.backend.lastRequest('updateBlogPost')?.body)
+      .toEqual({
+        update_blog_post_form: {
+          title: NEW_TITLE,
+          // The slug does not change when the title changes
+          slug: 'o-soto-gari',
+          content: NEW_CONTENT,
+          level: 'medium',
+          tags: null,
         },
+        blog_id: 'blog-1',
+        blog_post_id: 'blog-post-2',
       });
     await expect(env.page).toHaveURL('/blogs/judo/blog-posts/o-soto-gari');
     await expect(env.blogPostListItems()).toHaveText([
