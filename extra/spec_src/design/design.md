@@ -12,9 +12,7 @@ skill: a markdown file in the `skills` sub-dir of a layer that describes how to 
 
 ## Targets share layers through symlinks
 
-Different targets often use the same technology. For example, both the python_lib and the django_app target use the
-app layer and the python_lib layer. Instead of duplicating these layers, each target contains symlinks to the layers
-it uses (see MS-1). The same holds for the example code, which is shared by all targets.
+Different targets often use the same technology. For example, both the python_lib and the django_app target use the app layer and the python_lib layer. Instead of duplicating these layers, each target contains symlinks to the layers it uses (see MS-1). The same holds for the example code, which is shared by all targets.
 
 ## Only editable installs are supported
 
@@ -35,6 +33,10 @@ environment, where it is deleted when that environment is recreated.
 The entrypoint locates the prompts-dir relative to the source code of the `mn_prompts` package, i.e.
 `Path(mn_prompts.__file__).parents[2] / "extra" / "prompts"`. This only works for an editable install.
 
+This location is computed by a single rule (`get_prompts_dir()`), which is also used to decide whether an existing
+`instructions` symlink belongs to mn-prompts (see MS-2). The tests replace this rule to point the entrypoint to a
+prompts-dir that they create themselves.
+
 ## The lifetime of the instructions symlink
 
 The `instructions` symlink points into the user's clone of the mn-prompts repository. This means that:
@@ -42,11 +44,12 @@ The `instructions` symlink points into the user's clone of the mn-prompts reposi
 - the symlink dangles when that clone is moved or deleted;
 - after a `git pull` in the clone, the symlink points to the updated prompts.
 
-We accept this: the user can recreate the symlink by calling `mn-prompts install <target_name>` again.
+We accept this: the user can recreate the symlink by calling `mn-prompts install <target_name>` again. The
+entrypoint only replaces a symlink that points into the `targets` sub-dir of its own prompts-dir. When the clone was moved, the old symlink points elsewhere, and the user must remove it before installing again.
 
 # Milestones
 
-## MS-1: A developer adds a new target with new layers
+## MS-1: A developer adds a new layers
 
 1. The developer creates a directory for each new layer in the `layers` sub-dir of the prompts-dir
    1. A layer contains the instructions for generating the code for a particular technology (e.g. python_lib)
@@ -62,21 +65,23 @@ We accept this: the user can recreate the symlink by calling `mn-prompts install
 3. The developer writes the `index.md` file of each new layer
    1. This file is the starting point for understanding how to generate code for that layer
    2. It lists the skills of the layer, each with a short description and a link to the skill file
-4. The developer creates a directory for the new target in the `targets` sub-dir of the prompts-dir
-   1. A target contains the instructions for generating the code for a type of application, such as a django app or a
-      react app
-   2. The directory name is the <target_name> that the user passes to `mn-prompts install` (see MS-2)
-5. The developer adds a symlink to the target directory for each layer that the target uses
+
+## MS-2: A developer adds a new target
+
+1. The developer creates a directory for the new target in the `targets` sub-dir of the prompts-dir
+   1. A target contains the instructions for generating the code for a type of application, such as a django app or a react app
+   2. The directory name is the <target_name> that the user passes to `mn-prompts install`
+2. The developer adds a symlink to the target directory for each layer that the target uses
    1. The symlink is named `<layer_name>_layer` and points to `../../layers/<layer_name>`
    2. These can be new layers as well as existing ones (see "Targets share layers through symlinks")
-6. The developer adds an `examples` symlink to the target directory that points to `../../examples`
-7. The developer writes the `index.md` file of the target
+3. The developer adds an `examples` symlink to the target directory that points to `../../examples`
+4. The developer writes the `index.md` file of the target
    1. This file is the starting point for understanding how to generate code for that target
    2. It explains which layer `index.md` files the agent should consult, and for what purpose
    3. It refers to the relevant example applications via the `examples` symlink
-8. The developer checks that the new target appears in the output of `mn-prompts list` (see MS-3)
+5. The developer checks that the new target appears in the output of `mn-prompts list` (see MS-3)
 
-## MS-2: A user installs the prompts for their project
+## MS-3: A user installs the prompts for their project
 
 1. The user clones the mn-prompts repository and pip installs it as an editable install
 2. The user calls `mn-prompts install <target_name>`
@@ -85,20 +90,25 @@ We accept this: the user can recreate the symlink by calling `mn-prompts install
       entrypoint prints an error explaining that mn-prompts must be installed as an editable install
    3. If <target_name> is not a sub-dir of the `targets` sub-dir of the prompts-dir then the entrypoint prints an error
       that lists the available targets
+   4. The entrypoint checks for these errors (and the one in 3.3) before it creates or changes any file
 3. The entrypoint creates an `instructions` symlink in the cwd that points to the target instructions for <target_name>.
    1. The symlink is named `instructions`.
-   2. The different possible target locations are in the `targets` sub-dir of the prompts-dir
+   2. The symlink is absolute: it points to `<prompts_dir>/targets/<target_name>`
    3. If `instructions` already exists in the cwd then the entrypoint prints an error
-      1. Exception: if `instructions` is a symlink into a `targets` sub-dir of an mn-prompts prompts-dir (possibly a
-         dangling one) then the entrypoint replaces it. This allows the user to repair the symlink (see "The lifetime
-         of the instructions symlink").
+      1. Exception: if `instructions` is a symlink into the `targets` sub-dir of the prompts-dir (possibly a dangling
+         one) then the entrypoint replaces it. This allows the user to repair the symlink, or to switch to another
+         target (see "The lifetime of the instructions symlink").
 4. The entrypoint copies the agents file into the cwd
    1. The file is named `AGENTS.md`.
    2. The source comes from `<prompts_dir>/agents_files/default.md`
-   3. If `AGENTS.md` already exists in the cwd then the entrypoint prints an instruction for extending it
+   3. If `AGENTS.md` already exists in the cwd then the entrypoint leaves it unchanged, and prints an instruction for
+      extending it with the contents of the source file. This is not an error: the exit code is 0.
 
-## MS-3: A user lists the available targets
+## MS-4: A user lists the available targets
 
 1. The user calls `mn-prompts list`
    1. If the prompts-dir does not exist then the entrypoint prints the same error as in MS-2
 2. The entrypoint prints the names of the sub-dirs of the `targets` sub-dir of the prompts-dir, one per line
+   1. The names are sorted alphabetically
+   2. Hidden sub-dirs (e.g. `.claude`) and files are skipped
+   3. The error for an unknown target in MS-2 lists the targets in the same way
