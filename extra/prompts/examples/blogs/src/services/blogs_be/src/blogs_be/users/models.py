@@ -26,8 +26,10 @@ class UserManager(django.contrib.auth.models.UserManager):
                 email=email,
                 password=password,
                 password_confirmation=password,
-                **extra_fields
-            )
+            ),
+            is_staff=extra_fields["is_staff"],
+            is_superuser=extra_fields["is_superuser"],
+            is_active=extra_fields["is_active"],
         )
 
     def active_with_confirmed_email(self):

@@ -28,9 +28,7 @@ class SignUpUserApiView(APIView):
     )
     def post(self, request, request_data):
         try:
-            user = create_user(request_data.create_user_form)
-            user.is_active = True
-            user.save()
+            user = create_user(request_data.create_user_form, is_active=True)
         except UserWithEmailAlreadyExistsError:
             raise ValidationError(code="USER_EMAIL_ALREADY_EXISTS")
         except PasswordsDoNotMatchError:

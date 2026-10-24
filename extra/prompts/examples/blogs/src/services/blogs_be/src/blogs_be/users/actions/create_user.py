@@ -2,7 +2,6 @@ import copy
 
 from dataclassy import dataclass
 from django.contrib.auth import get_user_model
-import typing as T
 
 
 @dataclass
@@ -10,12 +9,14 @@ class CreateUserForm:
     email: str
     password: str
     password_confirmation: str
-    is_staff: T.Optional[bool] = False
-    is_superuser: T.Optional[bool] = False
-    is_active: T.Optional[bool] = False
 
 
-def create_user(create_user_form: CreateUserForm):
+def create_user(
+    create_user_form: CreateUserForm,
+    is_staff: bool = False,
+    is_superuser: bool = False,
+    is_active: bool = False,
+):
     User = get_user_model()
 
     create_user_form = copy.deepcopy(create_user_form)
@@ -24,9 +25,9 @@ def create_user(create_user_form: CreateUserForm):
 
     user = User(
         email=create_user_form.email,
-        is_staff=create_user_form.is_staff,
-        is_superuser=create_user_form.is_superuser,
-        is_active=create_user_form.is_active,
+        is_staff=is_staff,
+        is_superuser=is_superuser,
+        is_active=is_active,
     )
 
     if not create_user_form.password:
