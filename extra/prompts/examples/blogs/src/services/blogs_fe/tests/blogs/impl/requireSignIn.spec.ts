@@ -11,14 +11,24 @@ test('a signed-in user opens the create-blog url directly', async ({ ctx }) => {
   const env = createEnv(ctx);
 
   // We are signed in.
-  if (env.step(await env.signIn('maarten'))) {
+  if (
+    env.step(
+      //
+      await env.signIn('maarten')
+    )
+  ) {
   }
 
   // We open the create-blog url (e.g. by reloading the page).
   //
   // It should show the BlogFormView, and not redirect to the sign-in page
   // while the user id is still loading.
-  if (env.step(await env.visit('/blogs/create/_'))) {
+  if (
+    env.step(
+      //
+      await env.visit('/blogs/create/_')
+    )
+  ) {
     await expect(env.view('BlogFormView')).toBeVisible();
     await expect(env.page).toHaveURL('/blogs/create/_');
   }
@@ -34,7 +44,12 @@ test('a signed-out user opens the create-blog url directly', async ({
   //
   // It should redirect to the sign-in page, with the create-blog url as the
   // next url.
-  if (env.step(await env.visit('/blogs/create/_'))) {
+  if (
+    env.step(
+      //
+      await env.visit('/blogs/create/_')
+    )
+  ) {
     await expect(env.page).toHaveURL(
       `/sign-in?nextUrl=${encodeURIComponent('/blogs/create/_')}`
     );

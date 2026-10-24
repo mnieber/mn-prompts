@@ -16,14 +16,25 @@ test('a user creates a blog', async ({ ctx }) => {
   const env = createEnv(ctx);
 
   // We are signed in, and we have the blog Judo.
-  if (env.step(await env.signIn('maarten'), await env.addBlog(JUDO))) {
+  if (
+    env.step(
+      //
+      await env.signIn('maarten'),
+      await env.addBlog(JUDO)
+    )
+  ) {
   }
 
   // We visit the blogs page.
   //
   // The BlogListView should list Judo, and the create-blog button should be
   // enabled.
-  if (env.step(await env.visit('/blogs'))) {
+  if (
+    env.step(
+      //
+      await env.visit('/blogs')
+    )
+  ) {
     await expect(env.blogListItems()).toHaveText(['Judo']);
     await expect(env.button('Create blog')).toBeEnabled();
   }
@@ -31,7 +42,12 @@ test('a user creates a blog', async ({ ctx }) => {
   // We press the create-blog button.
   //
   // It should open the BlogFormView on the create route.
-  if (env.step(await env.clickButton('Create blog'))) {
+  if (
+    env.step(
+      //
+      await env.clickButton('Create blog')
+    )
+  ) {
     await expect(env.page).toHaveURL('/blogs/create/_');
     await expect(env.view('BlogFormView')).toBeVisible();
   }
@@ -42,6 +58,7 @@ test('a user creates a blog', async ({ ctx }) => {
   // it in the BlogListView.
   if (
     env.step(
+      //
       await env.fillField('NAME', NAME),
       await env.fillField('DESCRIPTION', DESCRIPTION),
       await env.clickButton('Save')

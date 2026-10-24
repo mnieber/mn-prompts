@@ -98,14 +98,25 @@ test('a user creates a blog post', async ({ ctx }) => {
   const env = createEnv(ctx);
 
   // We are signed in, and we have the blog Judo without blog posts.
-  if (env.step(await env.signIn('maarten'), await env.addBlog(JUDO))) {
+  if (
+    env.step(
+      //
+      await env.signIn('maarten'),
+      await env.addBlog(JUDO)
+    )
+  ) {
   }
 
   // We visit the Judo blog.
   //
   // The blog should be highlighted in the BlogListView, and the BlogPostListView
   // should be empty.
-  if (env.step(await env.visit('/blogs/judo'))) {
+  if (
+    env.step(
+      //
+      await env.visit('/blogs/judo')
+    )
+  ) {
     await expect(env.blogListItem('Judo')).toHaveClass(/--highlighted/);
     await expect(env.blogPostListItems()).toHaveCount(0);
   }
@@ -113,7 +124,12 @@ test('a user creates a blog post', async ({ ctx }) => {
   // We press the create-blog-post button.
   //
   // It should open the BlogPostFormView on the create route.
-  if (env.step(await env.clickButton('Create blog post'))) {
+  if (
+    env.step(
+      //
+      await env.clickButton('Create blog post')
+    )
+  ) {
     await expect(env.page).toHaveURL('/blogs/judo/blog-posts/create/_');
     await expect(env.view('BlogPostFormView')).toBeVisible();
   }
@@ -124,6 +140,7 @@ test('a user creates a blog post', async ({ ctx }) => {
   // list it in the BlogPostListView.
   if (
     env.step(
+      //
       await env.fillField('TITLE', TITLE),
       await env.fillField('CONTENT', CONTENT),
       await env.clickButton('Save')
@@ -160,6 +177,8 @@ Style rules:
 - The actions are the arguments of `env.step(...)`, each one `await`ed, in the order in which they run (the arguments
   are evaluated left to right, and each `await` finishes before the next one starts). Keep a step small: one user
   action plus the set-up that it needs.
+- The arguments of `env.step(...)` start with an empty comment line (`//`). This forces Prettier to put each action
+  on its own line, so that every step has the same layout, also when it has a single action.
 - The body only asserts: it runs no actions, and uses `env.<attribute>` and queries (not local variables).
 - Asserts on the page are web-first (`await expect(locator).toHaveText(...)`), so that they wait for the UI.
   Asserts on the backend use `await expect.poll(() => env.backend....)`. Never use `page.waitForTimeout`.
