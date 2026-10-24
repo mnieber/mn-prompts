@@ -1,0 +1,7 @@
+output_dir: ../../doc/spec
+component_name: mn_prompts
+package_config_by_name:
+  mn_prompts:
+    output_dir: .
+    scenario_paths:
+      - scenarios/**/scenario.py
