@@ -23,9 +23,7 @@ def run_scenario():
             the(r.mn_prompts_entrypoint).prints_the(r.target_names).one_per_line()
 
 
-markdown_node = sunya.add_markdown_node(
-    scenario, "A user lists the available targets"
-)
+markdown_node = sunya.add_markdown_node(scenario, "A user lists the available targets")
 
 markdown_node.markdown = """
 A user lists the targets that they can install in their project.

@@ -53,6 +53,8 @@ these instructions.
 The user clones the mn-prompts repository, and pip installs it as an editable install.</br>
 Only editable installs are supported: the prompts-dir (`extra/prompts`) contains symlinks (e.g. from targets to
 layers), which a wheel cannot contain.</br>
+The user installs from a plain clone rather than with `pip install -e git+<url>`, because the latter puts the clone
+inside the Python environment, where it's deleted when that environment is recreated.</br>
 
 #### It installs the target
 

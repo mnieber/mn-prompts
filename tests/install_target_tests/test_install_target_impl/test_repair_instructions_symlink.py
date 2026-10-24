@@ -35,9 +35,7 @@ def test_repair_instructions_symlink(context: Context):
         env.run_mn_prompts("install", "python_package"),
     ):
         assert env.exit_code == 0
-        assert (
-            env.instructions_link() == env.prompts_dir / "targets" / "python_package"
-        )
+        assert env.instructions_link() == env.prompts_dir / "targets" / "python_package"
         assert (
             env.read_project_file("instructions/index.md")
             == "# Instructions for python_lib\n"
