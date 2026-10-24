@@ -6,8 +6,7 @@ export const flags = observable({
   logResourceStates: true,
   logHistory: false,
   logStateProviders: false,
-  useMsw: false,
   mockApp: false,
   // Use the playground that runs with yarn fake (see tests/playgrounds)
-  useFakeBackend: false,
+  useFakeBackend: true,
 });

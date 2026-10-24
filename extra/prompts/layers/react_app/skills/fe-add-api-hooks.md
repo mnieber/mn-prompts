@@ -1,6 +1,6 @@
 # Skill: fe-add-api-hooks
 
-Applies when adding API communication for a feature: writing query hooks and mutation hooks. After writing these, also write their MSW handlers — see the `fe-add-msw` skill.
+Applies when adding API communication for a feature: writing query hooks and mutation hooks. After writing these, also write their fake endpoints — see the `fe-write-workflow-tests` skill.
 
 See the `fe-add-model` skill for the `XT.ts` and `XSchema.ts` files that the hooks import.
 
@@ -75,7 +75,7 @@ export const invalidateGetBlogPosts = (args: GetBlogPostsQueryKeyT) => {
 
 ### Key rules
 
-- **`XxxUrl` constant** — export the URL string so the MSW handler can import it directly. Use `:param` tokens for path parameters.
+- **`XxxUrl` constant** — define the URL string as a constant. Use `:param` tokens for path parameters.
 - **`generatePath`** — use to expand `:param` tokens before calling `get(...)`.
 - **`parseResponse(schema, data)`** — always validate the response against the Zod schema before returning.
 - **`waitOnDev(ms, data)`** — wrap the return value; simulates network latency in dev without affecting production.
@@ -165,13 +165,13 @@ export const useCreateBlogPost = () => {
 - **`parseResponse`** — validate the response when the mutation returns entity data (e.g. create returning the new entity). Omit for mutations that return no meaningful body.
 - **`waitOnDev`** — wrap the return value for realistic dev latency.
 - **Error handling** — catch known server error codes and return a structured failure value; re-throw unknown errors.
-- **No exported URL constant needed** — mutations POST to dynamic URLs (containing entity ids) that are not reused by MSW handlers. If the URL is static, export it the same way query hooks do.
+- **No URL constant needed** — mutations POST to dynamic URLs (containing entity ids). If the URL is static, define it the same way query hooks do.
 
 ---
 
 ## Checklist
 
-- [ ] Query hook: `XxxUrl` constant exported for MSW handler to import
+- [ ] Query hook: `XxxUrl` constant defined
 - [ ] Query hook: `parseResponse(schema, data)` validates the response
 - [ ] Query hook: `waitOnDev(ms, data)` wraps the return value
 - [ ] Query hook: `getBlogPostsQueryKey` and `invalidateXxx` exported for mutations
@@ -180,4 +180,4 @@ export const useCreateBlogPost = () => {
 - [ ] Mutation hook: uses `useObservableMutation`, not `useMutation`
 - [ ] Mutation hook: `snakecaseKeys` applied to form payloads before posting
 - [ ] Mutation hook: `onSuccess` invalidates the relevant query cache
-- [ ] MSW handler written for every query and mutation — see `fe-add-msw` skill
+- [ ] Fake endpoint written for every query and mutation — see `fe-write-workflow-tests` skill

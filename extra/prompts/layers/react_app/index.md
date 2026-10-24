@@ -14,11 +14,6 @@ Define a TypeScript type and its Zod validation schema for a new entity or value
 Write a `useQuery` hook and/or a `useMutation` hook to fetch or write data via the REST API.
 → [fe-add-api-hooks](./skills/fe-add-api-hooks.md)
 
-### API — MSW mock handlers
-
-Add MSW handlers so the app and Storybook can run without a real backend. Also covers enabling MSW in `main.tsx`.
-→ [fe-add-msw](./skills/fe-add-msw.md)
-
 ### State layer
 
 Provide MobX-based application state to the View components (containers, facets, `useXState` hook, `registerXCtr`, `XStateProvider`).
@@ -68,12 +63,13 @@ Compose providers, `AppBody`, and Switch components in `App.tsx`.
 
 ### Storybook stories
 
-Write isolated stories for standalone views and reusable components, backed by MSW handlers.
+Write isolated stories for reusable components and views that need no backend data.
 → [fe-add-storybook](./skills/fe-add-storybook.md)
 
 ### Workflow tests
 
 Write Playwright workflow tests (and impl, state and unit tests) that read like a story and serve as the spec for the code.
+Also covers the fake backend, and the playgrounds that run the app against it.
 → [fe-write-workflow-tests](./skills/fe-write-workflow-tests.md)
 
 ### Npm overlays

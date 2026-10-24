@@ -133,7 +133,7 @@ export { type BlogPostT } from "./BlogPostT";
 export { type BlogT } from "./BlogT";
 ```
 
-Only types are re-exported from `index.ts`; schemas are imported directly by the files that need them (query hooks, MSW handlers).
+Only types are re-exported from `index.ts`; schemas are imported directly by the files that need them (query hooks).
 
 ---
 

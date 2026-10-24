@@ -28,26 +28,10 @@ setResourceStatesOptions({
   log: log,
 });
 
-const isProduction = process.env.NODE_ENV === 'production';
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
 
-async function enableMocking(): Promise<void> {
-  if (isProduction || !flags.useMsw) {
-    return;
-  }
+const body = <App />;
 
-  const { worker } = await import('./mocks/browser');
-
-  // `worker.start()` returns a Promise that resolves
-  // once the Service Worker is up and ready to intercept requests.
-  await worker.start();
-}
-
-enableMocking().then(() => {
-  const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement
-  );
-
-  const body = <App />;
-
-  root.render(strict ? <React.StrictMode>{body}</React.StrictMode> : body);
-});
+root.render(strict ? <React.StrictMode>{body}</React.StrictMode> : body);

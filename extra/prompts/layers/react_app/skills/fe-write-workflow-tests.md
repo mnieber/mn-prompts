@@ -259,8 +259,8 @@ the api url with `page.route(...)`.
   form) and on the requests.
 - Ids that the fake backend assigns are predictable (`blog-1`, `blog-post-1`).
 - `respond(method, url, body)` computes a response without Playwright; the playground server uses it too.
-- The MSW handlers (`fe-add-msw`) are for dev and Storybook; tests don't use them. The fake endpoints are the
-  authoritative description of the api contract: when the hook and the fake endpoint disagree, the test is right.
+- The fake endpoints are the authoritative description of the api contract: when the hook and the fake endpoint
+  disagree, the test is right.
 
 ## Running the app under test
 
@@ -268,7 +268,6 @@ the api url with `page.route(...)`.
 - `playwright.config.ts` starts the app with `webServer` (`yarn vite --mode test --port 3100`), with
   `VITE_LOCALHOST_API_ENDPOINT` set to `http://localhost:3100/fake-api/`, which the fake backend intercepts. The api
   url has the same origin as the app, so that CORS plays no role.
-- `serviceWorkers: 'block'` in the config, so that MSW can never answer instead of the fake backend.
 - `waitOnDev` returns immediately in test mode (`import.meta.env.MODE === 'test'`), so that the tests don't wait for
   simulated latency.
 - Playwright's own browsers don't run on Alpine (our `node:20-alpine` image). There, install `chromium` with `apk`;

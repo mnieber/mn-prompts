@@ -21,7 +21,6 @@ export default defineConfig({
     locale: 'en-US',
     timezoneId: 'Europe/Amsterdam',
     viewport: { width: 1280, height: 800 },
-    serviceWorkers: 'block',
     trace: 'retain-on-failure',
     launchOptions: fs.existsSync(systemChromium)
       ? { executablePath: systemChromium }
