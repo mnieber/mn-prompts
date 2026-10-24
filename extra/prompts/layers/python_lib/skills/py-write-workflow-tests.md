@@ -129,6 +129,8 @@ Rules for actions:
   `load_book(store_as="old_book")`). It then leaves the default attribute untouched.
 - A query (e.g. `env.git_status()`, `env.read_file(path)`) returns a value for an assert, and is not passed to
   `env.step(...)`.
+- Queries go at the bottom of the class, below the actions and the private helpers, after a `# Queries`
+  comment. This keeps the actions (which a reader follows in the steps) apart from the helpers of the asserts.
 - To test that something raises, use a `*_and_catch_error` variant of the action that stores the exception in
   `env.error`. `SystemExit` is not an `Exception`: a `*_and_catch_exit` variant stores it in `env.system_exit`
   (e.g. for usage errors). Don't use `pytest.raises` in these tests.
@@ -172,6 +174,7 @@ Rules for actions:
 - [ ] One test function per file, named after the scenario, in `test_<feature>/` or `test_<feature>_impl/`
 - [ ] Every step has a comment block (action, then "should" results) and an `if env.step(...)` with asserts only
 - [ ] Each file has its own small `Env`; shared actions live in the feature's test env
+- [ ] Queries are at the bottom of each Env class, after a `# Queries` comment
 - [ ] Errors are caught with `*_and_catch_error` / `*_and_catch_exit` actions, not `pytest.raises`
 - [ ] Fakes only at the boundary, through the policies
 - [ ] The test package is listed in `ENABLED_TEST_PACKAGES` once its code exists

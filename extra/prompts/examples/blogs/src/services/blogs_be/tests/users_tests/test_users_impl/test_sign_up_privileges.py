@@ -39,6 +39,8 @@ class Env(TestEnv):
             ),
         )
 
+    # Queries
+
     def user_privileges(self, email: str):
         user = get_user_model().objects.get(email=email)
         return dict(

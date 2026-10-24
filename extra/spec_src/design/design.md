@@ -34,8 +34,8 @@ The entrypoint locates the prompts-dir relative to the source code of the `mn_pr
 `Path(mn_prompts.__file__).parents[2] / "extra" / "prompts"`. This only works for an editable install.
 
 This location is computed by a single rule (`get_prompts_dir()`), which is also used to decide whether an existing
-`instructions` symlink belongs to mn-prompts (see MS-2). The tests replace this rule to point the entrypoint to a
-prompts-dir that they create themselves.
+`instructions` symlink belongs to mn-prompts (see MS-2). The tests point `mn_prompts.__file__` into a fake clone
+that they create themselves, so that this rule finds the prompts-dir of that clone.
 
 ## The lifetime of the instructions symlink
 

@@ -6,7 +6,7 @@ readme = "README.md"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["dataclassy", "pytest"]
 
 [project.scripts]
 mn-prompts = "mn_prompts.runtime.entrypoints.mn_prompts:main"

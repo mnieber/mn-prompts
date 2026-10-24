@@ -59,12 +59,6 @@ class TestEnv:
         """Stops sending the access token (as if the frontend forgets it)."""
         self.context.api_client.credentials()
 
-    def response_json(self):
-        return self.response.json()
-
-    def error_codes(self) -> T.List[str]:
-        return [error["code"] for error in self.response.json()["errors"]]
-
     def _post(self, url_name: str, url_kwargs=None, **data):
         self.response = self.context.api_client.post(
             reverse(url_name, kwargs=url_kwargs), data, format="json"
@@ -74,3 +68,11 @@ class TestEnv:
         self.response = self.context.api_client.get(
             reverse(url_name, kwargs=url_kwargs)
         )
+
+    # Queries
+
+    def response_json(self):
+        return self.response.json()
+
+    def error_codes(self) -> T.List[str]:
+        return [error["code"] for error in self.response.json()["errors"]]

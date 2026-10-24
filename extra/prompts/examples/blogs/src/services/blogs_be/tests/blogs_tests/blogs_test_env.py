@@ -43,6 +43,8 @@ class TestEnv(BlogsBeTestEnv):
     def get_blog_posts(self, blog_slug: str):
         self._get("get-blog-posts", url_kwargs=dict(blog_key=blog_slug))
 
+    # Queries
+
     def blog_id(self, slug: str) -> str:
         return str(Blog.objects.get(slug=slug).id)
 

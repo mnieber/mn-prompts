@@ -24,5 +24,7 @@ class TestEnv(BookieTestEnv):
         except Exception as error:
             self.error = error
 
+    # Queries
+
     def output_lines(self) -> T.List[str]:
         return self.output.splitlines()

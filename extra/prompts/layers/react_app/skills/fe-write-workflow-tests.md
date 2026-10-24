@@ -236,6 +236,8 @@ Rules for actions:
 - An action that stores a result may take a `storeAs` argument when a test needs more than one result.
 - A query (e.g. `env.view(name)`, `env.blogPostListItems()`, `env.backend.lastRequest(name)`) returns a locator or a
   value for an assert, and is not passed to `env.step(...)`.
+- Queries go at the bottom of the class, below the actions and the private helpers, after a `// Queries`
+  comment. This keeps the actions (which a reader follows in the steps) apart from the helpers of the asserts.
 - Helpers that tests should not call directly are `private` or `protected`.
 
 ## The fake backend
@@ -339,6 +341,7 @@ the container layout of that State.
 - [ ] Asserts are web-first (`expect(locator)`) or polled (`expect.poll`); no `waitForTimeout`
 - [ ] Elements are located by role/label/text, scoped by component class; no Tailwind or structural selectors
 - [ ] Each file has its own small `Env`; shared actions live in the feature's test env
+- [ ] Queries are at the bottom of each Env class, after a `// Queries` comment
 - [ ] Only the backend is faked, through `FakeBackend` endpoints named after the hooks; unexpected requests and page
       errors fail the test
 - [ ] The test package is listed in `enabledTestPackages` once its code exists

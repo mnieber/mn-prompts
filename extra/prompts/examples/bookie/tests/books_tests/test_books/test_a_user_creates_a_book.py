@@ -36,6 +36,8 @@ def test_a_user_creates_a_book(context: Context):
 
 
 class Env(TestEnv):
+    # Queries
+
     def chapter_title_lines(self):
         return [line for line in self.output_lines() if line.startswith("  Chapter")]
 
