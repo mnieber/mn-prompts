@@ -9,12 +9,13 @@ scenario = sunya.add_scenario("s10_a_user_creates_a_blog")
 def run_scenario():
     r.user = c.External.Actors.User
     r.blog_list_view = c.Blogs.Views.BlogListView
+    r.dashboard_frame = c.Frames.Views.DashboardFrame
     r.blog_form_view = c.Blogs.Views.BlogFormView
     r.create_blog_mutation = c.Blogs.Mutations.CreateBlog
 
     with goal().create_a(r.blog).for_the(r.user):
         the(r.user).visits_the(r.blogs_route)
-        the(r.blog_list_view).shows(r.create_blog_button)
+        the(r.dashboard_frame).shows(r.create_blog_button)
         the(r.user).presses(r.create_blog_button)
         the(r.user).submits(r.blog_form)
         with the(r.blog_form_view).calls(r.create_blog_mutation).with_the(r.blog_form_data):
@@ -34,7 +35,7 @@ and returns the new blog.
 #### It creates the blog
 
 The user visits the blogs route.</br>
-`BlogListView` shows the create-blog button.</br>
+`DashboardFrame` shows the create-blog button in its top bar.</br>
 The user presses the create-blog button to open `BlogFormView`.</br>
 The user fills out and submits the blog form.</br>
 `BlogFormView` calls `CreateBlog` with the blog form data.</br>
@@ -46,12 +47,13 @@ The user fills out and submits the blog form.</br>
 sequenceDiagram
     participant User
     participant BLV as BlogListView
+    participant DF as DashboardFrame
     participant BFV as BlogFormView
     participant CBM as CreateBlog (mutation)
 
     Note over User,CBM: Create blog
     User->>BLV: visits blogs route
-    BLV-->>User: shows create-blog button
+    DF-->>User: shows create-blog button
     User->>BFV: presses create-blog button
     User-->>BFV: submits blog form
     BFV->>CBM: createBlog(blogFormData)
