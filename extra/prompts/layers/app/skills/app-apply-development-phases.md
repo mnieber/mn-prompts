@@ -1,6 +1,6 @@
 # The development workflow
 
-A new feature goes through four phases. Each phase is a separate task: I tell you which one we're working on.
+A new feature goes through five phases. Each phase is a separate task: I tell you which one we're working on.
 
 `RULE`: dont insert cross-references (e.g. to milestones) into the spec documents or the code. These cross-references are not helpful and easily go stale.
 
@@ -11,20 +11,34 @@ scenarios.
 
 `RULE`: when I ask you to review a design then focus on weaknesses and gaps in the main features and workflows. Details and less important edge-cases can be identified later.
 
-## 2. Tests
+## 2. Test plan
 
-Translate the design doc into a test_plan.md document that contains a high-level description of the tests. Group the tests in in batches (one feature or group of related features per batch). The described tests will be written before the code exists.
-The tests follow the workflow-test skill file of the layer (for Python: the `py-write-workflow-tests` skill; for React apps: the `fe-write-workflow-tests` skill).
+Translate the design doc into a test plan (`extra/spec_src/design/test_plan.md`) that contains a high-level
+description of the tests. Group the tests in batches (one feature or group of related features per batch). In this
+phase we only write and review the test plan: no tests are written yet.
 
 - Before writing a batch, ask me about the design choices that change what the tests assert, and propose an
   answer. I often refine the proposal.
 - Record every decision in the design doc, so that it stays the single description of the design.
-- The tests are the spec of the code structure: what they import (e.g. the action file that defines an error)
-  implies which code units exist and where they live. Browser tests import no app code; there, the urls, component names, fake endpoints and field labels that they use play this role.
+- Per batch, the test plan lists the test files, and the code units (e.g. action files, rules files, and the errors
+  that they define) that the tests exercise. The tests are the spec of the code structure: what they import (e.g. the
+  action file that defines an error) implies which code units exist and where they live. Browser tests import no app
+  code; there, the urls, component names, fake endpoints and field labels that they use play this role.
+- Ask me to review the test plan when it's done.
 
 `RULE`: after generating the test-plan you don't need to summarize it for me.
 
-## 3. Code
+## 3. Tests
+
+Write all the tests of the test plan, batch by batch. The tests follow the workflow-test skill file of the layer
+(for Python: the `py-write-workflow-tests` skill; for React apps: the `fe-write-workflow-tests` skill). All the tests
+are written before the code exists, so they stay disabled until their code is written.
+
+- When writing a test raises a design choice that the design doc doesn't settle, ask me, and record the decision in
+  the design doc.
+- When a test deviates from the test plan (e.g. a test is split in two files), update the test plan.
+
+## 4. Code
 
 You write the code that makes the tests pass, following the skills of the layer.
 
@@ -34,7 +48,7 @@ You write the code that makes the tests pass, following the skills of the layer.
   service) without asking.
 - When the design doc and the tests don't settle a choice, pick a sensible option, and mention it in your report. When the choice matters to the design, ask.
 
-## 4. Scenarios
+## 5. Scenarios
 
 The scenarios (`extra/spec_src/scenarios/`) are updated with the changes that affect the high-level workflows and
 features (see [writing specs](./app-write-specs.md)). Edge cases and details are left

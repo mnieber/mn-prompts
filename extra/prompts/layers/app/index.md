@@ -6,7 +6,7 @@ When you are asked to work on an application (in any phase: design, tests, code 
 
 ### Development phases
 
-The four phases of developing a feature (design, tests, code and scenarios), and what to do in each of them. Start here.
+The five phases of developing a feature (design, test plan, tests, code and scenarios), and what to do in each of them. Start here.
 → [app-apply-development-phases](./skills/app-apply-development-phases.md)
 
 ### Writing specs
