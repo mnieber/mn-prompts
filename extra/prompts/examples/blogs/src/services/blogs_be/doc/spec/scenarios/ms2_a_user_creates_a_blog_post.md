@@ -1,30 +1,45 @@
 [comment]: <> (This file is auto-generated. Do not edit directly.)
 
-# Scenario: ms2_a_user_creates_a_blog_post
+# ms2_a_user_creates_a_blog_post
 
 ## A user creates a blog post
 
+The frontend calls `CreateBlogPostApiView` to create a new blog post within a blog.
+The API view delegates to the `create_blog_post` action, which checks the `title` and `content`
+fields for forbidden words before persisting the post.
+
+### Steps
+
+#### It creates the blog post
+
+The frontend calls `CreateBlogPostApiView`.</br>
+The API view calls `create_blog_post` with the `create_blog_post_form`.</br>
+`create_blog_post` calls `has_forbidden_words` on the `title` and `content` fields.</br>
+If forbidden words are found, `create_blog_post` raises `CreateBlogPostFormContainsForbiddenWordsError`.</br>
+Otherwise, `create_blog_post` creates and returns the `blog_post`.</br>
+
+### Diagram
+
 ```mermaid
 sequenceDiagram
-    participant Frontend as Frontend
-    participant CreateBlogPostApiView as CreateBlogPost<br/>ApiView
-    participant CreateBlogPostAction as CreateBlogPost<br/>Action
-    participant HasForbiddenWordsRule as HasForbiddenWords<br/>Rule
+    participant Frontend
+    participant CBPAV as CreateBlogPostApiView
+    participant CBPA as CreateBlogPost (action)
+    participant HFW as HasForbiddenWords (rule)
 
-    # 🔳 Create Blog Post
-    note over Frontend: create a blog_post in the blog
-    Frontend -->> CreateBlogPostApiView: calls()
-    CreateBlogPostApiView -->> CreateBlogPostAction: calls(create_blog_post_form)
-    CreateBlogPostAction -->> HasForbiddenWordsRule: runs blog_post
-    HasForbiddenWordsRule -->> CreateBlogPostAction: returns()
-    CreateBlogPostAction -->> CreateBlogPostAction: creates(blog_post)
-    CreateBlogPostAction -->> CreateBlogPostApiView: returns(blog_post)
+    Note over Frontend,CBPA: Create blog post
+    Frontend->>CBPAV: POST /blogs/{blog_id}/posts/
+    CBPAV->>CBPA: create_blog_post(create_blog_post_form)
+    CBPA->>HFW: has_forbidden_words(title)
+    HFW-->>CBPA: result
+    CBPA->>HFW: has_forbidden_words(content)
+    HFW-->>CBPA: result
+
+    alt forbidden words found
+        CBPA-->>CBPAV: raise CreateBlogPostFormContainsForbiddenWordsError
+    else no forbidden words
+        CBPA->>CBPA: create blog_post
+        CBPA-->>CBPAV: blog_post
+    end
 ```
-
-**Legend:**
-
-- Frontend → External.Actors.Frontend
-- CreateBlogPostApiView → Blogs.ApiViews.CreateBlogPostApiView
-- CreateBlogPostAction → Blogs.Actions.CreateBlogPost
-- HasForbiddenWordsRule → Blogs.Rules.HasForbiddenWords
 

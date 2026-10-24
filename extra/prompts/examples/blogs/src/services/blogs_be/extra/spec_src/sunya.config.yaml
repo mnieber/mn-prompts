@@ -1,8 +1,7 @@
-output_dir: md_specs
+output_dir: ../../doc/spec
 component_name: blogs_be
-spec_paths_by_package:
+package_config_by_name:
   blogs_be:
+    output_dir: .
     scenario_paths:
-      - ./scenarios/**/scenario.py
-    module_paths:
-      - ./modules/*.py
+      - scenarios/**/scenario.py

@@ -1,6 +1,7 @@
 output_dir: md_specs
 component_name: blogs_fe
-spec_paths_by_package:
+package_config_by_name:
   blogs_fe:
+    output_dir: .
     scenario_paths:
-      - ./scenarios/**/scenario.py
+      - scenarios/**/scenario.py

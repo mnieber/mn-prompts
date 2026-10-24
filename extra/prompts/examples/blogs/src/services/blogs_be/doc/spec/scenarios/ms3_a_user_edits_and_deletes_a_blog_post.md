@@ -1,41 +1,59 @@
 [comment]: <> (This file is auto-generated. Do not edit directly.)
 
-# Scenario: ms3_a_user_edits_and_deletes_a_blog_post
+# ms3_a_user_edits_and_deletes_a_blog_post
 
 ## A user edits and deletes a blog post
 
+The frontend can update or delete blog posts. Updating checks the `title` and `content`
+fields for forbidden words and raises an error if any are found. Deleting removes the
+selected posts directly.
+
+### Steps
+
+#### It edits a blog post
+
+The frontend calls `UpdateBlogPostApiView`.</br>
+The API view calls `update_blog_post` with the `update_blog_post_form`.</br>
+`update_blog_post` calls `has_forbidden_words` on the `title` and `content` fields.</br>
+If forbidden words are found, `update_blog_post` raises `UpdateBlogPostFormContainsForbiddenWordsError`.</br>
+Otherwise, `update_blog_post` updates and returns the `blog_post`.</br>
+
+#### It deletes blog posts
+
+The frontend calls `DeleteBlogPostsApiView`.</br>
+The API view calls `delete_blog_posts` with the `delete_blog_posts_form`.</br>
+`delete_blog_posts` deletes the posts.</br>
+
+### Diagram
+
 ```mermaid
 sequenceDiagram
-    participant Frontend as Frontend
-    participant UpdateBlogPostApiView as UpdateBlogPost<br/>ApiView
-    participant UpdateBlogPostAction as UpdateBlogPost<br/>Action
-    participant HasForbiddenWordsRule as HasForbiddenWords<br/>Rule
-    participant DeleteBlogPostsApiView as DeleteBlogPosts<br/>ApiView
-    participant DeleteBlogPostsAction as DeleteBlogPosts<br/>Action
+    participant Frontend
+    participant UBPAV as UpdateBlogPostApiView
+    participant UBPA as UpdateBlogPost (action)
+    participant HFW as HasForbiddenWords (rule)
+    participant DBPAV as DeleteBlogPostsApiView
+    participant DBPA as DeleteBlogPosts (action)
 
-    # 🔳 Edit Blog Post
-    note over Frontend: edit a blog_post in the blog
-    Frontend -->> UpdateBlogPostApiView: calls()
-    UpdateBlogPostApiView -->> UpdateBlogPostAction: calls(update_blog_post_form)
-    UpdateBlogPostAction -->> HasForbiddenWordsRule: runs blog_post
-    HasForbiddenWordsRule -->> UpdateBlogPostAction: returns()
-    UpdateBlogPostAction -->> UpdateBlogPostAction: updates blog_post
-    UpdateBlogPostAction -->> UpdateBlogPostApiView: returns(blog_post)
+    Note over Frontend,UBPA: Edit blog post
+    Frontend->>UBPAV: PATCH /blogs/{blog_id}/posts/{post_id}/
+    UBPAV->>UBPA: update_blog_post(update_blog_post_form)
+    UBPA->>HFW: has_forbidden_words(title)
+    HFW-->>UBPA: result
+    UBPA->>HFW: has_forbidden_words(content)
+    HFW-->>UBPA: result
 
-    # 🔳 Delete Blog Posts
-    note over Frontend: delete some blog_posts in the blog
-    Frontend -->> DeleteBlogPostsApiView: calls()
-    DeleteBlogPostsApiView -->> DeleteBlogPostsAction: calls(blog_posts)
-    DeleteBlogPostsAction -->> DeleteBlogPostsAction: deletes blog_posts
-    DeleteBlogPostsAction -->> DeleteBlogPostsApiView: returns()
+    alt forbidden words found
+        UBPA-->>UBPAV: raise UpdateBlogPostFormContainsForbiddenWordsError
+    else no forbidden words
+        UBPA->>UBPA: update blog_post
+        UBPA-->>UBPAV: blog_post
+    end
+
+    Note over Frontend,DBPA: Delete blog posts
+    Frontend->>DBPAV: DELETE /blogs/{blog_id}/posts/
+    DBPAV->>DBPA: delete_blog_posts(delete_blog_posts_form)
+    DBPA->>DBPA: delete blog_posts
+    DBPA-->>DBPAV: (done)
 ```
-
-**Legend:**
-
-- Frontend → External.Actors.Frontend
-- UpdateBlogPostApiView → Blogs.ApiViews.UpdateBlogPostApiView
-- UpdateBlogPostAction → Blogs.Actions.UpdateBlogPost
-- HasForbiddenWordsRule → Blogs.Rules.HasForbiddenWords
-- DeleteBlogPostsApiView → Blogs.ApiViews.DeleteBlogPostsApiView
-- DeleteBlogPostsAction → Blogs.Actions.DeleteBlogPosts
 
