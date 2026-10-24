@@ -102,13 +102,14 @@ entrypoint only replaces a symlink that points into the `targets` sub-dir of its
    1. The file is named `AGENTS.md`.
    2. The source comes from `<prompts_dir>/agents_files/default.md`
    3. If `AGENTS.md` already exists in the cwd then the entrypoint leaves it unchanged, and prints an instruction for
-      extending it with the contents of the source file. This is not an error: the exit code is 0.
+      extending it with the contents of the source file. This is not an error: the exit code is 0, and the
+      instruction is printed to stderr (like the error messages), so that stdout is kept for the output.
 
 ## MS-4: A user lists the available targets
 
 1. The user calls `mn-prompts list`
-   1. If the prompts-dir does not exist then the entrypoint prints the same error as in MS-2
+   1. If the prompts-dir does not exist then the entrypoint prints the same error as in MS-3
 2. The entrypoint prints the names of the sub-dirs of the `targets` sub-dir of the prompts-dir, one per line
    1. The names are sorted alphabetically
    2. Hidden sub-dirs (e.g. `.claude`) and files are skipped
-   3. The error for an unknown target in MS-2 lists the targets in the same way
+   3. The error for an unknown target in MS-3 lists the targets in the same way

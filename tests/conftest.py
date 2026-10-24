@@ -3,6 +3,7 @@ ENABLED_TEST_PACKAGES = []
 
 ALL_TEST_PACKAGES = [
     "list_targets_tests",
+    "install_target_tests",
 ]
 
 collect_ignore = [

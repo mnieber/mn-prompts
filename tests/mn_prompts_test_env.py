@@ -39,7 +39,7 @@ class TestEnv:
         return True
 
     def install_editable(self, target_names: T.List[str]):
-        """Creates a clone of mn-prompts with these targets, and installs it editable."""
+        """Creates a clone of mn-prompts with these targets, and installs it."""
         self.clone_dir = self.context.tmp_path / "mn-prompts"
         self.prompts_dir = self.clone_dir / "extra" / "prompts"
         for target_name in target_names:
