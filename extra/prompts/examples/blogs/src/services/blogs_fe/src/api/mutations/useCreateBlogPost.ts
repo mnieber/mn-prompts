@@ -20,7 +20,7 @@ export const createBlogPost = (args: CreateBlogPostArgsT) => {
   const url = `/blogs/${args.blog.id}/blog-posts/create/`;
   return post(url, {
     create_blog_post_form: snakecaseKeys(args.createBlogPostForm),
-    blogId: args.blog.id,
+    blog_id: args.blog.id,
   })
     .then((response) => {
       const res = parseResponse(BlogPostSchema, response);
