@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 
-// The playground server (yarn fake) listens on this port. See tests/testEnv/urls.ts.
+// The playground server (yarn fake) listens on this port. See tests/fakeBackend/urls.ts.
 const playgroundPort = 3200;
 
 // https://vitejs.dev/config/

@@ -1,5 +1,5 @@
-import { addBlog } from '/tests/blogs/fixtures';
-import type { BlogRowT } from '/tests/testEnv/FakeBackend';
+import { addBlog } from '/tests/fakeBackend/actions';
+import type { BlogRowT } from '/tests/fakeBackend/FakeBackend';
 import { TestEnv } from '/tests/testEnv/TestEnv';
 
 export class BlogsTestEnv extends TestEnv {

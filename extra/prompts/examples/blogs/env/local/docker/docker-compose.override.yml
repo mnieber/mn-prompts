@@ -26,3 +26,5 @@ services:
       - /home/maarten/projects/react-props-from-context/src:/npm/react-props-from-context
       - /home/maarten/projects/react-form-state-context/src:/npm/react-form-state-context
       - /home/maarten/projects/react-nav-handler/src:/npm/react-nav-handler
+      # tmp
+      - /home/maarten/projects/prompts/src/extra/prompts:/app/prompts

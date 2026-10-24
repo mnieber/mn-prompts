@@ -41,22 +41,27 @@ Rules of thumb:
 playwright.config.ts                   ← enabledTestPackages (see below), webServer, browser settings
 tests/
   tsconfig.json                        ← adds the `/tests/*` import path
-  testEnv/
-    TestEnv.ts                         ← the shared TestEnv base class
+  fakeBackend/                         ← used by the test env and by the playgrounds
     FakeBackend.ts                     ← the fake REST backend (records requests, in-memory data)
-    fixtures.ts                        ← `test` (with the `ctx` fixture) and the `Ctx` type
-    urls.ts                            ← baseURL, apiUrl and the playground ports (shared with playwright.config.ts)
+    urls.ts                            ← the fake api path and the playground port
     endpoints/
       index.ts                         ← the list of all fake endpoints
       getBlogs.ts                      ← one fake endpoint per query or mutation
       createBlog.ts
+    actions/
+      index.ts                         ← the list of all fake backend actions
+      addBlog.ts                       ← one function per way to fill the data (e.g. addBlog, signIn)
+  testEnv/
+    TestEnv.ts                         ← the shared TestEnv base class
+    fixtures.ts                        ← `test` (with the `ctx` fixture) and the `Ctx` type
+    urls.ts                            ← baseURL and apiUrl (shared with playwright.config.ts)
   playgrounds/                         ← fake backends to try out screens by hand (see Playgrounds)
     serve.ts                           ← the server that `yarn fake <playground>` runs
     <feature>/
       <playgroundName>.ts
   <feature>/
     <Feature>TestEnv.ts                ← the shared Env base class of the feature
-    fixtures.ts                        ← example rows (e.g. `JUDO`) and seed functions, shared with the playgrounds
+    fixtures.ts                        ← example data (e.g. `JUDO`), shared with the playgrounds
     workflows/
       <scenarioName>.spec.ts           ← one test per file, named after the scenario
     impl/
@@ -218,9 +223,11 @@ The backend is the boundary of the app, and the only thing that is faked. `FakeB
 the api url with `page.route(...)`.
 
 - It holds a small in-memory data set (e.g. `blogs`, `blogPosts`, `userId`), with rows in the shape of the real
-  backend (`BlogRowT`, snake_case). Env actions seed it (`env.addBlog(...)`, `env.signIn(...)`) before the page is
-  visited.
-- Each query and mutation of the app has one fake endpoint in `tests/testEnv/endpoints/`, named after the hook
+  backend (`BlogRowT`, snake_case). It is filled with the fake backend actions in
+  `tests/fakeBackend/actions/` (`addBlog(backend, JUDO)`, `signIn(backend, userId)`), before the page is visited.
+  Tests call them through Env actions (`env.addBlog(JUDO)`), playgrounds call them directly. The `FakeBackend` class
+  itself stays minimal: it holds the data and answers requests.
+- Each query and mutation of the app has one fake endpoint in `tests/fakeBackend/endpoints/`, named after the hook
   (`getBlogs`, `createBlogPost`). It matches the method and url, reads/updates the data set, and returns json in the
   shape of the real backend (snake_case). A mutation updates the data set, so that a following query (after cache
   invalidation) returns the new state.
@@ -264,7 +271,7 @@ export const playground: PlaygroundT = {
   description: 'A signed-in user who has the blog Judo presses Create blog to create a new blog.',
   url: '/blogs',
   setUp: (backend) => {
-    backend.data.userId = 'user-1';
+    signIn(backend, 'user-1');
     addBlog(backend, JUDO);
   },
 };

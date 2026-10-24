@@ -4,14 +4,13 @@ import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { FakeBackend } from '/tests/fakeBackend/FakeBackend';
+import { endpoints } from '/tests/fakeBackend/endpoints';
+import { fakeApiPath, playgroundPort } from '/tests/fakeBackend/urls';
 import type { PlaygroundT } from '/tests/playgrounds/PlaygroundT';
-import { FakeBackend } from '/tests/testEnv/FakeBackend';
-import { endpoints } from '/tests/testEnv/endpoints';
-import {
-  devServerPort,
-  fakeApiPath,
-  playgroundPort,
-} from '/tests/testEnv/urls';
+
+// The port of the vite dev server that the playground is used with
+const devServerPort = 3000;
 
 const playgroundsDir = import.meta.dirname;
 

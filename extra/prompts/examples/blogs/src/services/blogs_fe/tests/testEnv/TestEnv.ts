@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
-import type { FakeBackend } from '/tests/testEnv/FakeBackend';
+import type { FakeBackend } from '/tests/fakeBackend/FakeBackend';
+import { signIn } from '/tests/fakeBackend/actions';
 import type { Ctx } from '/tests/testEnv/fixtures';
 
 export class TestEnv {
@@ -25,7 +26,7 @@ export class TestEnv {
   //
 
   async signIn(userId: string) {
-    this.backend.data.userId = userId;
+    signIn(this.backend, userId);
   }
 
   /** Opens the url, and waits until the app has rendered. */

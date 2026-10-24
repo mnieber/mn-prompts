@@ -1,6 +1,6 @@
 import { test as base, expect, type Page } from '@playwright/test';
-import { FakeBackend } from '/tests/testEnv/FakeBackend';
-import { endpoints } from '/tests/testEnv/endpoints';
+import { FakeBackend } from '/tests/fakeBackend/FakeBackend';
+import { endpoints } from '/tests/fakeBackend/endpoints';
 import { apiUrl } from '/tests/testEnv/urls';
 
 export type Ctx = {

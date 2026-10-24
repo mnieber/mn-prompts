@@ -1,4 +1,5 @@
-import { addBlog, JUDO } from '/tests/blogs/fixtures';
+import { JUDO } from '/tests/blogs/fixtures';
+import { addBlog, signIn } from '/tests/fakeBackend/actions';
 import type { PlaygroundT } from '/tests/playgrounds/PlaygroundT';
 
 export const playground: PlaygroundT = {
@@ -8,7 +9,7 @@ export const playground: PlaygroundT = {
   // RequireSignInEffect runs before the user id is loaded.
   url: '/blogs',
   setUp: (backend) => {
-    backend.data.userId = 'user-1';
+    signIn(backend, 'user-1');
     addBlog(backend, JUDO);
   },
 };

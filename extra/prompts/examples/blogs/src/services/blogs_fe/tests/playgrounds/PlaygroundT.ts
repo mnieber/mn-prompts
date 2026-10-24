@@ -1,4 +1,4 @@
-import type { FakeBackend } from '/tests/testEnv/FakeBackend';
+import type { FakeBackend } from '/tests/fakeBackend/FakeBackend';
 
 export type PlaygroundT = {
   description: string;
