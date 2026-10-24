@@ -45,7 +45,7 @@ export const ValuePickerField = observer(<ValueT,>(props: PropsT<ValueT>) => {
   };
 
   return (
-    // @ts-ignore
+    // @ts-expect-error TS loses isMulti, isCreatable and labelFromValue in the spread of the generic props
     <ValuePicker
       {...{
         ...valuePickerProps,

@@ -93,12 +93,11 @@ services:
     image: blogs_fe
     ports:
       - 3000:3000 # React
-      - 6008:6008 # Storybook
 ```
 
 **depends_on:** The frontend depends on the backend service so the API is available when the frontend starts.
 
-**ports:** Expose the Vite dev server port (3000) and Storybook port (6008). Adjust if your project uses different ports.
+**ports:** Expose the Vite dev server port (3000). Adjust if your project uses a different port.
 
 ---
 
@@ -160,9 +159,6 @@ install:
 
 run-server:
     yarn dev --host
-
-storybook:
-    yarn storybook dev --port 6008
 
 #
 # Stack

@@ -61,11 +61,6 @@ Write a shared UI primitive (button, card, badge) with a structured `trim` styli
 Compose providers, `AppBody`, and Switch components in `App.tsx`.
 → [fe-add-app-component](./skills/fe-add-app-component.md)
 
-### Storybook stories
-
-Write isolated stories for reusable components and views that need no backend data.
-→ [fe-add-storybook](./skills/fe-add-storybook.md)
-
 ### Workflow tests
 
 Write Playwright workflow tests (and impl, state and unit tests) that read like a story and serve as the spec for the code.

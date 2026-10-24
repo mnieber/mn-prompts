@@ -4,8 +4,6 @@ COMMANDS:
       run: [in: docker, cmd: just]
     '~serve':
       run: [in: docker, cmd: just, run-server]
-    '~storybook':
-      run: [in: docker, cmd: just, storybook]
     '~shell':
       run: [in: docker, cmd: fish]
 

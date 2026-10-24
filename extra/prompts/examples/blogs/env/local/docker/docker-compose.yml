@@ -25,7 +25,6 @@ services:
     image: blogs_fe
     ports:
       - 3000:3000 # React
-      - 6008:6008 # Storybook
   postgres:
     container_name: blogs_postgres
     env_file:

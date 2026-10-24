@@ -60,7 +60,7 @@ export const useFieldProps = (props: FieldPropsT) => {
     // Matches the htmlFor of the FormFieldLabel
     id: fieldName,
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
-      onFocus && onFocus(e);
+      onFocus?.(e);
       if (autoSelect) {
         setTimeout(() => {
           e.target.select();

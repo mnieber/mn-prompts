@@ -39,7 +39,7 @@ export const useObservableQuery = (
         );
       }
     });
-  }, [query]);
+  }, [query, observableQuery, fetchAsLoad, debugLabel]);
 
   return observableQuery;
 };

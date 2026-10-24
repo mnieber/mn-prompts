@@ -32,8 +32,8 @@ Rules of thumb:
 - Many independent edge cases are split by theme into a handful of impl tests, not one test per assert and not one
   giant test. Within a test, later steps may continue on the same page and check again.
 - Every test is self-contained: it builds its own environment (backend data, signed-in user, start url).
-- Never use Cypress, React Testing Library or Storybook interaction tests for workflow tests: every workflow test is a
-  Playwright test, so that all workflows read the same way.
+- Never use Cypress or React Testing Library for workflow tests: every workflow test is a Playwright test, so that
+  all workflows read the same way.
 
 ## File layout
 
