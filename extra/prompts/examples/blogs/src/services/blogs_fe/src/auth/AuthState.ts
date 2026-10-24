@@ -20,6 +20,8 @@ export class AuthState {
   @observable state: string;
   @observable details: ObjT = {};
   @observable userId: string | Anonymous = anonymous;
+  // False until the user id has been loaded (or set by signing in or out)
+  @observable isUserIdKnown = false;
 
   constructor(initialState: string) {
     makeObservable(this);
@@ -62,6 +64,7 @@ export class AuthState {
 
   @action setUserId(userId: string | Anonymous) {
     this.userId = userId;
+    this.isUserIdKnown = true;
   }
 
   @action onErrored(queryName: string, message: string) {

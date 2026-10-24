@@ -14,8 +14,13 @@ const ContextProps = {
 
 export const RequireSignInEffect = observer(
   withContextProps((props: PropsT & typeof ContextProps) => {
+    // Wait until we know whether the user is signed in. Note that we read the
+    // observables here (and not in the effect), so that the observer tracks them.
+    const mustSignIn =
+      props.authState.isUserIdKnown && !props.authState.isAuthenticated;
+
     React.useEffect(() => {
-      if (!props.authState.isAuthenticated) {
+      if (mustSignIn) {
         navTo(authNav.signIn({ nextUrl: history.location.pathname }));
       }
     });

@@ -61,7 +61,7 @@ tests/
       <playgroundName>.ts
   <feature>/
     <Feature>TestEnv.ts                ← the shared Env base class of the feature
-    fixtures.ts                        ← example data (e.g. `JUDO`), shared with the playgrounds
+    exampleData.ts                     ← example data (e.g. `JUDO`), shared with the playgrounds
     workflows/
       <scenarioName>.spec.ts           ← one test per file, named after the scenario
     impl/

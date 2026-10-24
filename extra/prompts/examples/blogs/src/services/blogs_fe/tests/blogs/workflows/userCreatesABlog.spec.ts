@@ -1,10 +1,10 @@
 import { expect } from '@playwright/test';
 import { BlogsTestEnv } from '/tests/blogs/BlogsTestEnv';
 import { test, type Ctx } from '/tests/testEnv/fixtures';
-import { JUDO } from '/tests/blogs/fixtures';
+import { JUDO } from '/tests/blogs/exampleData';
 
 const NAME = 'Brazilian jiu-jitsu';
-const SLUG = 'brazilian-jiu-jitsu';
+const SLUG = 'brazilian-jiu-jitsu-';
 const DESCRIPTION = 'Ground fighting, step by step.';
 
 const createEnv = (ctx: Ctx) => {
@@ -52,7 +52,7 @@ test('a user creates a blog', async ({ ctx }) => {
       .toMatchObject({
         create_blog_form: { name: NAME, slug: SLUG, description: DESCRIPTION },
       });
-    // The slug is derived from the name.
+    // The slug is derived from the name (with a trailing dash).
     await expect(env.page).toHaveURL(`/blogs/${SLUG}`);
     await expect(env.blogListItems()).toHaveText(['Judo', NAME]);
     await expect(env.blogListItem(NAME)).toHaveClass(
