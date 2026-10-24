@@ -1,6 +1,6 @@
 [comment]: <> (This file is auto-generated. Do not edit directly.)
 
-# Scenario: ms2_a_user_creates_a_blog_post
+# Scenario: s20_a_user_creates_a_blog_post
 
 ## A user creates a blog post
 

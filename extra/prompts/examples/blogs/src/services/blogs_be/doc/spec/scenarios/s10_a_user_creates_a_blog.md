@@ -1,6 +1,6 @@
 [comment]: <> (This file is auto-generated. Do not edit directly.)
 
-# ms1_a_user_creates_a_blog
+# s10_a_user_creates_a_blog
 
 ## A user creates a blog
 

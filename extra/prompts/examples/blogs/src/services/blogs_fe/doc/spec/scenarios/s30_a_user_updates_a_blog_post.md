@@ -1,6 +1,6 @@
 [comment]: <> (This file is auto-generated. Do not edit directly.)
 
-# Scenario: ms3_a_user_updates_a_blog_post
+# Scenario: s30_a_user_updates_a_blog_post
 
 ## A user updates and deletes a blog post
 

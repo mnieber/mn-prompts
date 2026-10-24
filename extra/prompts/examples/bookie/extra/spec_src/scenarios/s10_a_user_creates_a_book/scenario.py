@@ -3,7 +3,7 @@ from sunya import C as c
 from sunya import R as r
 from sunya import goal, it, the
 
-scenario = sunya.add_scenario(f"ms1_a_user_creates_a_book")
+scenario = sunya.add_scenario("s10_a_user_creates_a_book")
 
 
 def run_scenario():
