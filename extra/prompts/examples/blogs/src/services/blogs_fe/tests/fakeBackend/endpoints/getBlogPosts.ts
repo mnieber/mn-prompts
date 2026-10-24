@@ -1,4 +1,4 @@
-import type { EndpointT } from '/tests/fakeBackend/FakeBackend';
+import type { EndpointT } from '/tests/fakeBackend/types';
 
 export const getBlogPosts: EndpointT = {
   name: 'getBlogPosts',

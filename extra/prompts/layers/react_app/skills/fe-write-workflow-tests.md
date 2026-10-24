@@ -43,6 +43,7 @@ tests/
   tsconfig.json                        ← adds the `/tests/*` import path
   fakeBackend/                         ← used by the test env and by the playgrounds
     FakeBackend.ts                     ← the fake REST backend (records requests, in-memory data)
+    types.ts                           ← the row types (`BlogRowT`, snake_case), `DataT`, `EndpointT`, ...
     urls.ts                            ← the fake api path and the playground port
     endpoints/
       index.ts                         ← the list of all fake endpoints
