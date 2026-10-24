@@ -1,10 +1,17 @@
 import axios from 'axios';
+import { flags } from '/src/app/flags';
 
 axios.defaults.withCredentials = true;
 
-export const hostUrl = window.location.host.startsWith('localhost')
-  ? import.meta.env.VITE_LOCALHOST_API_ENDPOINT
-  : import.meta.env.VITE_BACKEND_API_ENDPOINT ?? '';
+// Vite proxies this path to the playground server (see tests/playgrounds)
+const fakeApiUrl = '/fake-api/';
+
+export const hostUrl =
+  import.meta.env.DEV && flags.useFakeBackend
+    ? fakeApiUrl
+    : window.location.host.startsWith('localhost')
+      ? import.meta.env.VITE_LOCALHOST_API_ENDPOINT
+      : (import.meta.env.VITE_BACKEND_API_ENDPOINT ?? '');
 
 export function get(query: string) {
   return axios

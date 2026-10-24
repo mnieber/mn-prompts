@@ -1,3 +1,4 @@
+import { addBlog } from '/tests/blogs/fixtures';
 import type { BlogRowT } from '/tests/testEnv/FakeBackend';
 import { TestEnv } from '/tests/testEnv/TestEnv';
 
@@ -7,10 +8,7 @@ export class BlogsTestEnv extends TestEnv {
   //
 
   async addBlog(values: Omit<BlogRowT, 'id'>) {
-    this.backend.data.blogs.push({
-      id: this.backend.nextId('blog'),
-      ...values,
-    });
+    addBlog(this.backend, values);
   }
 
   //

@@ -45,13 +45,18 @@ tests/
     TestEnv.ts                         ← the shared TestEnv base class
     FakeBackend.ts                     ← the fake REST backend (records requests, in-memory data)
     fixtures.ts                        ← `test` (with the `ctx` fixture) and the `Ctx` type
-    urls.ts                            ← baseURL and apiUrl (shared with playwright.config.ts)
+    urls.ts                            ← baseURL, apiUrl and the playground ports (shared with playwright.config.ts)
     endpoints/
       index.ts                         ← the list of all fake endpoints
       getBlogs.ts                      ← one fake endpoint per query or mutation
       createBlog.ts
+  playgrounds/                         ← fake backends to try out screens by hand (see Playgrounds)
+    serve.ts                           ← the server that `yarn fake <playground>` runs
+    <feature>/
+      <playgroundName>.ts
   <feature>/
     <Feature>TestEnv.ts                ← the shared Env base class of the feature
+    fixtures.ts                        ← example rows (e.g. `JUDO`) and seed functions, shared with the playgrounds
     workflows/
       <scenarioName>.spec.ts           ← one test per file, named after the scenario
     impl/
@@ -226,6 +231,7 @@ the api url with `page.route(...)`.
   There is no `*_and_catch_error` variant: an error is asserted on what the user sees (e.g. the `GlobalError` of the
   form) and on the requests.
 - Ids that the fake backend assigns are predictable (`blog-1`, `blog-post-1`).
+- `respond(method, url, body)` computes a response without Playwright; the playground server uses it too.
 - The MSW handlers (`fe-add-msw`) are for dev and Storybook; tests don't use them. The fake endpoints are the
   authoritative description of the api contract: when the hook and the fake endpoint disagree, the test is right.
 
@@ -245,6 +251,35 @@ the api url with `page.route(...)`.
 - Make the environment deterministic: a fixed `locale`, `timezoneId` and viewport in the config, `page.clock` when the
   app shows dates, a fresh browser context (and so an empty `localStorage`) per test, and never depend on the
   developer's browser or shell.
+
+## Playgrounds
+
+A playground lets the user try out a screen by hand before the real backend exists, for example to iterate on a
+design. It is a fake backend with data, served over http, that the app in the dev server uses instead of the real
+backend.
+
+```ts
+// tests/playgrounds/blogs/createBlog.ts
+export const playground: PlaygroundT = {
+  description: 'A signed-in user who has the blog Judo presses Create blog to create a new blog.',
+  url: '/blogs',
+  setUp: (backend) => {
+    backend.data.userId = 'user-1';
+    addBlog(backend, JUDO);
+  },
+};
+```
+
+- `yarn fake <playground>` (e.g. `yarn fake blogs/createBlog`) serves the playground on port 3200, prints the url to
+  open, and logs every request. `yarn fake` lists the playgrounds.
+- With `useFakeBackend: true` in `src/app/flags.ts`, the app sends its api requests to `/fake-api/`, which vite
+  proxies to port 3200. The flag has no effect in a production build.
+- To switch playgrounds, stop `yarn fake` and start another one, then reload the page. The dev server keeps running.
+- A playground uses the same `FakeBackend`, endpoints and fixtures as the tests. When a screen calls an api that has
+  no fake endpoint, the playground logs the request; add the endpoint.
+- Playgrounds are throw-away: remove one when its screen is done, unless it stays useful as a demo.
+- `yarn fake` runs the TypeScript files with `tsx`; `tests/playgrounds/registerAliases.mjs` maps the `/src/...` and
+  `/tests/...` imports, which `tsx` doesn't resolve.
 
 ## State tests (Vitest)
 

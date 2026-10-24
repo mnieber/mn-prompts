@@ -81,27 +81,38 @@ export class FakeBackend {
     return this.requestsOf(name).at(-1);
   }
 
-  private async handle(route: Route) {
-    const request = route.request();
-    const method = request.method();
-    const path = '/' + request.url().slice(this.apiUrl.length).split('?')[0];
+  /**
+   * Returns the response to a request. The url is either absolute or relative to the api url.
+   * This is used by the page.route handler of the tests and by the playground server.
+   */
+  respond(method: string, url: string, body: any): ResponseT {
+    const relativeUrl = url.startsWith(this.apiUrl)
+      ? url.slice(this.apiUrl.length)
+      : url;
+    const path = '/' + relativeUrl.replace(/^\//, '').split('?')[0];
 
     for (const endpoint of this.endpoints) {
       const params = matchPath(endpoint.path, path);
       if (endpoint.method !== method || !params) continue;
 
-      const body = request.postData() ? request.postDataJSON() : undefined;
       const fakeRequest = { name: endpoint.name, method, path, params, body };
       this.requests.push(fakeRequest);
 
-      const response =
+      return (
         this.failures[endpoint.name]?.shift() ??
-        endpoint.handle(this, fakeRequest);
-      return route.fulfill({ status: response.status, json: response.json });
+        endpoint.handle(this, fakeRequest)
+      );
     }
 
     this.unexpectedRequests.push(`${method} ${path}`);
-    return route.fulfill({ status: 500, json: ['UNEXPECTED_REQUEST'] });
+    return { status: 500, json: ['UNEXPECTED_REQUEST'] };
+  }
+
+  private async handle(route: Route) {
+    const request = route.request();
+    const body = request.postData() ? request.postDataJSON() : undefined;
+    const response = this.respond(request.method(), request.url(), body);
+    return route.fulfill({ status: response.status, json: response.json });
   }
 }
 

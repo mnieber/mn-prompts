@@ -2,6 +2,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 
+// The playground server (yarn fake) listens on this port. See tests/testEnv/urls.ts.
+const playgroundPort = 3200;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), checker({ typescript: true })],
@@ -21,5 +24,22 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      // When flags.useFakeBackend is true, the app sends its api requests to the playground
+      '/fake-api/': {
+        target: `http://localhost:${playgroundPort}`,
+        configure: (proxy) => {
+          proxy.on('error', (error, request, response) => {
+            console.warn(
+              `No fake backend on :${playgroundPort} for ${request.url}. Run yarn fake <playground>.`
+            );
+            if ('writeHead' in response && !response.headersSent) {
+              response.writeHead(502, { 'Content-Type': 'application/json' });
+              response.end(JSON.stringify(['NO_FAKE_BACKEND']));
+            }
+          });
+        },
+      },
+    },
   },
 });

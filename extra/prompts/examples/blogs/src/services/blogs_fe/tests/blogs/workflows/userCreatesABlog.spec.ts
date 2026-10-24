@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 import { BlogsTestEnv } from '/tests/blogs/BlogsTestEnv';
 import { test, type Ctx } from '/tests/testEnv/fixtures';
+import { JUDO } from '/tests/blogs/fixtures';
 
-const JUDO = { name: 'Judo', slug: 'judo', description: 'Throws and pins.' };
 const NAME = 'Brazilian jiu-jitsu';
 const SLUG = 'brazilian-jiu-jitsu';
 const DESCRIPTION = 'Ground fighting, step by step.';
