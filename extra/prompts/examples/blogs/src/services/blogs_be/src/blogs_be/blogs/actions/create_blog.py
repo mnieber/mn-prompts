@@ -2,7 +2,7 @@ import typing as T
 
 from blogs_be.blogs.models import Blog
 from blogs_be.blogs.rules.has_forbidden_words import has_forbidden_words
-from dataclassy import dataclass
+from blogs_be.common.utils.dataclass import dataclass
 from django.contrib.auth import get_user_model
 
 from blogs_be.common.utils.arg_utils import optional_args

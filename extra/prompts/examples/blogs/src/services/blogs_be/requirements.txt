@@ -20,10 +20,6 @@ bottle==0.13.4
     # via woodstock
 cachebox==5.2.3
     # via deepdiff
-dataclassy==1.0.1
-    # via
-    #   -r requirements.in
-    #   woodstock
 deepdiff==9.1.0
     # via -r requirements.in
 django==4.0.10

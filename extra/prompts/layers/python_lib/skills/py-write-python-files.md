@@ -20,4 +20,16 @@ stderr, so that they stay apart from the output on stdout. Use `logging` for dia
 
 ## Dataclasses
 
-RULE: Use the `dataclass` decorator from the `dataclassy` package (not the standard library `dataclasses`). In `dataclassy`, dict fields may be initialized with `= {}` and list fields with `= []`.
+RULE: Use the project's own `dataclass` decorator from `<package>/utils/dataclass.py` (not `dataclasses.dataclass`
+from the standard library, and not the `dataclassy` package).
+
+The decorator delegates to `dataclasses.dataclass`, so the result is an ordinary standard-library dataclass. In
+addition, it lets list, dict and set fields be initialized with a literal (`= []`, `= {}`, `= set()`, or a non-empty
+one such as `= ["a"]`): every instance gets its own deep copy of that default. Values passed to the constructor are
+not copied.
+
+If the project doesn't have `<package>/utils/dataclass.py` yet, copy it from the example
+(`bookie/utils/dataclass.py`). It has no runtime dependencies.
+
+Because the standard library does the rest of the work, its rules apply: a field without a default cannot follow a
+field with a default.

@@ -248,7 +248,6 @@ known_first_party=blogs_be
 List your **direct dependencies** (not transitive dependencies):
 
 ```
-dataclassy
 deepdiff
 Django
 django-cors-headers

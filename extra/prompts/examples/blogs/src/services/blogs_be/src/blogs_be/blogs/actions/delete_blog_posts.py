@@ -1,4 +1,4 @@
-from dataclassy import dataclass
+from blogs_be.common.utils.dataclass import dataclass
 from typing import List
 from django.db import transaction
 from blogs_be.blogs.models import Blog, BlogPost

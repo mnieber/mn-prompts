@@ -1,5 +1,6 @@
-from dataclassy import dataclass
 from typing import List
+
+from bookie.utils.dataclass import dataclass
 
 
 @dataclass

@@ -1,8 +1,9 @@
 import typing as T
 
-from dataclassy import dataclass
 from django.urls import reverse
 from rest_framework.test import APIClient
+
+from blogs_be.common.utils.dataclass import dataclass
 
 PASSWORD = "correct horse battery staple"
 

@@ -4,7 +4,7 @@ from bookie.books.models.book import Book
 from bookie.chapters.actions.create_paragraph import create_paragraph
 from bookie.chapters.enums import TitleStyles
 from bookie.chapters.models.chapter import Chapter
-from dataclassy import dataclass
+from bookie.utils.dataclass import dataclass
 
 logger = logging.getLogger(__name__)
 

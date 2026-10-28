@@ -6,7 +6,7 @@ Applies when writing a schema file: pydantic classes that describe the internal 
 
 ## What is a schema?
 
-A schema file contains pydantic classes that validate and describe the structure of a JSON blob — for example, an API response or a configuration file. Schemas are distinct from models (which are plain dataclassy dataclasses representing domain entities).
+A schema file contains pydantic classes that validate and describe the structure of a JSON blob — for example, an API response or a configuration file. Schemas are distinct from models (which are plain dataclasses representing domain entities).
 
 ## File location
 

@@ -1,6 +1,6 @@
 import copy
 
-from dataclassy import dataclass
+from blogs_be.common.utils.dataclass import dataclass
 from django.contrib.auth import get_user_model
 
 

@@ -3,7 +3,7 @@ name = "bookie"
 description = "Bookie Application"
 version = "0.1.0"
 readme = "README.md"
-dependencies = ["dataclassy", "lorem"]
+dependencies = ["lorem"]
 
 [project.optional-dependencies]
 dev = ["pytest"]

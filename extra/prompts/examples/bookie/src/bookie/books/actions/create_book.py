@@ -4,7 +4,7 @@ import bookie.settings as settings
 import lorem
 from bookie.books.models.book import Book
 from bookie.chapters.actions.create_chapter import CreateChapterForm, create_chapter
-from dataclassy import dataclass
+from bookie.utils.dataclass import dataclass
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 name = "woodstock"
 version = "0.1.0"
 readme = "README.md"
-dependencies = ["dataclassy", "boto3", "bottle"]
+dependencies = ["boto3", "bottle"]
 
 [project.optional-dependencies]
 test = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "moto[s3]>=4.0.0"]

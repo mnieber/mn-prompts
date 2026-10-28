@@ -2,9 +2,9 @@ import random
 import typing as T
 
 import pytest
-from dataclassy import dataclass
 
 from bookie.runtime.entrypoints.bookie import main, run
+from bookie.utils.dataclass import dataclass
 
 
 @dataclass

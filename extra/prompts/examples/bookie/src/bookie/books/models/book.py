@@ -1,5 +1,6 @@
-from dataclassy import dataclass
 import typing as T
+
+from bookie.utils.dataclass import dataclass
 
 if T.TYPE_CHECKING:
     from bookie.chapters.models.chapter import Chapter

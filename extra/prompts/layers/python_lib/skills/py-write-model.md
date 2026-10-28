@@ -16,13 +16,15 @@ RULE: Use a separate file for each model, even when this results in a very small
 
 ## Structure
 
-RULE: A model is a class decorated with `@dataclass` from the `dataclassy` package (not the standard library).
+RULE: A model is a class decorated with the project's own `@dataclass` from `<package>/utils/dataclass.py` (see
+the Dataclasses section of [py-write-python-files](py-write-python-files.md)), not the standard library decorator.
 
 Example from `book.py`:
 
 ```python
-from dataclassy import dataclass
 import typing as T
+
+from bookie.utils.dataclass import dataclass
 
 if T.TYPE_CHECKING:
     from bookie.chapters.models.chapter import Chapter
@@ -36,12 +38,13 @@ class Book:
 
 Key points:
 - Use `T.TYPE_CHECKING` guards for imports that would cause circular imports at runtime.
-- List fields can be initialized with `= []` thanks to `dataclassy`.
+- List, dict and set fields can be initialized with `= []`, `= {}` and `= set()` thanks to our `dataclass`
+  decorator: every instance gets its own copy of the default.
 - No docstring or header comment on the class.
 
 ## Checklist
 
 - [ ] One model per file under `<module>/models/`
-- [ ] `@dataclass` from `dataclassy`, not `dataclasses`
+- [ ] `@dataclass` from `<package>/utils/dataclass.py`, not from `dataclasses` or `dataclassy`
 - [ ] Circular imports avoided with `TYPE_CHECKING` guard
 - [ ] No class docstring or header comment

@@ -6,7 +6,7 @@ When you are asked to generate code, or to plan for generating code, identify wh
 
 ### General Python conventions
 
-Comments, logging, and dataclassy usage — applies to every Python file.
+Comments, logging, and the `dataclass` decorator — applies to every Python file.
 → [py-write-python-files](skills/py-write-python-files.md)
 
 ### Action
@@ -16,7 +16,7 @@ A function that changes application state. Covers forms co-location, exception h
 
 ### Model
 
-A dataclassy dataclass representing a domain entity.
+A dataclass representing a domain entity.
 → [py-write-model](skills/py-write-model.md)
 
 ### Rule
