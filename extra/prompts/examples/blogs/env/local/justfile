@@ -17,3 +17,7 @@ pip-compile: _pip_compile
 
 render-specs:
     sunya render --create-simple-output-dir --watch --poll-interval=3
+
+# Run the end-to-end tests on the host, with the python3 of the venv that has jaz
+e2e-tests *args:
+    cd "$ROOT_DIR" && "$PYTHON" -m pytest e2e_tests {{args}}

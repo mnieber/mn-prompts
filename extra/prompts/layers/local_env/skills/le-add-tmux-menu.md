@@ -67,12 +67,13 @@ another pane.
 
 `tmux.jaz` calls `python3 tmux_menu.py open`, which creates the session, and starts
 `tmux_menu.py pick` (the menu loop) in the `Menu` window. The script reads the menu with
-`from jazzoo import get_config`.
+`from jazzoo import get_config`, and runs tmux with `from jazzoo import run`.
 
-RULE: the menu loop must run as a stand-alone script in a tmux pane, never inside a Jazzoo block. Jazzoo
-captures the stdout of a block and prints it only when the block ends, so a menu inside a block would show
-nothing. (`tmux attach-session` does work inside a block, because tmux draws on the terminal it gets through
-stdin.)
+RULE: the `tmux` target is `[interactive]`, so that `jaz` does not capture the output of `open`: tmux attaches
+to the terminal, and its messages (and any errors of the script) appear when they happen.
+
+RULE: the menu loop runs as a stand-alone script in the `Menu` pane, which `open` starts there with
+`tmux send-keys`. It reads the config through `JAZZOO_CONFIG_FILES`, not through `jaz`.
 
 RULE: `open` copies `JAZZOO_CONFIG_FILES` into the session with `tmux set-environment`. Panes are started by the
 tmux server and do not inherit the environment of `jaz tmux`, so without this the menu cannot read the config.
@@ -89,6 +90,14 @@ as `open`.
 - `tmux` is installed.
 - `python3` on the `PATH` has `jazzoo` installed, i.e. the venv with `jaz` is active.
 
+## Testing
+
+`examples/blogs/e2e_tests/` has an end-to-end test that runs `jaz tmux` in a pseudo-terminal against an
+isolated tmux server (its socket lives in the test's tmp dir), picks commands and checks the panes. Copy it
+along with the target, and adapt the expected menu entries. Run it with `just e2e-tests` (a recipe in
+`env/local/justfile` that runs `pytest e2e_tests` from the stack's root dir), in the venv that has `jaz`.
+Extra arguments go to pytest. The test is skipped when `tmux` or `jaz` is missing.
+
 ## Checklist
 
 - [ ] `tmux.jaz` and `tmux_menu.py` copied to `env/local/jaz/tmux/`
@@ -96,3 +105,4 @@ as `open`.
 - [ ] The root `jazzoo` module loads the config and exports `tmux`
 - [ ] `jaz --list` shows `tmux`
 - [ ] `jaz tmux` opens the session with the menu in window 1, and a picked command runs in a new pane
+- [ ] The e2e test is copied to `e2e_tests/`, adapted to the menu, and `just e2e-tests` passes

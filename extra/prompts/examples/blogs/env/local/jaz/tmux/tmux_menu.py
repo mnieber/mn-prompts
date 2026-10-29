@@ -8,23 +8,14 @@ config that the Jazzoo file loaded.
 import argparse
 import os
 import shutil
-import subprocess
 import sys
 import time
 
 from jazzoo import get_config as get
+from jazzoo import run
 
 CONFIG_FILES_ENV_VAR = "JAZZOO_CONFIG_FILES"
 MENU_WINDOW = "1"
-
-
-def run(args, capture=False):
-    """Run a command; raise on a non-zero exit code. Return stdout if capture is set.
-
-    This is a stand-in for the `run` function that Jazzoo will provide.
-    """
-    completed = subprocess.run(args, check=True, capture_output=capture, text=True)
-    return completed.stdout if capture else None
 
 
 def _normalize(category):
@@ -62,10 +53,9 @@ def _parse_selection(text):
 
 
 def _has_session(session):
-    completed = subprocess.run(
-        ["tmux", "has-session", "-t", session], capture_output=True
-    )
-    return completed.returncode == 0
+    # tmux answers through the exit code; its "can't find session" is not an error
+    result = run(["tmux", "has-session", "-t", session], capture=True, check=False)
+    return result.returncode == 0
 
 
 def open_session(category, session):
@@ -93,7 +83,9 @@ def open_session(category, session):
         )
         window = f"{session}:{MENU_WINDOW}"
         run(["tmux", "new-window", "-t", window, "-n", "Menu", "-c", project_dir])
-        pick_command = f"{sys.executable} {os.path.abspath(__file__)} pick --category={category}"
+        pick_command = (
+            f"{sys.executable} {os.path.abspath(__file__)} pick --category={category}"
+        )
         run(["tmux", "send-keys", "-t", window, pick_command, "C-m"])
 
     if os.environ.get("TMUX"):
@@ -134,9 +126,18 @@ def pick(category):
         for command in selected:
             print(command)
             pane = run(
-                ["tmux", "split-window", "-v", "-t", menu_pane, "-P", "-F", "#{pane_id}"],
+                [
+                    "tmux",
+                    "split-window",
+                    "-v",
+                    "-t",
+                    menu_pane,
+                    "-P",
+                    "-F",
+                    "#{pane_id}",
+                ],
                 capture=True,
-            ).strip()
+            ).stdout.strip()
             # Give the shell in the new pane time to start
             time.sleep(0.5)
             run(["tmux", "send-keys", "-t", pane, command, "C-m"])
