@@ -1,3 +1,4 @@
 configs:
   - src/services/blogs_be/extra/spec_src/sunya.config.yaml
+  - extra/spec_src/using_the_local_env/sunya.config.yaml
 output_dir: /opt/projects/sunya/browse

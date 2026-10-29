@@ -1,0 +1,7 @@
+output_dir: ../../../doc/spec/using_the_local_env
+component_name: using_the_local_env
+package_config_by_name:
+  using_the_local_env:
+    output_dir: .
+    scenario_paths:
+      - scenarios/**/scenario.py
