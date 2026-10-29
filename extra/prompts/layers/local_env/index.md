@@ -58,6 +58,11 @@ A stub for a Python library whose source code lives in a separate repository.
 The dodo_commands config files (`config.yaml`, `stack.root.yaml`, `stack.<service>.yaml`).
 → [le-write-dodo-config-files](./skills/le-write-dodo-config-files.md)
 
+### Tmux menu
+
+A `jaz tmux` target that opens a tmux session with a menu of commands, each picked command running in its own pane.
+→ [le-add-tmux-menu](./skills/le-add-tmux-menu.md)
+
 ### Spec src
 
 An `extra/spec_src/` directory for a service, wired into the root `sunya.config.yaml`.
@@ -77,3 +82,4 @@ When setting up a new stack from scratch, apply the skills in roughly this order
 6. `le-add-python-lib` + `le-add-python-stub-lib` — in-stack libraries and external library stubs (if applicable)
 7. `le-write-dodo-config-files` — dodo_commands wiring
 8. `le-add-spec-src` — spec source directories (if applicable)
+9. `le-add-tmux-menu` — tmux session with a menu of commands (if applicable)
