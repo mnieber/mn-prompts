@@ -1,3 +1,4 @@
 ⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
 
 from ./env/local/jaz/tmux/tmux.jaz export tmux
+from ./env/local/jaz/edit_config/edit_config.jaz export edit-config

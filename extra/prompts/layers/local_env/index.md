@@ -63,6 +63,11 @@ The dodo_commands config files (`config.yaml`, `stack.root.yaml`, `stack.<servic
 A `jaz tmux` target that opens a tmux session with a menu of commands, each picked command running in its own pane.
 → [le-add-tmux-menu](./skills/le-add-tmux-menu.md)
 
+### Edit config
+
+A `jaz edit-config` target that opens the stack's config files in an editor.
+→ [le-add-edit-config](./skills/le-add-edit-config.md)
+
 ### Spec src
 
 An `extra/spec_src/` directory for a service, wired into the root `sunya.config.yaml`.
@@ -83,3 +88,4 @@ When setting up a new stack from scratch, apply the skills in roughly this order
 7. `le-write-dodo-config-files` — dodo_commands wiring
 8. `le-add-spec-src` — spec source directories (if applicable)
 9. `le-add-tmux-menu` — tmux session with a menu of commands (if applicable)
+10. `le-add-edit-config` — a target that opens the config files in an editor (if applicable)

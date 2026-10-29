@@ -5,3 +5,7 @@ tmux:
       - whoami
       - date
       - uptime
+edit_config:
+  editor: gedit
+  files:
+    - env/local/config/*.yaml

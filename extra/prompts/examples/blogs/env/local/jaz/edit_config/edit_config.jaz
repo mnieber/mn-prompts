@@ -1,0 +1,6 @@
+🐭.script = ⚙️.module.dirname / "edit_config.py"
+
+# Open the config files of this project in an editor.
+[interactive]
+edit-config():
+    @python3 🐭.script --root-dir=⚙️.root_module.dirname
