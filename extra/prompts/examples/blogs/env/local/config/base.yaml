@@ -1,0 +1,7 @@
+tmux:
+  session: blogs
+  menu:
+    examples:
+      - whoami
+      - date
+      - uptime

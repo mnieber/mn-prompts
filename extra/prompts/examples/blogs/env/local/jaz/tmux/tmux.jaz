@@ -1,0 +1,5 @@
+🐭.script = ⚙️.module.dirname / "tmux_menu.py"
+
+# Open the tmux session of this project, with a menu of commands in window 1.
+tmux(category="all", session=""):
+    @python3 🐭.script open --category=🐆.category --session=🐆.session
