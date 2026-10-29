@@ -2,6 +2,10 @@
 
 A new feature goes through five phases. Each phase is a separate task: I tell you which one we're working on.
 
+The paths below assume a flat `spec_src` directory. When `spec_src` has a subdirectory per topic (see
+[writing specs](./app-write-specs.md)), they are relative to the topic directory (e.g.
+`extra/spec_src/<topic>/design/design.md`).
+
 `RULE`: dont insert cross-references (e.g. to milestones) into the spec documents or the code. These cross-references are not helpful and easily go stale.
 
 ## 1. Design

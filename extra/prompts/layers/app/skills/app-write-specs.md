@@ -17,6 +17,48 @@ can consult.
 
 Modules are defined implicitly through the scenario spec files. All code-unit declarations are made implicitly in the scenario files by referencing module paths such as `c.Books.Actions.CreateBook`, which implies that the books module has an Actions section with a CreateBook action.
 
+## The layout of the spec_src directory
+
+A `spec_src` directory has one of two layouts:
+
+1. Flat: the `design` and `scenarios` directories are directly inside `spec_src`.
+
+```
+extra/spec_src/
+├── design/
+└── scenarios/
+```
+
+2. Per topic: `spec_src` has a subdirectory per topic (e.g. `changelog` and `release_notes`), and each topic has its
+   own `design` and `scenarios` directories.
+
+```
+extra/spec_src/
+├── changelog/
+│   ├── sunya.config.yaml
+│   ├── design/
+│   └── scenarios/
+└── release_notes/
+    ├── sunya.config.yaml
+    ├── design/
+    └── scenarios/
+```
+
+   Each topic has its own `sunya.config.yaml`, and the root `sunya.config.yaml` lists all of them:
+
+```yaml
+configs:
+  - extra/spec_src/changelog/sunya.config.yaml
+  - extra/spec_src/release_notes/sunya.config.yaml
+```
+
+`RULE`: in the per-topic layout, ask me which topic we're working on when it's not clear from the task, and
+put new scenarios in the scenarios directory of that topic. Don't add a new topic without asking. When you add a
+topic, also add its `sunya.config.yaml` to the `configs` list of the root `sunya.config.yaml`.
+
+In the rest of the skill files, paths such as `extra/spec_src/scenarios/` refer to the flat layout; in the per-topic
+layout read them as `extra/spec_src/<topic>/scenarios/`.
+
 ## Specs import from the sunya package
 
 The sunya package can be used to render the spec_src to Markdown files. However, for our purposes, we can leave this step out of consideration.

@@ -11,7 +11,7 @@ The five phases of developing a feature (design, test plan, tests, code and scen
 
 ### Writing specs
 
-How to write scenario specs: implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section.
+How to write scenario specs: the spec_src layout (flat or per topic), implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section.
 → [app-write-specs](./skills/app-write-specs.md)
 
 ### Mapping specs to implementation
