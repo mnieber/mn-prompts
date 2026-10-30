@@ -18,6 +18,7 @@ $ jaz compose.restart                       # down, python.pip-compile, build, u
 $ jaz compose.run blogs_be cmd="pytest"     # run a command in a new container
 $ jaz compose.compile-env-files             # compile the .env.in files
 $ jaz python.pip-compile                    # compile requirements.txt of the Python services
+$ jaz python.publish package-dir=src/libs/x # build a library and upload it to PyPI
 ```
 
 `jaz --list compose` lists the targets.
@@ -29,6 +30,8 @@ $ jaz python.pip-compile                    # compile requirements.txt of the Py
   `docker-compose.override.yml` if it is missing.
 - `run` passes the words of `cmd` after the service name; without `cmd`, the service runs its own command.
   The container is removed when the command ends.
+- `python.publish` asks for the password before the upload. Its config (`/python/pypi`) and its rules are in
+  [py-publish-to-pypi](../../python_lib/skills/py-publish-to-pypi.md).
 - To open a shell in a running container, use `jaz docker.exec` (see
   [le-manage-docker-containers](./le-manage-docker-containers.md)); there is no `compose.shell`.
 
@@ -94,6 +97,9 @@ compose:
 python:
   services:
     - blogs_be
+  pypi:
+    username: __token__
+    publish_url: https://upload.pypi.org/legacy/
 ```
 
 - `/docker/compose_project` is the Docker Compose project name: the stack name, in lower case. It prefixes
@@ -103,6 +109,7 @@ python:
   build args `OS_CUSTOM_PACKAGES` and `PIP_CUSTOM_PACKAGES` when they are not empty (see
   [le-add-base-image](./le-add-base-image.md)).
 - `/python/services` lists the services whose requirements `python.pip-compile` compiles.
+- `/python/pypi` holds the user name and the upload url of `python.publish`.
 
 ### The developer's own settings
 
@@ -162,6 +169,6 @@ renders each `env/local/docker/env_files/<service>.env.in` into `<service>.env`.
 - [ ] The root `jazzoo` file loads `base.yaml` and the optional `local.yaml`, and exports `compose` and `python`
 - [ ] `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py` are copied
 - [ ] `BLOGS_LIBS_DIR` is renamed to `<STACK>_LIBS_DIR` in `python_tools.py`
-- [ ] `base.yaml` has `/docker/compose_project`, `/compose/*` and `/python/services`
+- [ ] `base.yaml` has `/docker/compose_project`, `/compose/*`, `/python/services` and `/python/pypi`
 - [ ] `env/local/.gitignore` excludes `docker/env_files/*.env`, `secrets.env` and `config/local.yaml`
 - [ ] Non-secrets are hard-coded in the `.env.in` files

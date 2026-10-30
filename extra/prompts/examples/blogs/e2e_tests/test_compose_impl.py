@@ -13,6 +13,7 @@ TARGETS = [
     "compose.run",
     "compose.compile-env-files",
     "python.pip-compile",
+    "python.publish",
 ]
 
 

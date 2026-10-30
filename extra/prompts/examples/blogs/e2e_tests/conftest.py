@@ -13,6 +13,7 @@ ENABLED_TEST_FILES = [
     "test_developer_restarts_the_stack.py",
     "test_developer_runs_a_command_in_a_new_container.py",
     "test_python_impl.py",
+    "test_developer_publishes_a_python_lib.py",
 ]
 
 collect_ignore = [

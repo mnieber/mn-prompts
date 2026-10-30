@@ -59,6 +59,12 @@ A module-level `enums.py` file derived from the `Enums` section of the scenario 
 An application entrypoint file and its `pyproject.toml` registration.
 → [py-write-entrypoint](skills/py-write-entrypoint.md)
 
+### Publishing to PyPI
+
+The `pyproject.toml` metadata of a library, and the `jaz python.publish` target that builds it and uploads it to
+PyPI.
+→ [py-publish-to-pypi](skills/py-publish-to-pypi.md)
+
 ---
 
 ## Key Principles

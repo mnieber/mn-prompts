@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 import pty
+import select
 import shutil
 import struct
 import subprocess
@@ -50,7 +51,11 @@ RECORDED_VARS = [
     "DOCKER_BUILDKIT",
     "COMPOSE_BAKE",
     "BLOGS_LIBS_DIR",
+    "UV_PUBLISH_PASSWORD",
 ]
+
+# The prompt of python.publish
+PASSWORD_PROMPT = "Password:"
 
 FAKE_TOOL = """#!{python}
 import json
@@ -65,8 +70,44 @@ with open(os.environ["FAKE_TOOLS_CALLS_FILE"], "a") as f:
         env={{name: os.environ.get(name) for name in {recorded_vars}}},
     )
     f.write(json.dumps(call) + "\\n")
+{extra}
 sys.exit(int(os.environ.get("FAKE_{tool_upper}_EXIT_CODE", "0")))
 """
+
+# What the fake uv does besides recording its call: uv build writes a fake sdist
+# and wheel into its --out-dir, named after the pyproject.toml of the package dir.
+# FAKE_UV_PUBLISH_EXIT_CODE makes only uv publish fail.
+FAKE_UV_EXTRA = """
+import re
+from pathlib import Path
+
+
+def option(args, name):
+    for idx, arg in enumerate(args):
+        if arg.startswith(name + "="):
+            return arg.split("=", 1)[1]
+        if arg == name:
+            return args[idx + 1]
+    return None
+
+
+args = sys.argv[1:]
+if args[:1] == ["build"] and os.environ.get("FAKE_UV_EXIT_CODE", "0") == "0":
+    out_dir = option(args, "--out-dir")
+    package_dirs = [x for x in args[1:] if not x.startswith("-") and x != out_dir]
+    package_dir = Path(package_dirs[-1] if package_dirs else os.getcwd())
+    pyproject = (package_dir / "pyproject.toml").read_text()
+    name = re.search(r'^name = "(.*)"', pyproject, re.M).group(1)
+    version = re.search(r'^version = "(.*)"', pyproject, re.M).group(1)
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    (Path(out_dir) / f"{name}-{version}.tar.gz").write_text("sdist")
+    (Path(out_dir) / f"{name}-{version}-py3-none-any.whl").write_text("wheel")
+if args[:1] == ["publish"] and "FAKE_UV_PUBLISH_EXIT_CODE" in os.environ:
+    sys.exit(int(os.environ["FAKE_UV_PUBLISH_EXIT_CODE"]))
+"""
+
+# The options of the uv commands that take a value
+UV_VALUE_OPTIONS = ["--out-dir", "--publish-url", "--username"]
 
 
 @dataclasses.dataclass
@@ -84,6 +125,7 @@ class TestEnv:
         self.exit_code: T.Optional[int] = None
         self.output: T.Optional[str] = None
         self.error_output: T.Optional[str] = None
+        self.password_prompted: T.Optional[bool] = None
         self.attached: T.List[subprocess.Popen] = []
         # A copy of the project, so that the developer's own files don't change the
         # results, and are not overwritten
@@ -148,6 +190,47 @@ class TestEnv:
         # tmux draws on the terminal; drain it, so that the tmux client never blocks
         threading.Thread(target=_drain, args=(master,), daemon=True).start()
 
+    def run_jaz_and_type_password(self, password: str, *args: str):
+        """Runs jaz in the project in a pseudo-terminal, as a developer would, and
+        types the password (and enter) when jaz asks for it. Stores what the terminal
+        showed in env.output, and whether jaz asked for the password in
+        env.password_prompted."""
+        master, slave = pty.openpty()
+        process = subprocess.Popen(
+            ["jaz", *args],
+            cwd=self.project_dir,
+            stdin=slave,
+            stdout=slave,
+            stderr=slave,
+            start_new_session=True,
+        )
+        os.close(slave)
+        output = b""
+        self.password_prompted = False
+        deadline = time.monotonic() + 30
+        while True:
+            if time.monotonic() > deadline:
+                process.kill()
+                raise TimeoutError("jaz did not end in time")
+            ready, _, _ = select.select([master], [], [], 0.2)
+            if ready:
+                try:
+                    chunk = os.read(master, 1024)
+                except OSError:
+                    # The terminal is closed: jaz has ended
+                    chunk = b""
+                if not chunk:
+                    break
+                output += chunk
+                if not self.password_prompted and PASSWORD_PROMPT.encode() in output:
+                    self.password_prompted = True
+                    os.write(master, password.encode() + b"\n")
+            elif process.poll() is not None:
+                break
+        os.close(master)
+        self.exit_code = process.wait(timeout=10)
+        self.output = output.decode(errors="replace").replace("\r\n", "\n")
+
     def install_fake_tools(self):
         """Puts fake docker and uv executables first on the PATH. They record each
         call in calls.jsonl, and succeed unless fail_tool says otherwise."""
@@ -161,6 +244,7 @@ class TestEnv:
                     tool=tool,
                     tool_upper=tool.upper(),
                     recorded_vars=RECORDED_VARS,
+                    extra=FAKE_UV_EXTRA if tool == "uv" else "",
                 )
             )
             path.chmod(0o755)
@@ -185,7 +269,16 @@ class TestEnv:
 
     def write_file(self, path: str, text: str):
         """Writes a file of the project, relative to its root."""
+        (self.project_dir / path).parent.mkdir(parents=True, exist_ok=True)
         (self.project_dir / path).write_text(text)
+
+    def write_lib(self, path: str, name: str, version: str):
+        """Writes the pyproject.toml of a library. A relative path is relative to the
+        root of the project."""
+        self.write_file(
+            f"{path}/pyproject.toml",
+            f'[project]\nname = "{name}"\nversion = "{version}"\n',
+        )
 
     def forget_calls(self):
         self.calls_file.unlink(missing_ok=True)
@@ -276,6 +369,34 @@ class TestEnv:
     def build_args(self, call: dict) -> T.List[str]:
         args = call["args"]
         return [args[idx + 1] for idx, arg in enumerate(args) if arg == "--build-arg"]
+
+    def uv_call(self, command: str) -> dict:
+        """The last call of uv with this command, e.g. "build" or "publish"."""
+        return [x for x in self.calls("uv") if x["args"][:1] == [command]][-1]
+
+    def option(self, call: dict, name: str) -> T.Optional[str]:
+        """The value of an option of a call, as --name=value or --name value."""
+        args = call["args"]
+        for idx, arg in enumerate(args):
+            if arg.startswith(name + "="):
+                return arg.split("=", 1)[1]
+            if arg == name:
+                return args[idx + 1]
+        return None
+
+    def positional_args(self, call: dict) -> T.List[str]:
+        """The args of a uv call after its command that are not options."""
+        args = call["args"][1:]
+        result = []
+        idx = 0
+        while idx < len(args):
+            if args[idx] in UV_VALUE_OPTIONS:
+                idx += 2
+                continue
+            if not args[idx].startswith("-"):
+                result.append(args[idx])
+            idx += 1
+        return result
 
     def relative_path(self, path: str) -> str:
         return str(Path(path).resolve().relative_to(self.project_dir))

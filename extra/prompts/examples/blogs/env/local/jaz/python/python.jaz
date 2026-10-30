@@ -4,3 +4,11 @@
 [interactive]
 pip-compile():
     @⚙️.python 🐭.script pip-compile --root-dir=⚙️.root_module.dirname
+
+# Build the library in package-dir (relative to the root dir of the project), and
+# upload it to /python/pypi/publish_url. Asks for the password (for PyPI: an API
+# token) before the upload.
+[interactive]
+publish(package-dir):
+    🐆.safe-package-dir = 🐆.package-dir | ⚙️.sh-quote
+    @⚙️.python 🐭.script publish --root-dir=⚙️.root_module.dirname --package-dir=🐆.safe-package-dir
