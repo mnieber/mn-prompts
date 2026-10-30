@@ -41,7 +41,7 @@ def _compose_dir(root_dir):
 def _is_local(local):
     if local == "":
         return bool(get("/compose/use_dockerfile_local", default=False))
-    return local.lower() in ("true", "yes", "on", "1")
+    return local == "true"
 
 
 def _compose(root_dir, files, args, is_build=False, check=True):
@@ -112,10 +112,11 @@ def up(root_dir, local):
     _compose(root_dir, _run_files(root_dir, local), ["up"])
 
 
-def down(root_dir):
+def down(root_dir, volumes):
     compile_env_files(root_dir)
     files = [COMPOSE_YML, SRC_OVERLAYS_YML, OVERRIDE_YML]
-    _compose(root_dir, files, ["down", "--remove-orphans"])
+    volumes_args = ["--volumes"] if volumes else []
+    _compose(root_dir, files, ["down", "--remove-orphans", *volumes_args])
 
 
 def run_in_container(root_dir, service, cmd, local):
@@ -137,8 +138,10 @@ def init(root_dir, local):
         raise
 
     homepage = get("/compose/init/homepage", default=DEFAULT_HOMEPAGE)
+    # Ask for html, as a browser does: the Vite dev server answers 404 otherwise
+    request = urllib.request.Request(homepage, headers={"Accept": "text/html"})
     try:
-        with urllib.request.urlopen(homepage, timeout=10):
+        with urllib.request.urlopen(request, timeout=10):
             pass
     except OSError as e:
         print(f"The stack is healthy, but {homepage} failed: {e}", file=sys.stderr)
@@ -172,7 +175,8 @@ def _args():
     up_parser = add_parser("up")
     up_parser.add_argument("--local", default="")
 
-    add_parser("down")
+    down_parser = add_parser("down")
+    down_parser.add_argument("--volumes", action="store_true")
 
     run_parser = add_parser("run")
     run_parser.add_argument("--service", required=True)
@@ -197,7 +201,7 @@ if __name__ == "__main__":
         elif args.action == "up":
             up(args.root_dir, args.local)
         elif args.action == "down":
-            down(args.root_dir)
+            down(args.root_dir, args.volumes)
         elif args.action == "run":
             run_in_container(args.root_dir, args.service, args.cmd, args.local)
         elif args.action == "init":

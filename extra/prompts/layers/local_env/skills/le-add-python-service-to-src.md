@@ -326,6 +326,9 @@ check():
 
 **RULE:** `init-dev` must be safe to run again (e.g. `create-db` and `create-superuser` ignore what exists).
 
+**RULE:** `init-dev` runs in the container without a terminal, so its targets must not prompt: pass the
+non-interactive flag of each command (e.g. `collectstatic --noinput`, `createsuperuser --noinput`).
+
 **RULE:** `check` uses `127.0.0.1`, not `localhost`: the server binds to `0.0.0.0`, and in the container
 `localhost` may resolve to `::1`.
 

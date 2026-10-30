@@ -1509,6 +1509,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aspiration@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "aspiration@npm:0.6.0"
+  checksum: 10c0/92989146bc7d327b5ddf3cb02fecf7cc2fd02496b036c07b6df4a6bec4cf2b40364fe06551d9f1f240a9cefcbaf18dc0937ba2466caa75cca078e765d9778cb6
+  languageName: node
+  linkType: hard
+
 "asynckit@npm:^0.4.0":
   version: 0.4.0
   resolution: "asynckit@npm:0.4.0"
@@ -1591,6 +1598,7 @@ __metadata:
     "@types/react-dom": "npm:^18.0.11"
     "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-react": "npm:^4.0.0"
+    aspiration: "npm:^0.6.0"
     autoprefixer: "npm:^10.4.14"
     axios: "npm:^1.7.2"
     camelcase-keys: "npm:^9.1.3"
@@ -1604,23 +1612,23 @@ __metadata:
     mobx-log: "npm:^2.1.1"
     mobx-observable-history: "npm:^2.0.3"
     mobx-react-lite: "npm:^3.4.3"
-    mobx-resource-states: "portal:/npm/mobx-resource-states"
+    mobx-resource-states: "npm:^0.1.0"
     postcss: "npm:^8.4.23"
     prop-types: "npm:^15.8.1"
     ramda: "npm:^0.29.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
-    react-form-state-context: "portal:/npm/react-form-state-context"
+    react-form-state-context: "npm:^2.4.1"
     react-keyboard-event-handler: "npm:^1.5.4"
     react-markdown: "npm:^9.0.1"
-    react-nav-handler: "portal:/npm/react-nav-handler"
-    react-props-from-context: "portal:/npm/react-props-from-context"
+    react-nav-handler: "npm:^0.2.0"
+    react-props-from-context: "npm:^1.0.0"
     react-select: "npm:^5.8.0"
     react-textarea-autosize: "npm:^8.5.3"
     sass: "npm:^1.62.1"
-    skandha: "portal:/npm/skandha"
-    skandha-facets: "portal:/npm/skandha-facets"
-    skandha-mobx: "portal:/npm/skandha-mobx"
+    skandha: "npm:^0.14.0"
+    skandha-facets: "npm:^0.14.0"
+    skandha-mobx: "npm:^0.14.0"
     snakecase-keys: "npm:^8.0.1"
     tailwindcss: "npm:^3.3.2"
     tsx: "npm:4.19.2"
@@ -3644,13 +3652,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx-resource-states@portal:/npm/mobx-resource-states::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "mobx-resource-states@portal:/npm/mobx-resource-states::locator=blogs-fe%40workspace%3A."
+"mobx-resource-states@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "mobx-resource-states@npm:0.1.0"
   peerDependencies:
     mobx: ^6.9.0
+  checksum: 10c0/f150ad95f6fe051c69e4b8f8b2e7ba0d6260baca93cc61924c0b85abed53c5c2816dd9ef133e94fbffd0ded98cdcdd6fc70c0b8b1389b6feb6517c10574a677d
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "mobx@npm:^6.3.0, mobx@npm:^6.9.0":
   version: 6.13.0
@@ -4114,14 +4123,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-form-state-context@portal:/npm/react-form-state-context::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "react-form-state-context@portal:/npm/react-form-state-context::locator=blogs-fe%40workspace%3A."
+"react-form-state-context@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "react-form-state-context@npm:2.4.1"
   peerDependencies:
     "@types/react": ">=16.9.52"
     react: ">=16.13.1"
+  checksum: 10c0/45cd4a2a7c234f16780cbdabe727b359644ab535ece95e2d53de65bdce3216743f52536739d2b7404feb014903e0eb98c261233851242df660012370157aaa43
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
@@ -4161,23 +4171,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-nav-handler@portal:/npm/react-nav-handler::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "react-nav-handler@portal:/npm/react-nav-handler::locator=blogs-fe%40workspace%3A."
+"react-nav-handler@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "react-nav-handler@npm:0.2.0"
   peerDependencies:
     "@types/react": ">=16.9.52"
     react: ">=16.13.1"
+  checksum: 10c0/62d29e75fa1f8fce564e45314ad1c1844f997b4b609ab02c4aefbaca635a292e52d5484c4c01fed3ae9d6162db8b9e136620e88aa2ddbb74bc39325e4b21201c
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"react-props-from-context@portal:/npm/react-props-from-context::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "react-props-from-context@portal:/npm/react-props-from-context::locator=blogs-fe%40workspace%3A."
+"react-props-from-context@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "react-props-from-context@npm:1.0.0"
   peerDependencies:
     "@types/react": ">=16.9.52"
     react: ">=16.13.1"
+  checksum: 10c0/ae00b95c09fb8c298cded4ca7171429ce7f3760e0187cef0e040e2b449279bee5e4a8721cbeb1ea617ddf476a596bc546fd3648a4153106dafb2f73f697bdbcb
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "react-refresh@npm:^0.14.2":
   version: 0.14.2
@@ -4468,30 +4480,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"skandha-facets@portal:/npm/skandha-facets::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "skandha-facets@portal:/npm/skandha-facets::locator=blogs-fe%40workspace%3A."
+"skandha-facets@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "skandha-facets@npm:0.14.0"
   peerDependencies:
     aspiration: ">=0.6.0"
     skandha: ">=0.14.0"
+  checksum: 10c0/f43ca20e6bcc732fd9d6cbe49f63677969b7203ecc36ef83fd24051ecc5c41e81badb40ef060bcfc5670c4a3616a4412ce8641b89b80a36b5441e458c385aa9c
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"skandha-mobx@portal:/npm/skandha-mobx::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "skandha-mobx@portal:/npm/skandha-mobx::locator=blogs-fe%40workspace%3A."
+"skandha-mobx@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "skandha-mobx@npm:0.14.0"
   peerDependencies:
     aspiration: ">=0.6.0"
     mobx: ^6.1.8
     skandha: ^0.14.0
+  checksum: 10c0/c82be63ac474daa1769a3cef97938a7a7649bc3a0b360a74238fd9c05fd03fb8b8a4f14ec56031ba70ba2e541b076b46361cfbb709cdebb88b452493493d2d04
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"skandha@portal:/npm/skandha::locator=blogs-fe%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "skandha@portal:/npm/skandha::locator=blogs-fe%40workspace%3A."
+"skandha@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "skandha@npm:0.14.0"
+  checksum: 10c0/885db4f20050655feba5686ec50b23a2e1401c5b28b84f6c4079033806e5edc4ba89a4950981db79c28b488344626897ebf6d300ff5036b120b88632b8feff23
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "snake-case@npm:^3.0.4":
   version: 3.0.4

@@ -152,9 +152,13 @@ Create `env/local/docker/env_files/blogs_fe.env.in`:
 
 ```bash
 VITE_LOCALHOST_API_ENDPOINT=http://localhost:8000/api
+COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 ```
 
 Frontend environment variables exposed to Vite must be prefixed with `VITE_`. Non-secret values like API endpoints are hard-coded directly in the `.env.in` file.
+
+**RULE:** Set `COREPACK_ENABLE_DOWNLOAD_PROMPT=0`. Corepack downloads the yarn version of `packageManager` on first
+use, and otherwise asks first, which blocks `jaz compose.init` (it runs `yarn install` without a terminal).
 
 **RULE:** Find out which port (e.g. `8000`) is used by the backend service (e.g. `blogs_be`) that is targetted by the react service (e.g. `blogs_fe`).
 

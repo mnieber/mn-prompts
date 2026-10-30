@@ -15,6 +15,7 @@ $ jaz compose.build                         # build the images of the services
 $ jaz compose.up                            # start the stack
 $ jaz compose.init                          # init the services, run their servers, check the stack
 $ jaz compose.down                          # stop the stack, remove its containers
+$ jaz compose.down volumes=true             # ... and its volumes: the next up starts a new stack
 $ jaz compose.restart                       # down, python.pip-compile, build, up
 $ jaz compose.run blogs_be cmd="pytest"     # run a command in a new container
 $ jaz compose.compile-env-files             # compile the .env.in files
@@ -27,6 +28,8 @@ $ jaz python.publish package-dir=src/libs/x # build a library and upload it to P
 - `build`, `up`, `init`, `restart` and `run` take `local=true` to use the `Dockerfile.local` images, and `local=false`
   to use the `Dockerfile` images. Without `local`, `/compose/use_dockerfile_local` decides.
 - `build`, `build-base-images` and `restart` take `no-cache=true` to build without the docker cache.
+- `down` takes `volumes=true` (default `false`) to also remove the volumes of the stack (`down --volumes`), so that
+  the next `up` starts with a new and uninitialised stack (e.g. an empty database).
 - `build`, `up`, `down`, `run` and `init` first compile the env files. `up` and `init` first create an empty
   `docker-compose.override.yml` if it is missing.
 - `run` passes the words of `cmd` after the service name; without `cmd`, the service runs its own command.

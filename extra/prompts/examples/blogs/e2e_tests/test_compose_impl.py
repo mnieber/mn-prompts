@@ -1,6 +1,8 @@
 import socket
 
 from e2e_test_env import (
+    COMPOSE_YML,
+    DOCKERFILE_LOCAL_YML,
     INIT_STACK_YML,
     OVERRIDE_YML,
     SECRETS,
@@ -96,6 +98,48 @@ def test_compose_reports_a_failing_docker(context: Context):
     ):
         assert env.exit_code != 0
         assert "Traceback" not in env.error_output
+
+
+@requires_jaz()
+def test_compose_down_removes_the_volumes(context: Context):
+    # Create the test environment
+    env = create_env(context)
+
+    # We stop the stack with volumes=true.
+    #
+    # It should also remove the volumes, so that the next up starts with a new and
+    # uninitialised stack.
+    if env.step(
+        env.install_fake_tools(),
+        env.export_secrets(),
+        env.run_jaz("compose.down", "volumes=true"),
+    ):
+        assert env.exit_code == 0
+        assert env.compose_command(env.calls("docker")[-1]) == [
+            "down",
+            "--remove-orphans",
+            "--volumes",
+        ]
+
+
+@requires_jaz()
+def test_compose_reads_local_as_a_jazzoo_flag(context: Context):
+    # Create the test environment
+    env = create_env(context)
+
+    # We build with local=y, which jazzoo reads as true.
+    #
+    # It should build from the Dockerfile.local files.
+    if env.step(
+        env.install_fake_tools(),
+        env.export_secrets(),
+        env.run_jaz("compose.build", "local=y"),
+    ):
+        assert env.exit_code == 0
+        assert env.compose_files(env.calls("docker")[-1]) == [
+            COMPOSE_YML,
+            DOCKERFILE_LOCAL_YML,
+        ]
 
 
 @requires_jaz()

@@ -16,7 +16,7 @@ pgcli():
 #
 
 collect-static():
-    python manage.py collectstatic --link
+    python manage.py collectstatic --link --noinput
 
 create-superuser():
     python manage.py createsuperuser --noinput || true

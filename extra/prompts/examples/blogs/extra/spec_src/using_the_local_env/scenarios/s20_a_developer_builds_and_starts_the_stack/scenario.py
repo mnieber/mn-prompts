@@ -89,7 +89,8 @@ The developer runs `jaz compose.up`. It creates an empty
 the stack with the compose layers: the base file, the src overlays, the
 `Dockerfile.local` images (when local is on) and the override file.</br>
 The developer runs `jaz compose.down`, which stops the stack and removes its
-containers.</br>
+containers. With `volumes=true`, it also removes the volumes of the stack, so that
+the next `compose.up` starts with a new and uninitialised stack.</br>
 
 ### Diagram
 
@@ -121,7 +122,7 @@ sequenceDiagram
     CT->>CT: create override file if missing
     CT->>CEF: compile
     CT->>DC: up (base, src-overlays [, dockerfile-local], override)
-    Developer->>CT: jaz compose.down
-    CT->>DC: down --remove-orphans
+    Developer->>CT: jaz compose.down [volumes=]
+    CT->>DC: down --remove-orphans [--volumes]
 ```
 """

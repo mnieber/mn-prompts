@@ -114,12 +114,18 @@ class Env(TestEnv):
     def serve_homepage(self):
         """Serves a homepage on a free local port, records the paths of its requests
         in env.homepage_requests, and makes it the /compose/init/homepage of the
-        project."""
+        project. Like the Vite dev server, it only serves the page to a request that
+        accepts html."""
         requests = self.homepage_requests
 
         class Handler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 requests.append(self.path)
+                accept = self.headers.get("Accept", "")
+                if "text/html" not in accept and "*/*" not in accept:
+                    self.send_response(404)
+                    self.end_headers()
+                    return
                 self.send_response(200)
                 self.end_headers()
                 self.wfile.write(b"<html>blogs</html>")
