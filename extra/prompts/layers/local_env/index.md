@@ -65,7 +65,7 @@ A `jaz tmux` target that opens a tmux session with a menu of commands, each pick
 
 ### Jazzoo configs
 
-`jaz edit-config` and `jaz print-config` targets that open the stack's config files in an editor and print the merged config.
+A `config` layer of `jaz` targets (`jaz config.edit`, `config.print`) that open the stack's config files in an editor and print the merged config.
 → [le-manage-jazzoo-configs](./skills/le-manage-jazzoo-configs.md)
 
 ### Docker containers

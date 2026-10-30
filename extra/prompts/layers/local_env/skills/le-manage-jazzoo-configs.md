@@ -1,6 +1,6 @@
 # Skill: le-manage-jazzoo-configs
 
-Applies when adding the `jaz edit-config` and `jaz print-config` targets to a stack: they open the stack's
+Applies when adding the `jaz config.*` targets to a stack: they open the stack's
 config files in an editor, and print the config that the stack's scripts see.
 
 The `examples/blogs` stack has a complete setup. Copy its files and adapt the config.
@@ -10,15 +10,17 @@ The `examples/blogs` stack has a complete setup. Copy its files and adapt the co
 ## What the developer sees
 
 ```
-$ jaz edit-config               # open the config files in the editor
-$ jaz print-config              # print the whole config, with every value expanded
-$ jaz print-config /tmux/menu   # print the part of the config at a path
-$ jaz print-config to-file=/tmp/config.json   # write it to a file instead
+$ jaz config.edit               # open the config files in the editor
+$ jaz config.print              # print the whole config, with every value expanded
+$ jaz config.print /tmux/menu   # print the part of the config at a path
+$ jaz config.print to-file=/tmp/config.json   # write it to a file instead
 ```
 
-## Which config `print-config` shows
+`jaz --list config` lists the targets.
 
-`print-config` shows the config that a script would see at the moment it runs, i.e. the files that are in the
+## Which config `config.print` shows
+
+`config.print` shows the config that a script would see at the moment it runs, i.e. the files that are in the
 config list at that point, merged in their order:
 
 - From the command line, these are the files that the Jazzoo modules load at the top level: the config that
@@ -27,18 +29,18 @@ config list at that point, merged in their order:
   debug helper: insert a call into a target to see the config that its scripts get.
 
 ```
-from ./env/local/jaz/config/config.jaz import print-config as config
+from ./env/local/jaz/config/config.jaz import * as config
 
 deploy():
     ⚙️.load_config(path=⚙️.module.dirname / "env/local/config/deploy.yaml")
     # debug: remove when done
-    🐭.config.print-config(to-file="/tmp/config.json")
+    🐭.config.print(to-file="/tmp/config.json")
     python3 deploy.py
 ```
 
 Use `to-file` when the target prints other output, so that the config does not get mixed into it.
 
-RULE: do not make `print-config` load the files of `/edit_config/files`. That list holds every file a
+RULE: do not make `config.print` load the files of `/edit_config/files`. That list holds every file a
 developer may want to edit, which may include alternatives (`deploy.dev.yaml`, `deploy.prod.yaml`) that are
 never loaded together, and its order is not the order in which they are loaded. Merging them gives a config
 that no script ever sees.
@@ -47,9 +49,9 @@ that no script ever sees.
 
 ```
 <stack>/
-    jazzoo                               # root module: loads the config, exports the targets
+    jazzoo                               # root module: loads the config, exports the config layer
     env/local/config/base.yaml           # the editor and the files to open
-    env/local/jaz/config/config.jaz      # the edit-config and print-config targets
+    env/local/jaz/config/config.jaz      # the config.* targets
     env/local/jaz/config/config_tools.py # the script that does the work
 ```
 
@@ -63,12 +65,12 @@ If the stack has no `jazzoo` file yet, create it. Otherwise add the missing line
 ```
 ⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
 
-from ./env/local/jaz/config/config.jaz export (edit-config, print-config)
+from ./env/local/jaz/config/config.jaz export * as config
 ```
 
 ## The config
 
-`print-config` needs no settings. `edit-config` reads `/edit_config`:
+`config.print` needs no settings. `config.edit` reads `/edit_config`:
 
 ```yaml
 # env/local/config/base.yaml
@@ -105,7 +107,7 @@ RULE: both targets are `[interactive]`, so that `jaz` does not capture their out
 for the editor, so that an editor that runs in the terminal (`vim`) works. A graphical editor that returns at
 once (`code`, an already running `gedit`) just makes the target end early.
 
-RULE: `print-config` quotes its `path` and `to-file` arguments with `⚙️.sh-quote`, because they are
+RULE: `config.print` quotes its `path` and `to-file` arguments with `⚙️.sh-quote`, because they are
 command-line arguments.
 
 ## Requirements
@@ -117,7 +119,7 @@ command-line arguments.
 
 - [ ] `config.jaz` and `config_tools.py` copied to `env/local/jaz/config/`
 - [ ] `env/local/config/base.yaml` defines `/edit_config/files` (and optionally `/edit_config/editor`)
-- [ ] The root `jazzoo` module loads the config and exports `edit-config` and `print-config`
-- [ ] `jaz --list` shows `edit-config` and `print-config`
-- [ ] `jaz edit-config` opens every config file of the stack in the editor
-- [ ] `jaz print-config` prints the config
+- [ ] The root `jazzoo` module loads the config and exports the `config` layer
+- [ ] `jaz --list config` shows `config.edit` and `config.print`
+- [ ] `jaz config.edit` opens every config file of the stack in the editor
+- [ ] `jaz config.print` prints the config
