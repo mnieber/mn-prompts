@@ -9,3 +9,6 @@ edit_config:
   editor: gedit
   files:
     - env/local/config/*.yaml
+docker:
+  compose_project: blogs
+  shell: sh

@@ -68,6 +68,11 @@ A `jaz tmux` target that opens a tmux session with a menu of commands, each pick
 `jaz edit-config` and `jaz print-config` targets that open the stack's config files in an editor and print the merged config.
 → [le-manage-jazzoo-configs](./skills/le-manage-jazzoo-configs.md)
 
+### Docker containers
+
+A `docker` layer of `jaz` targets (`jaz docker.exec`, `docker.kill`, `docker.inspect`, `docker.commit`) for the stack's running containers.
+→ [le-manage-docker-containers](./skills/le-manage-docker-containers.md)
+
 ### Spec src
 
 An `extra/spec_src/` directory for a service, wired into the root `sunya.config.yaml`.
@@ -89,3 +94,4 @@ When setting up a new stack from scratch, apply the skills in roughly this order
 8. `le-add-spec-src` — spec source directories (if applicable)
 9. `le-add-tmux-menu` — tmux session with a menu of commands (if applicable)
 10. `le-manage-jazzoo-configs` — targets that edit and print the config (if applicable)
+11. `le-manage-docker-containers` — targets for the stack's running containers (if applicable)
