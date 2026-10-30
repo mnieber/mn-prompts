@@ -26,6 +26,7 @@ BASE_IMAGES_YML = "env/local/docker/docker-compose.base-images.yml"
 DOCKERFILE_LOCAL_YML = "env/local/docker/docker-compose.dockerfile-local.yml"
 SRC_OVERLAYS_YML = "env/local/docker/docker-compose.src-overlays.yml"
 OVERRIDE_YML = "env/local/docker/docker-compose.override.yml"
+INIT_STACK_YML = "env/local/docker/docker-compose.init-stack.yml"
 
 # The files of env/local that belong to the developer, or that are generated
 LOCAL_FILES = [
@@ -126,6 +127,7 @@ class TestEnv:
         self.output: T.Optional[str] = None
         self.error_output: T.Optional[str] = None
         self.password_prompted: T.Optional[bool] = None
+        self.prompted: T.Optional[bool] = None
         self.attached: T.List[subprocess.Popen] = []
         # A copy of the project, so that the developer's own files don't change the
         # results, and are not overwritten
@@ -195,6 +197,14 @@ class TestEnv:
         types the password (and enter) when jaz asks for it. Stores what the terminal
         showed in env.output, and whether jaz asked for the password in
         env.password_prompted."""
+        self.run_jaz_and_answer(PASSWORD_PROMPT, password, *args)
+        self.password_prompted = self.prompted
+
+    def run_jaz_and_answer(self, prompt: str, answer: str, *args: str):
+        """Runs jaz in the project in a pseudo-terminal, as a developer would, and
+        types the answer (and enter) when the terminal shows the prompt. Stores what
+        the terminal showed in env.output, and whether jaz showed the prompt in
+        env.prompted."""
         master, slave = pty.openpty()
         process = subprocess.Popen(
             ["jaz", *args],
@@ -206,7 +216,7 @@ class TestEnv:
         )
         os.close(slave)
         output = b""
-        self.password_prompted = False
+        self.prompted = False
         deadline = time.monotonic() + 30
         while True:
             if time.monotonic() > deadline:
@@ -222,9 +232,9 @@ class TestEnv:
                 if not chunk:
                     break
                 output += chunk
-                if not self.password_prompted and PASSWORD_PROMPT.encode() in output:
-                    self.password_prompted = True
-                    os.write(master, password.encode() + b"\n")
+                if not self.prompted and prompt.encode() in output:
+                    self.prompted = True
+                    os.write(master, answer.encode() + b"\n")
             elif process.poll() is not None:
                 break
         os.close(master)
@@ -232,11 +242,12 @@ class TestEnv:
         self.output = output.decode(errors="replace").replace("\r\n", "\n")
 
     def install_fake_tools(self):
-        """Puts fake docker and uv executables first on the PATH. They record each
-        call in calls.jsonl, and succeed unless fail_tool says otherwise."""
+        """Puts fake docker and uv executables first on the PATH, and makes a fake
+        browser the browser of the webbrowser module (through $BROWSER). They record
+        each call in calls.jsonl, and succeed unless fail_tool says otherwise."""
         bin_dir = self.context.tmp_path / "bin"
         bin_dir.mkdir()
-        for tool in ("docker", "uv"):
+        for tool in ("docker", "uv", "browser"):
             path = bin_dir / tool
             path.write_text(
                 FAKE_TOOL.format(
@@ -249,6 +260,7 @@ class TestEnv:
             )
             path.chmod(0o755)
         self.context.monkeypatch.setenv("FAKE_TOOLS_CALLS_FILE", str(self.calls_file))
+        self.context.monkeypatch.setenv("BROWSER", str(bin_dir / "browser"))
         self.context.monkeypatch.setenv(
             "PATH", str(bin_dir) + os.pathsep + os.environ["PATH"]
         )

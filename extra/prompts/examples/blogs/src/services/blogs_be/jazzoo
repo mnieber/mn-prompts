@@ -40,6 +40,10 @@ generateschema():
 
 init-dev(): create-db() migrate() collect-static() create-superuser()
 
+# Succeeds when the server responds (the healthcheck of docker-compose.init-stack.yml).
+check():
+    python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/admin/login/', timeout=5)"
+
 create-opt-paths():
     sudo mkdir -p /opt/projects/blogs/blogs_be
     sudo echo     "- cmd: echo 'start of the fish history'" >> /opt/projects/blogs/blogs_be/fish_history

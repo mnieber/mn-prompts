@@ -15,7 +15,7 @@ Primary reference: `../examples/blogs/env/local/docker/docker-compose.yml`, `../
 ## What this skill does NOT cover
 
 - **Application service environment variables for connecting to postgres** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
-- **Django database configuration** → see `targets/django_app`
+- **Django database configuration** → see the [django_app layer](../../django_app/index.md)
 
 ---
 
@@ -29,6 +29,10 @@ services:
     container_name: blogs_postgres
     env_file:
       - ./env_files/postgres.env
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      retries: 30
     image: postgres:14.0
     ports:
       - 5432:5432
@@ -46,6 +50,10 @@ volumes:
 ```yaml
 container_name: blogs_postgres
 ```
+
+**healthcheck:** Lets `jaz compose.init` start the services that use postgres only when it accepts connections
+(their `depends_on` in `docker-compose.init-stack.yml` has `condition: service_healthy`). It does not slow down
+`compose.up`, because nothing waits for it there.
 
 **image:** Pin to a specific postgres version for reproducibility.
 
@@ -99,7 +107,7 @@ This ensures postgres starts before the application service. The application ser
 
 ## Checklist
 
-- [ ] `postgres` service added to `docker-compose.yml` with pinned image version
+- [ ] `postgres` service added to `docker-compose.yml` with pinned image version and a `pg_isready` healthcheck
 - [ ] `container_name` uses `<stack_name>_postgres` pattern
 - [ ] Named volume `postgres_data` declared at the top-level `volumes:` key
 - [ ] `env/local/docker/env_files/postgres.env.in` created with `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_PASSWORD`

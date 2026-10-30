@@ -19,6 +19,8 @@ compose:
   use_dockerfile_local: false
   os_custom_packages: ""
   pip_custom_packages: ""
+  init:
+    homepage: http://localhost:3000/
 python:
   services:
     - blogs_be

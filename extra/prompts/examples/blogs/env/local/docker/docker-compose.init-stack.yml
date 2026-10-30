@@ -1,0 +1,25 @@
+# Init mode (jaz compose.init): each service runs init-dev and then its server, and
+# becomes healthy when its check target passes. The services start in order: blogs_be
+# waits for postgres, and blogs_fe waits for blogs_be.
+services:
+  blogs_be:
+    command: sh -c "jaz init-dev && exec jaz run-server"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "jaz", "check"]
+      interval: 10s
+      start_period: 120s
+      start_interval: 2s
+  blogs_fe:
+    command: sh -c "jaz init-dev && exec jaz run-server"
+    depends_on:
+      blogs_be:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "jaz", "check"]
+      interval: 10s
+      # The first init-dev installs the node modules
+      start_period: 300s
+      start_interval: 2s

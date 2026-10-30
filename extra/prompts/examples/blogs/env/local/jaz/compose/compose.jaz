@@ -50,3 +50,11 @@ run(service, cmd="", local=""):
 [interactive]
 compile-env-files():
     @⚙️.python 🐭.script compile-env-files --root-dir=⚙️.root_module.dirname
+
+# Initialise the stack: start it with the init-stack file, so that each service runs
+# init-dev and then its server, and wait until the stack is healthy. Then check the
+# homepage (/compose/init/homepage) and offer to open it in the browser.
+[interactive]
+init(local=""):
+    🐆.safe-local = 🐆.local | ⚙️.sh-quote
+    @⚙️.python 🐭.script init --root-dir=⚙️.root_module.dirname --local=🐆.safe-local

@@ -1,4 +1,13 @@
-from e2e_test_env import OVERRIDE_YML, SECRETS, Context, TestEnv, requires_jaz
+import socket
+
+from e2e_test_env import (
+    INIT_STACK_YML,
+    OVERRIDE_YML,
+    SECRETS,
+    Context,
+    TestEnv,
+    requires_jaz,
+)
 
 SECRETS_ENV = "".join(f"{name}={value}\n" for name, value in SECRETS.items())
 OVERRIDE = "services: {}\n"
@@ -8,6 +17,7 @@ TARGETS = [
     "compose.build",
     "compose.build-base-images",
     "compose.up",
+    "compose.init",
     "compose.down",
     "compose.restart",
     "compose.run",
@@ -89,6 +99,60 @@ def test_compose_reports_a_failing_docker(context: Context):
 
 
 @requires_jaz()
+def test_compose_init_reports_an_unhealthy_stack(context: Context):
+    # Create the test environment
+    env = create_env(context)
+
+    # We initialise the stack, and docker compose up fails (e.g. a service did not
+    # become healthy).
+    #
+    # It should print the last lines of the logs of the stack, with the same files
+    # as up, and fail without a traceback. It should not get the homepage, nor open
+    # the browser.
+    if env.step(
+        env.install_fake_tools(),
+        env.export_secrets(),
+        env.fail_tool("docker", 3),
+        env.run_jaz("compose.init"),
+    ):
+        assert env.exit_code != 0
+        assert "Traceback" not in env.error_output
+        assert [env.compose_command(x)[0] for x in env.calls("docker")] == [
+            "up",
+            "logs",
+        ]
+        assert env.compose_command(env.calls("docker")[1]) == ["logs", "--tail=50"]
+        assert env.compose_files(env.calls("docker")[1])[-1] == INIT_STACK_YML
+        assert env.calls("browser") == []
+
+
+@requires_jaz()
+def test_compose_init_reports_an_unreachable_homepage(context: Context):
+    # Create the test environment
+    env = create_env(context)
+
+    # The stack is healthy, but nothing listens on the port of the homepage.
+    if env.step(
+        env.install_fake_tools(),
+        env.export_secrets(),
+        env.use_unreachable_homepage(),
+    ):
+        pass
+
+    # We initialise the stack.
+    #
+    # It should report the homepage that it could not get, and end with exit code 1,
+    # without a traceback and without opening the browser.
+    if env.step(
+        env.run_jaz("compose.init"),
+    ):
+        assert env.exit_code == 1
+        assert env.homepage in env.error_output
+        assert "Traceback" not in env.error_output
+        assert env.calls("browser") == []
+
+
+@requires_jaz()
 def test_compose_lists_its_targets(context: Context):
     # Create the test environment
     env = create_env(context)
@@ -106,4 +170,13 @@ def test_compose_lists_its_targets(context: Context):
 
 
 class Env(TestEnv):
-    pass
+    def __post_init__(self):
+        self.homepage = None
+
+    def use_unreachable_homepage(self):
+        """Makes a local port on which nothing listens the homepage of the project."""
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
+        self.homepage = f"http://127.0.0.1:{port}/"
+        self.write_local_config(f"compose:\n  init:\n    homepage: {self.homepage}\n")

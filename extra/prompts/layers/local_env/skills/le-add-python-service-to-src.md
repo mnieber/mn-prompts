@@ -22,12 +22,12 @@ This skill describes the **minimal structure and files** needed for a Python ser
 
 The following topics are covered in separate skills/targets:
 
-- **Django-specific patterns** (models, views, settings, etc.) → see `targets/django_app`
+- **Django-specific patterns** (models, views, settings, etc.) → see the [django_app layer](../../django_app/index.md)
 - **Adding the service to docker-compose.yml** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
 - **Creating base images** → see `layers/local_env/skills/le-add-base-image.md`
 - **Stub libraries backed by external code** → see `layers/local_env/skills/le-python-lib-stub.md`
 - **Test configuration** (conftest.py, pytest_plugins) → see target-specific documentation
-- **Specification files** (extra/spec_src) → see `targets/app` for how spec files are written and used
+- **Specification files** (extra/spec_src) → see the [app layer](../../app/index.md) for how spec files are written and used
 - **Setting up the environment variables** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
 
 ---
@@ -312,6 +312,23 @@ run-server():
     python manage.py runserver 0.0.0.0:8000
 ```
 
+It must also provide `init-dev`, which prepares the service for development (e.g. creates the database and runs
+the migrations), and `check`, which succeeds when the server responds. `jaz compose.init` runs them (see
+[le-use-compose-ops](./le-use-compose-ops.md)): `init-dev` and `run-server` as the command of the container, and
+`check` as its healthcheck.
+
+```
+init-dev(): create-db() migrate() collect-static() create-superuser()
+
+check():
+    python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/admin/login/', timeout=5)"
+```
+
+**RULE:** `init-dev` must be safe to run again (e.g. `create-db` and `create-superuser` ignore what exists).
+
+**RULE:** `check` uses `127.0.0.1`, not `localhost`: the server binds to `0.0.0.0`, and in the container
+`localhost` may resolve to `::1`.
+
 **RULE:** `run-server` depends on the service type (Django uses `manage.py runserver`, Flask might use `flask run`, etc.).
 
 **RULE:** Mark targets that run a server, a REPL or a prompt as `[interactive]`, so that their output reaches the terminal while they run.
@@ -350,7 +367,8 @@ create-opt-paths():
 - [ ] `requirements.in` created with direct dependencies
 - [ ] `requirements.editable` created with local library references
 - [ ] `requirements.dev.txt` created with development dependencies
-- [ ] `jazzoo` file created with a `run-server` target
+- [ ] `jazzoo` file created with the `run-server`, `init-dev` and `check` targets
+- [ ] Service added to `docker-compose.init-stack.yml`
 - [ ] Service added to `/python/services` in `env/local/config/base.yaml`
 - [ ] `requirements.editable` lists the jazzoo stub library
 - [ ] Python package created at `src/<service_name>/__init__.py`

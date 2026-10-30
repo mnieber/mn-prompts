@@ -10,7 +10,7 @@ When you are asked to generate code, or to plan for generating code, identify wh
 
 ### Compose ops
 
-The `jaz compose.*` and `jaz python.*` targets (build, up, down, restart, run, compile-env-files, pip-compile), the `/compose` and `/python` config, the developer's own `local.yaml` config layer, and `secrets.env`.
+The `jaz compose.*` and `jaz python.*` targets (build, up, down, restart, run, init, compile-env-files, pip-compile), the `/compose` and `/python` config, the developer's own `local.yaml` config layer, and `secrets.env`.
 → [le-use-compose-ops](./skills/le-use-compose-ops.md)
 
 ### Base image

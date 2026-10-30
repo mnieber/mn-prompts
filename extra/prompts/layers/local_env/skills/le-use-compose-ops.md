@@ -13,6 +13,7 @@ The `examples/blogs` stack has a complete setup. Copy its files and adapt the co
 $ jaz compose.build-base-images             # build the base images
 $ jaz compose.build                         # build the images of the services
 $ jaz compose.up                            # start the stack
+$ jaz compose.init                          # init the services, run their servers, check the stack
 $ jaz compose.down                          # stop the stack, remove its containers
 $ jaz compose.restart                       # down, python.pip-compile, build, up
 $ jaz compose.run blogs_be cmd="pytest"     # run a command in a new container
@@ -23,10 +24,10 @@ $ jaz python.publish package-dir=src/libs/x # build a library and upload it to P
 
 `jaz --list compose` lists the targets.
 
-- `build`, `up`, `restart` and `run` take `local=true` to use the `Dockerfile.local` images, and `local=false`
+- `build`, `up`, `init`, `restart` and `run` take `local=true` to use the `Dockerfile.local` images, and `local=false`
   to use the `Dockerfile` images. Without `local`, `/compose/use_dockerfile_local` decides.
 - `build`, `build-base-images` and `restart` take `no-cache=true` to build without the docker cache.
-- `build`, `up`, `down` and `run` first compile the env files. `up` first creates an empty
+- `build`, `up`, `down`, `run` and `init` first compile the env files. `up` and `init` first create an empty
   `docker-compose.override.yml` if it is missing.
 - `run` passes the words of `cmd` after the service name; without `cmd`, the service runs its own command.
   The container is removed when the command ends.
@@ -36,8 +37,8 @@ $ jaz python.publish package-dir=src/libs/x # build a library and upload it to P
   [le-manage-docker-containers](./le-manage-docker-containers.md)); there is no `compose.shell`.
 
 **When to use which target.** `compose.run` is the target to run commands when debugging or operating the
-stack together with the developer. `compose.up`, `compose.down` and `compose.restart` change the developer's
-running stack: only run them when the developer asks.
+stack together with the developer. `compose.up`, `compose.down`, `compose.restart` and `compose.init` change the
+developer's running stack: only run them when the developer asks.
 
 ### Typical workflow
 
@@ -47,9 +48,35 @@ jaz compose.build-base-images
 jaz compose.build
 jaz compose.up
 
+# Prepare the services (init-dev), and check that the stack works
+jaz compose.init
+
 # After dependency changes
 jaz compose.restart
 ```
+
+### Initialising the stack
+
+In the base compose file, the services run `sleep infinity`, and the developer starts each server by hand (with
+`jaz docker.exec` or the tmux menu). `compose.init` starts the stack in "init mode" instead, with
+`docker-compose.init-stack.yml` as the last compose file:
+
+- The overlay replaces the `command` of each service with `sh -c "jaz init-dev && exec jaz run-server"`, and gives
+  it a healthcheck that runs `jaz check`. Its `depends_on` conditions start the services in order (blogs_be waits
+  until postgres is healthy, blogs_fe until blogs_be is healthy).
+- It runs `up --detach --force-recreate --wait --wait-timeout 600`: `--force-recreate` makes `init-dev` run again
+  when the config did not change, and `--wait` fails when a service does not become healthy (or a failing
+  `init-dev` stops its container). On a failure, it prints `logs --tail=50` of the stack.
+- It then gets `/compose/init/homepage` from the host, and in a terminal asks whether to open it in the browser.
+- The servers keep running in their containers. The next `compose.up` recreates the containers with
+  `sleep infinity`, because the config of the services changed.
+
+**RULE:** Every service in the overlay must have the `init-dev`, `run-server` and `check` targets (see
+[le-add-python-service-to-src](./le-add-python-service-to-src.md) and
+[le-add-react-service-to-compose](./le-add-react-service-to-compose.md)). `init-dev` must be safe to run again.
+
+**RULE:** A service that has a `depends_on` with `condition: service_healthy` depends on a service with a
+healthcheck: postgres has one (`pg_isready`) in the base compose file, the services get one in the overlay.
 
 ## Files
 
@@ -66,7 +93,8 @@ jaz compose.restart
         jaz/python/python.jaz                 # the python targets
         jaz/python/python_tools.py            # the script that does the work
         scripts/compile_env_files.py          # compiles the .env.in files
-        docker/                               # the compose files and env_files/*.env.in
+        docker/                               # the compose files (incl. docker-compose.init-stack.yml)
+                                              # and env_files/*.env.in
 ```
 
 The root module loads the config and exports the layers:
@@ -94,6 +122,8 @@ compose:
   use_dockerfile_local: false
   os_custom_packages: ""
   pip_custom_packages: ""
+  init:
+    homepage: http://localhost:3000/
 python:
   services:
     - blogs_be
@@ -108,6 +138,7 @@ python:
 - `/compose/os_custom_packages` and `/compose/pip_custom_packages` are passed to `build-base-images` as the
   build args `OS_CUSTOM_PACKAGES` and `PIP_CUSTOM_PACKAGES` when they are not empty (see
   [le-add-base-image](./le-add-base-image.md)).
+- `/compose/init/homepage` is the url that `compose.init` checks from the host, and offers to open.
 - `/python/services` lists the services whose requirements `python.pip-compile` compiles.
 - `/python/pypi` holds the user name and the upload url of `python.publish`.
 
@@ -140,6 +171,7 @@ compose files of each command:
 | build             | `docker-compose.yml` (+ `docker-compose.dockerfile-local.yml`)                         |
 | build-base-images | `docker-compose.base-images.yml`                                                       |
 | up, run           | `docker-compose.yml`, `.src-overlays.yml` (+ `.dockerfile-local.yml`), `.override.yml` |
+| init              | the files of up, then `.init-stack.yml`                                                |
 | down              | `docker-compose.yml`, `.src-overlays.yml`, `.override.yml`                             |
 
 `python_tools.py pip-compile` runs `uv pip compile` in `src/services/<service>` of each service in
@@ -169,6 +201,9 @@ renders each `env/local/docker/env_files/<service>.env.in` into `<service>.env`.
 - [ ] The root `jazzoo` file loads `base.yaml` and the optional `local.yaml`, and exports `compose` and `python`
 - [ ] `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py` are copied
 - [ ] `BLOGS_LIBS_DIR` is renamed to `<STACK>_LIBS_DIR` in `python_tools.py`
-- [ ] `base.yaml` has `/docker/compose_project`, `/compose/*`, `/python/services` and `/python/pypi`
+- [ ] `base.yaml` has `/docker/compose_project`, `/compose/*` (with `/compose/init/homepage`), `/python/services`
+      and `/python/pypi`
+- [ ] `docker/docker-compose.init-stack.yml` gives each service the init-and-serve `command`, a `jaz check`
+      healthcheck and its `depends_on` conditions
 - [ ] `env/local/.gitignore` excludes `docker/env_files/*.env`, `secrets.env` and `config/local.yaml`
 - [ ] Non-secrets are hard-coded in the `.env.in` files

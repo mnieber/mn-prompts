@@ -5,13 +5,18 @@ the layers of the local env: the base file, the src overlays, the Dockerfile.loc
 images (when local is on) and the developer's override file. Local is on when
 --local is true, or when it is empty and /compose/use_dockerfile_local is true.
 
-Before build, up, down and run, the .env.in files are compiled into .env files.
+Before build, up, down, run and init, the .env.in files are compiled into .env files.
+
+Init starts the stack with the init-stack file last: each service runs init-dev and
+then its server, and docker compose waits until the healthchecks pass.
 """
 
 import argparse
 import os
 import shlex
 import sys
+import urllib.request
+import webbrowser
 from pathlib import Path
 
 from jazzoo import CommandFailedError
@@ -23,6 +28,10 @@ BASE_IMAGES_YML = "docker-compose.base-images.yml"
 DOCKERFILE_LOCAL_YML = "docker-compose.dockerfile-local.yml"
 SRC_OVERLAYS_YML = "docker-compose.src-overlays.yml"
 OVERRIDE_YML = "docker-compose.override.yml"
+INIT_STACK_YML = "docker-compose.init-stack.yml"
+
+INIT_WAIT_TIMEOUT = "600"
+DEFAULT_HOMEPAGE = "http://localhost:3000/"
 
 
 def _compose_dir(root_dir):
@@ -35,7 +44,7 @@ def _is_local(local):
     return local.lower() in ("true", "yes", "on", "1")
 
 
-def _compose(root_dir, files, args, is_build=False):
+def _compose(root_dir, files, args, is_build=False, check=True):
     file_args = []
     for filename in files:
         file_args += ["--file", str(_compose_dir(root_dir) / filename)]
@@ -46,7 +55,9 @@ def _compose(root_dir, files, args, is_build=False):
     )
     if is_build:
         env["COMPOSE_BAKE"] = "true"
-    run(["docker", "compose", *file_args, *args], env=env, echo=True)
+    return run(
+        ["docker", "compose", *file_args, *args], env=env, check=check, echo=True
+    )
 
 
 def _run_files(root_dir, local):
@@ -113,6 +124,35 @@ def run_in_container(root_dir, service, cmd, local):
     _compose(root_dir, _run_files(root_dir, local), [*args, *shlex.split(cmd)])
 
 
+def init(root_dir, local):
+    (_compose_dir(root_dir) / OVERRIDE_YML).touch()
+    compile_env_files(root_dir)
+    files = [*_run_files(root_dir, local), INIT_STACK_YML]
+    args = ["up", "--detach", "--force-recreate", "--wait"]
+    try:
+        _compose(root_dir, files, [*args, "--wait-timeout", INIT_WAIT_TIMEOUT])
+    except CommandFailedError:
+        # Show why a service did not become healthy
+        _compose(root_dir, files, ["logs", "--tail=50"], check=False)
+        raise
+
+    homepage = get("/compose/init/homepage", default=DEFAULT_HOMEPAGE)
+    try:
+        with urllib.request.urlopen(homepage, timeout=10):
+            pass
+    except OSError as e:
+        print(f"The stack is healthy, but {homepage} failed: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\nThe stack is initialised, and its servers run: {homepage}")
+    if sys.stdin.isatty():
+        answer = input(f"Open {homepage} in the browser? [Y/n] ")
+        if answer.strip().lower() in ("", "y", "yes"):
+            webbrowser.open(homepage)
+    print("'docker logs -f <container>' shows the output of a server.")
+    print("'jaz compose.up' goes back to starting the servers yourself.")
+
+
 def _args():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="action", required=True)
@@ -139,6 +179,9 @@ def _args():
     run_parser.add_argument("--cmd", default="")
     run_parser.add_argument("--local", default="")
 
+    init_parser = add_parser("init")
+    init_parser.add_argument("--local", default="")
+
     add_parser("compile-env-files")
 
     return parser.parse_args()
@@ -157,6 +200,8 @@ if __name__ == "__main__":
             down(args.root_dir)
         elif args.action == "run":
             run_in_container(args.root_dir, args.service, args.cmd, args.local)
+        elif args.action == "init":
+            init(args.root_dir, args.local)
         else:
             compile_env_files(args.root_dir)
     except CommandFailedError as e:

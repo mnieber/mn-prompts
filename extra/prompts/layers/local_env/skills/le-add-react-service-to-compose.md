@@ -18,7 +18,7 @@ Primary reference: `../examples/blogs/src/services/blogs_fe/`, `../examples/blog
 ## What this skill does NOT cover
 
 - **Adding the service to `docker-compose.override.yml`** → follow the same interactive process described in `layers/local_env/skills/le-add-python-service-to-compose.md`
-- **React/Vite project structure and configuration** → see `targets/react_app`
+- **React/Vite project structure and configuration** → see the [react_app layer](../../react_app/index.md)
 
 ---
 
@@ -183,11 +183,22 @@ run-server():
 #
 
 init-dev(): install()
+
+check():
+    wget -q -O /dev/null http://127.0.0.1:3000/
 ```
 
 **run-server:** Must pass `--host` so the Vite dev server binds to `0.0.0.0` and is reachable from the host machine via the exposed port.
 
 **init-dev:** Called once after the container first starts to install node modules.
+
+**check:** Succeeds when the dev server responds. `jaz compose.init` uses it as the healthcheck of the service
+(see [le-use-compose-ops](./le-use-compose-ops.md)). It uses busybox `wget`, which the alpine image has, and
+`127.0.0.1`, because the server binds to `0.0.0.0` (IPv4).
+
+The service gets an entry in `docker-compose.init-stack.yml` that runs `init-dev` and `run-server`, with `jaz check`
+as its healthcheck, a `start_period` long enough for the first `yarn install`, and `depends_on` the backend with
+`condition: service_healthy`.
 
 ## Optional targets
 
@@ -213,4 +224,5 @@ create-opt-paths():
 - [ ] Service added to `docker-compose.src-overlays.yml` mounting to `/app/src`, and the jazzoo stub to `/app/libs/jazzoo`
 - [ ] Environment file template created at `env_files/blogs_fe.env.in`
 - [ ] `VITE_` prefix used for variables that must be accessible in the browser
-- [ ] `jazzoo` file includes `install`, `run-server` (with `--host`), and `init-dev`
+- [ ] `jazzoo` file includes `install`, `run-server` (with `--host`), `init-dev` and `check`
+- [ ] Service added to `docker-compose.init-stack.yml`
