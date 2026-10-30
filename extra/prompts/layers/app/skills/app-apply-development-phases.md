@@ -42,17 +42,7 @@ are written before the code exists, so they stay disabled until their code is wr
   the design doc.
 - When a test deviates from the test plan (e.g. a test is split in two files), update the test plan.
 
-## 4. Scenarios
-
-The scenarios (`extra/spec_src/scenarios/`) are updated with the changes that affect the high-level workflows and
-features (see [writing specs](./app-write-specs.md)). Edge cases and details are left
-to the tests.
-
-- Split the affected scenarios in one ore more suitable batches (as you see fit), write/update the scenarios for a batch, and ask me to review.
-- After each review, remove the parts of the design doc that is covered by the batch, together with the details that the tests cover. When the design doc is empty, the feature is done.
-- Format the scenario files with `black`. Don't render them with sunya: I do that myself.
-
-## 5. Code
+## 4. Code
 
 You write the code that makes the tests pass, following the skills of the layer.
 
@@ -61,3 +51,13 @@ You write the code that makes the tests pass, following the skills of the layer.
 - Run the whole test suite at the end. Don't run tests that cost money (e.g. e2e tests that call an external
   service) without asking.
 - When the design doc and the tests don't settle a choice, pick a sensible option, and mention it in your report. When the choice matters to the design, ask.
+
+## 5. Scenarios
+
+The scenarios (`extra/spec_src/scenarios/`) are updated with the changes that affect the high-level workflows and
+features (see [writing specs](./app-write-specs.md)). Edge cases and details are left
+to the tests.
+
+- Split the affected scenarios in one or more suitable batches (as you see fit), write/update the scenarios for a batch, and ask me to review.
+- After each review, remove the parts of the design doc that is covered by the batch, together with the details that the tests cover. When the design doc is empty, the feature is done.
+- Format the scenario files with `black`. Don't render them with sunya: I do that myself.
