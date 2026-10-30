@@ -23,7 +23,7 @@ except ImportError:
     )
 
 header_block = """# This file is auto-generated. Do not edit directly.
-# To modify, edit the corresponding .env.in file and re-run `just compile-env-files`.
+# To modify, edit the corresponding .env.in file and re-run `jaz compose.compile-env-files`.
 #
 # This file may contain secrets. Handle with care.
 #

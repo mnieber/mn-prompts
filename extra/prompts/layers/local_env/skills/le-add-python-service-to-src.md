@@ -54,7 +54,7 @@ src/services/blogs_be/
 ├── requirements.editable       # Editable local dependencies
 ├── requirements.txt            # Compiled dependencies (auto-generated)
 ├── requirements.dev.txt        # Development dependencies
-├── justfile                    # Service-specific commands
+├── jazzoo                      # Service-specific targets, run with jaz in the container
 └── src/
     └── <service_name>/         # Python package
         └── __init__.py
@@ -83,6 +83,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     bash /app/install_scripts/install-postgres-tools.sh
 
 # Copy the requirements file(s) for each library
+COPY libs/jazzoo/pyproject.toml libs/jazzoo/setup.py libs/jazzoo/README.md /app/libs/jazzoo/
 COPY libs/woodstock/pyproject.toml libs/woodstock/setup.py libs/woodstock/README.md /app/libs/woodstock/
 
 # Install the service
@@ -143,6 +144,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     bash /app/install_scripts/install-postgres-tools.sh
 
 # Copy each library
+COPY libs/jazzoo /app/libs/jazzoo
 COPY libs/woodstock /app/libs/woodstock
 
 # Install the service
@@ -262,18 +264,21 @@ psycopg2-binary
 List **local editable dependencies** using environment variables:
 
 ```
+-e ${BLOGS_LIBS_DIR}/jazzoo
 -e ${BLOGS_LIBS_DIR}/woodstock
 ```
 
-The requirements.editabler file is used during `just pip-compile` to generate `requirements.txt`.
+The requirements.editable file is used during `jaz python.pip-compile` to generate `requirements.txt`.
 
-**RULE:** Use the <XXX>\_LIBS_DIR environment variable for paths so the same file works in different contexts. This variable will be provided to the build process by the justfile of the entire stack (as explained in `layers/local_env/skills/le-add-python-service-to-compose.md`).
+**RULE:** Every service lists the jazzoo stub library (see `layers/local_env/skills/le-add-python-stub-lib.md`), so that `jaz` runs in its container.
+
+**RULE:** Use the <XXX>\_LIBS_DIR environment variable for paths so the same file works in different contexts. On the host, `jaz python.pip-compile` sets it (see `layers/local_env/skills/le-use-compose-ops.md`); in the images, the base image sets it.
 
 ### requirements.txt
 
-**Auto-generated** by `just pip-compile`. Contains fully resolved dependencies with exact versions.
+**Auto-generated** by `jaz python.pip-compile`. Contains fully resolved dependencies with exact versions.
 
-**RULE:** Never edit this file manually. Always regenerate with `just pip-compile`.
+**RULE:** Never edit this file manually. Always regenerate with `jaz python.pip-compile`.
 
 ### requirements.dev.txt
 
@@ -293,34 +298,32 @@ pytest-socket
 
 ---
 
-## Minimal Justfile commands
+## The service's jazzoo file
 
-Every service must provide these two commands:
+The service's targets live in `src/services/<service_name>/jazzoo`. `jaz` loads the `jazzoo` file of the
+current directory, and the WORKDIR of the container is `/app/src`, so in the container `jaz run-server`
+runs the service's target (e.g. `jaz docker.exec blogs_be cmd="jaz run-server"` from the host).
 
-```makefile
-#
-# Python
-#
+Every service must provide the `run-server` target:
 
-pip-compile:
-    uv pip compile --python-version=3.12 --upgrade requirements.in requirements.editable -o requirements.txt
-
-run-server:
+```
+[interactive]
+run-server():
     python manage.py runserver 0.0.0.0:8000
 ```
 
-**RULE:** `pip-compile` must compile both `requirements.in` and `requirements.editable` into `requirements.txt`.
+**RULE:** `run-server` depends on the service type (Django uses `manage.py runserver`, Flask might use `flask run`, etc.).
 
-**RULE:** `run-server` command depends on the service type (Django uses `manage.py runserver`, Flask might use `flask run`, etc.).
+**RULE:** Mark targets that run a server, a REPL or a prompt as `[interactive]`, so that their output reaches the terminal while they run.
 
-**RULE:** The Python version in `pip-compile` should match the base image Python version.
+**RULE:** Add the service to `/python/services` in `env/local/config/base.yaml`, so that `jaz python.pip-compile` compiles its requirements. The Python version that it compiles for (`--python-version=3.12`) should match the base image Python version.
 
-## Optional Justfile commands
+## Optional targets
 
-It can optionally also provide this command (which is run on the host)
+It can optionally also provide this target (which is run on the host)
 
 ```
-create-opt-paths:
+create-opt-paths():
     sudo mkdir -p /opt/projects/blogs/blogs_be
     sudo echo     "- cmd: echo 'start of the fish history'" >> /opt/projects/blogs/blogs_be/fish_history
     sudo mkdir -p /opt/projects/blogs/blogs_be/ipython
@@ -347,5 +350,7 @@ create-opt-paths:
 - [ ] `requirements.in` created with direct dependencies
 - [ ] `requirements.editable` created with local library references
 - [ ] `requirements.dev.txt` created with development dependencies
-- [ ] `justfile` created with `pip-compile` and `run-server` commands
+- [ ] `jazzoo` file created with a `run-server` target
+- [ ] Service added to `/python/services` in `env/local/config/base.yaml`
+- [ ] `requirements.editable` lists the jazzoo stub library
 - [ ] Python package created at `src/<service_name>/__init__.py`

@@ -13,11 +13,14 @@ services:
       - /opt/projects/sunya/blogs_be/media:/app/media
       - /opt/projects/sunya/blogs_be/static:/app/static
       # Lib code overlays
+      - /home/maarten/projects/jazzoo/src:/app/libs/jazzoo
       - /home/maarten/projects/woodstock/src/libs/woodstock:/app/libs/woodstock
   blogs_fe:
     volumes:
       # General overlays
       - /opt/projects/sunya/blogs_fe/fish_history:/root/.local/share/fish/fish_history
+      # Lib code overlays
+      - /home/maarten/projects/jazzoo/src:/app/libs/jazzoo
       # Npm package overlays
       - /home/maarten/projects/skandha-facets/src:/npm/skandha-facets
       - /home/maarten/projects/skandha-mobx/src:/npm/skandha-mobx

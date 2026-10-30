@@ -28,6 +28,7 @@ def test_developer_uses_local_settings(context: Context):
     # Dockerfile.local files, and add some packages to the base images.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.write_local_config(LOCAL_CONFIG),
     ):
         pass

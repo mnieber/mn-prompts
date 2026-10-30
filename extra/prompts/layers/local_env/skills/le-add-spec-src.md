@@ -69,7 +69,7 @@ Create `src/services/<service_name>/extra/spec_src/sunya.config.yaml`:
 ```yaml
 output_dir: md_specs
 component_name: blogs_be
-spec_paths_by_package:
+package_config_by_name:
   blogs_be:
     scenario_paths:
       - ./scenarios/**/scenario.py
@@ -81,11 +81,11 @@ spec_paths_by_package:
 
 **component_name:** The name of this service/component. Use the service name (e.g. `blogs_be`).
 
-**spec_paths_by_package:** Maps package names to glob patterns for finding spec files. The package name matches the service name.
+**package_config_by_name:** Maps package names to their config, which contains the glob patterns for finding spec files. The package name matches the service name.
 
 **scenario_paths:** Glob pattern for scenario files. Always `./scenarios/**/scenario.py`.
 
-**RULE:** Use the service name for both `component_name` and the package key under `spec_paths_by_package`.
+**RULE:** Use the service name for both `component_name` and the package key under `package_config_by_name`.
 
 ### Per-topic sunya.config.yaml
 
@@ -95,14 +95,14 @@ topic. It has the same fields as the per-service config, but `component_name` is
 ```yaml
 output_dir: md_specs
 component_name: changelog
-spec_paths_by_package:
+package_config_by_name:
   blogs_be:
     scenario_paths:
       - ./scenarios/**/scenario.py
 ```
 
 **RULE:** In the per-topic layout, use the topic name for `component_name`. The package key under
-`spec_paths_by_package` is still the service name.
+`package_config_by_name` is still the service name.
 
 ---
 

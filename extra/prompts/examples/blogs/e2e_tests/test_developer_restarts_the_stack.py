@@ -28,6 +28,7 @@ def test_developer_restarts_the_stack(context: Context):
     # not be compiled.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.add_requirement("blogs_be", "requests"),
         env.run_jaz("python.pip-compile"),
     ):

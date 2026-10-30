@@ -6,23 +6,23 @@ exec(name="", cmd="", user=""):
     🐆.safe-name = 🐆.name | ⚙️.sh-quote
     🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
     🐆.safe-user = 🐆.user | ⚙️.sh-quote
-    @python3 🐭.script exec --name=🐆.safe-name --cmd=🐆.safe-cmd --user=🐆.safe-user
+    @⚙️.python 🐭.script exec --name=🐆.safe-name --cmd=🐆.safe-cmd --user=🐆.safe-user
 
 # Kill one or more containers of this project.
 [interactive]
 kill(name=""):
     🐆.safe-name = 🐆.name | ⚙️.sh-quote
-    @python3 🐭.script kill --name=🐆.safe-name
+    @⚙️.python 🐭.script kill --name=🐆.safe-name
 
 # Inspect one or more containers of this project. With ip, only print their IP address.
 [interactive]
 inspect(name="", ip=""):
     🐆.safe-name = 🐆.name | ⚙️.sh-quote
     🐆.ip-flag = "--ip" if 🐆.ip else ""
-    @python3 🐭.script inspect --name=🐆.safe-name 🐆.ip-flag
+    @⚙️.python 🐭.script inspect --name=🐆.safe-name 🐆.ip-flag
 
 # Commit a container of this project to its image.
 [interactive]
 commit(name=""):
     🐆.safe-name = 🐆.name | ⚙️.sh-quote
-    @python3 🐭.script commit --name=🐆.safe-name
+    @⚙️.python 🐭.script commit --name=🐆.safe-name

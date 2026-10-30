@@ -94,20 +94,6 @@ uses that source directly, so the library does not need to be rebuilt after each
 
 ---
 
-## 4. Dodo config (optional)
-
-If the stack uses dodo_commands (see the `le-write-dodo-config-files` skill), map each overlaid package to its mount point in the service's
-`stack.<service>.yaml`, so that the `tsc` command can find the library sources:
-
-```yaml
-TSC:
-  src_dir_map:
-    skandha: /npm/skandha
-    skandha-mobx: /npm/skandha-mobx
-```
-
----
-
 ## Checklist
 
 - [ ] Each overlaid library is mounted to `/npm/<package-name>` in `docker-compose.override.yml`, under `# Npm package overlays`

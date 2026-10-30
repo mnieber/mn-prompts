@@ -21,6 +21,7 @@ def test_pip_compile_without_services(context: Context):
     # It should succeed without calling uv.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.write_local_config(NO_SERVICES),
         env.run_jaz("python.pip-compile"),
     ):
@@ -38,6 +39,7 @@ def test_restart_stops_when_pip_compile_fails(context: Context):
     # It should fail without a traceback.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.fail_tool("uv", 2),
         env.run_jaz("python.pip-compile"),
     ):

@@ -3,4 +3,4 @@
 # Open the tmux session of this project, with a menu of commands in window 1.
 [interactive]
 tmux(category="all", session=""):
-    @python3 🐭.script open --category=🐆.category --session=🐆.session
+    @⚙️.python 🐭.script open --category=🐆.category --session=🐆.session

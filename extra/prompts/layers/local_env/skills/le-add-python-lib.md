@@ -240,7 +240,7 @@ In `<stack>/src/services/<service_name>/requirements.editable`:
 
 **RULE:** The `-e` flag installs in editable mode, allowing live code changes.
 
-This file is used during `just pip-compile` to include the library in `requirements.txt`.
+This file is used during `jaz python.pip-compile` to include the library in `requirements.txt`.
 
 ---
 

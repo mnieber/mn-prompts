@@ -1,1 +1,2 @@
+-e ${BLOGS_LIBS_DIR}/jazzoo
 -e ${BLOGS_LIBS_DIR}/woodstock

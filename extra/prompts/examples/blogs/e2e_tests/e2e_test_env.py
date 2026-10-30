@@ -34,6 +34,15 @@ LOCAL_FILES = [
     "docker/docker-compose.override.yml",
 ]
 
+# The secrets that the .env.in files of the services use
+SECRETS = {
+    "BLOGS_BE_DJANGO_DATABASE_PASSWORD": "db-secret",
+    "BLOGS_BE_DJANGO_SECRET_KEY": "django-secret",
+    "BLOGS_BE_DJANGO_SUPERUSER_PASSWORD": "admin-secret",
+    "BLOGS_USER_PASSWORD": "user-secret",
+    "POSTGRES_PASSWORD": "pg-secret",
+}
+
 # The variables that the fake tools record
 RECORDED_VARS = [
     "ROOT_DIR",
@@ -159,6 +168,12 @@ class TestEnv:
         self.context.monkeypatch.setenv(
             "PATH", str(bin_dir) + os.pathsep + os.environ["PATH"]
         )
+
+    def export_secrets(self):
+        """Exports the secrets, so that the env files compile without a secrets.env.
+        Without them, compile_env_files.py fails on the unbound variables."""
+        for name, value in SECRETS.items():
+            self.context.monkeypatch.setenv(name, value)
 
     def fail_tool(self, tool: str, exit_code: int):
         self.context.monkeypatch.setenv(

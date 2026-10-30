@@ -5,6 +5,9 @@ tmux:
       - whoami
       - date
       - uptime
+    serve:
+      - zoo docker.exec blogs_be cmd="jaz run-server"
+      - zoo docker.exec blogs_fe cmd="jaz run-server"
 edit_config:
   editor: gedit
   files:
@@ -12,6 +15,13 @@ edit_config:
 docker:
   compose_project: blogs
   shell: sh
+compose:
+  use_dockerfile_local: false
+  os_custom_packages: ""
+  pip_custom_packages: ""
+python:
+  services:
+    - blogs_be
 dial:
   default:
     1: zoo docker.exec be

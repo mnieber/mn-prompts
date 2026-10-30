@@ -5,9 +5,6 @@ RUN apt-get update && \
     apt-get install -y curl wget nano telnet && \
     rm -rf /var/lib/apt/lists/*
 
-# Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-
 # Optionally install an LLM tool (e.g. INSTALL_LLM_SCRIPT=install-claude-code.sh).
 ARG INSTALL_LLM_SCRIPT=nop.sh
 COPY install_scripts/${INSTALL_LLM_SCRIPT} /app/install_scripts/

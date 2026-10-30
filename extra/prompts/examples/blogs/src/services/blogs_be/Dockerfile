@@ -6,6 +6,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     bash /app/install_scripts/install-postgres-tools.sh
 
 # Copy each library
+COPY libs/jazzoo /app/libs/jazzoo
 COPY libs/woodstock /app/libs/woodstock
 
 # Install the service

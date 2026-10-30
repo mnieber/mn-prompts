@@ -1,0 +1,6 @@
+🐭.script = ⚙️.module.dirname / "python_tools.py"
+
+# Compile the requirements.txt of each service in /python/services.
+[interactive]
+pip-compile():
+    @⚙️.python 🐭.script pip-compile --root-dir=⚙️.root_module.dirname

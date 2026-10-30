@@ -13,7 +13,7 @@ Primary reference: `../examples/blogs/src/services/blogs_fe/`, `../examples/blog
 - Adding the service to `docker-compose.dockerfile-local.yml`
 - Adding the service to `docker-compose.src-overlays.yml`
 - Creating the service's environment file template
-- Minimal Justfile commands for the service
+- The jazzoo stub library in the images, and the minimal targets of the service's `jazzoo` file
 
 ## What this skill does NOT cover
 
@@ -33,7 +33,16 @@ FROM node:18-alpine
 
 # install pkg dependencies
 RUN apk update && apk add \
-    make
+    bash \
+    make \
+    py3-pip \
+    python3
+
+# Copy each library
+COPY libs/jazzoo /app/libs/jazzoo
+
+# Install the libraries
+RUN pip install --break-system-packages -e /app/libs/jazzoo
 
 # install dev pkg dependencies
 RUN apk update && apk add \
@@ -46,7 +55,7 @@ WORKDIR /app/src
 
 ### Dockerfile.local (development)
 
-`Dockerfile.local` uses a newer Node version, enables corepack (for yarn), and installs `just`:
+`Dockerfile.local` uses a newer Node version, enables corepack (for yarn), and installs the jazzoo stub library:
 
 ```dockerfile
 FROM node:20-alpine
@@ -62,17 +71,24 @@ RUN apk update && apk add \
     bash \
     curl \
     fish \
-    nano
+    nano \
+    py3-pip \
+    python3
 
-# Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+# Copy the requirements file(s) for each library
+COPY libs/jazzoo/pyproject.toml libs/jazzoo/setup.py libs/jazzoo/README.md /app/libs/jazzoo/
+
+# Install the libraries
+RUN pip install --break-system-packages -e /app/libs/jazzoo
 
 WORKDIR /app/src
 ```
 
-**RULE:** Node modules are not installed during the Docker build. They are installed at runtime via `just install` (or `just init-dev`) after the container starts, because they live inside the src-overlaid directory.
+**RULE:** Node modules are not installed during the Docker build. They are installed at runtime via `jaz install` (or `jaz init-dev`) in the container after it starts, because they live inside the src-overlaid directory.
 
 **RULE:** Set `WORKDIR` to `/app/src` to match the src-overlay mount point.
+
+**RULE:** The Node images have no Python, so both Dockerfiles install `python3` and `py3-pip`, and then the jazzoo stub library (see `layers/local_env/skills/le-add-python-stub-lib.md`). jazzoo runs shell lines in bash, so both also install `bash`.
 
 ---
 
@@ -121,6 +137,7 @@ services:
   blogs_fe:
     volumes:
       - ${ROOT_DIR}/src/services/blogs_fe:/app/src
+      - ${ROOT_DIR}/src/libs/jazzoo:/app/libs/jazzoo
 ```
 
 The entire service directory is mounted to `/app/src`. This includes `package.json`, source files, and — once installed — `node_modules`.
@@ -145,39 +162,39 @@ Frontend environment variables exposed to Vite must be prefixed with `VITE_`. No
 
 ---
 
-## Minimal Justfile commands
+## Minimal targets of the jazzoo file
 
-Every frontend service must provide at minimum:
+Every frontend service must provide at minimum these targets in `src/services/<service_name>/jazzoo`:
 
-```makefile
+```
 #
 # React
 #
 
-install:
+install():
     yarn install
 
-run-server:
+[interactive]
+run-server():
     yarn dev --host
 
 #
 # Stack
 #
 
-init-dev: \
-    install
+init-dev(): install()
 ```
 
 **run-server:** Must pass `--host` so the Vite dev server binds to `0.0.0.0` and is reachable from the host machine via the exposed port.
 
 **init-dev:** Called once after the container first starts to install node modules.
 
-## Optional Justfile commands
+## Optional targets
 
-It can optionally also provide this command (which is run on the host)
+It can optionally also provide this target (which is run on the host)
 
 ```
-create-opt-paths:
+create-opt-paths():
     sudo mkdir -p /opt/projects/blogs/blogs_fe
     sudo echo     "- cmd: echo 'start of the fish history'" >> /opt/projects/blogs/blogs_fe/fish_history
     sudo chmod -R 777 /opt/projects/blogs
@@ -188,11 +205,12 @@ create-opt-paths:
 ## Checklist
 
 - [ ] `Dockerfile` created using `node:18-alpine` (or appropriate version)
-- [ ] `Dockerfile.local` created using a newer Node version with `corepack enable` and `just` installed
+- [ ] `Dockerfile.local` created using a newer Node version with `corepack enable`
+- [ ] Both Dockerfiles install `bash`, `python3`, `py3-pip` and the jazzoo stub library
 - [ ] Both Dockerfiles use `WORKDIR /app/src`
 - [ ] Service added to `docker-compose.yml` with `sleep infinity`, correct ports, and `depends_on` the backend
 - [ ] Service added to `docker-compose.dockerfile-local.yml` with `_local` image suffix
-- [ ] Service added to `docker-compose.src-overlays.yml` mounting to `/app/src`
+- [ ] Service added to `docker-compose.src-overlays.yml` mounting to `/app/src`, and the jazzoo stub to `/app/libs/jazzoo`
 - [ ] Environment file template created at `env_files/blogs_fe.env.in`
 - [ ] `VITE_` prefix used for variables that must be accessible in the browser
-- [ ] Justfile includes `install`, `run-server` (with `--host`), and `init-dev`
+- [ ] `jazzoo` file includes `install`, `run-server` (with `--host`), and `init-dev`

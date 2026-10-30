@@ -25,6 +25,7 @@ def test_developer_runs_a_command_in_a_new_container(context: Context):
     # after the name of the service.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.run_jaz("compose.run", "blogs_be", "cmd=python manage.py migrate"),
     ):
         assert env.exit_code == 0

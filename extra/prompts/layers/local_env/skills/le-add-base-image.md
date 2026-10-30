@@ -8,7 +8,7 @@ Primary reference: `../examples/blogs/env/local/docker/base_images/`
 
 ## What is a base image?
 
-A base image is a Docker image that provides common dependencies and configuration shared by multiple services. Instead of each service installing the same tools (Python, uv, just, etc.), they all inherit from a base image.
+A base image is a Docker image that provides common dependencies and configuration shared by multiple services. Instead of each service installing the same tools (Python, uv, etc.), they all inherit from a base image.
 
 **Benefits:**
 - Faster service builds (shared layers cached)
@@ -66,9 +66,6 @@ RUN apt-get update && \
     apt-get install -y curl wget nano telnet && \
     rm -rf /var/lib/apt/lists/*
 
-# Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-
 # Optionally install an LLM tool (e.g. INSTALL_LLM_SCRIPT=install-claude-code.sh).
 ARG INSTALL_LLM_SCRIPT=nop.sh
 COPY install_scripts/${INSTALL_LLM_SCRIPT} /app/install_scripts/
@@ -122,11 +119,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 ```
 
-**Just installation:** Command runner for service operations
-```dockerfile
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-```
-
 **LLM tool installation (optional):** Placeholder for AI coding assistants
 ```dockerfile
 ARG INSTALL_LLM_SCRIPT=nop.sh
@@ -147,7 +139,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 ARG PIP_CUSTOM_PACKAGES
 ARG OS_CUSTOM_PACKAGES
 ```
-These are populated from environment variables in `.local.env` during build.
+These are populated from `/compose/os_custom_packages` and `/compose/pip_custom_packages` in the config during build.
 
 **Libraries directory:** Environment variable for library location
 ```dockerfile
@@ -158,6 +150,9 @@ Used by services to reference shared libraries. Replace `BLOGS` with your stack 
 **RULE:** Always set WORKDIR to `/app/src` to match service expectations.
 
 **RULE:** Use `--mount=type=cache` for package manager caches to speed up rebuilds.
+
+**RULE:** Don't install jazzoo in the base image. Each service installs it as a stub library (see
+`layers/local_env/skills/le-add-python-stub-lib.md`), so that `jaz` runs the service's `jazzoo` file.
 
 ---
 
@@ -179,18 +174,18 @@ If you want to add an LLM tool (like Claude Code), create a separate install scr
 
 ## Step 4: Build the base image
 
-The base image is built using the `just build-base-images` command:
+The base image is built using the `jaz compose.build-base-images` target:
 
 ```bash
-just build-base-images
+jaz compose.build-base-images
 ```
 
-This command is provided by the justfile setup described in `layers/local_env/skills/le-use-compose-ops.md`.
+This target is described in `layers/local_env/skills/le-use-compose-ops.md`.
 
 **When to build:**
 - During initial stack setup
 - After modifying the base image Dockerfile
-- After changing custom package lists in `.local.env`
+- After changing the custom package lists in the config
 
 ---
 
@@ -210,16 +205,17 @@ The image name must match what's defined in `docker-compose.base-images.yml`.
 
 ## Customizing with build arguments
 
-Developers can customize base images via environment variables in `.local.env`:
+Developers can customize base images in their own config layer, `env/local/config/local.yaml`:
 
-```bash
-BLOGS_OS_CUSTOM_PACKAGES="nano curl fish"
-BLOGS_PIP_CUSTOM_PACKAGES="pudb ipython"
+```yaml
+compose:
+  os_custom_packages: nano curl fish
+  pip_custom_packages: pudb ipython
 ```
 
-These are passed as build arguments when running `just build-base-images`.
+These are passed as build arguments when running `jaz compose.build-base-images`.
 
-**RULE:** The build arguments are automatically passed by the `_build_base_images.just` helper. No manual configuration needed.
+**RULE:** The build arguments are passed by `compose_tools.py`. No manual configuration needed.
 
 ---
 
@@ -242,7 +238,7 @@ services:
 
 2. Create `base_images/Dockerfile.base.node` following similar patterns
 
-3. Run `just build-base-images` to build both images
+3. Run `jaz compose.build-base-images` to build both images
 
 **RULE:** Multiple base images can coexist. The compose file builds all services defined in it.
 
@@ -252,11 +248,11 @@ services:
 
 - [ ] `docker-compose.base-images.yml` created with service definitions
 - [ ] Base image Dockerfile created in `base_images/` directory
-- [ ] Standard tools installed (just, uv, curl, wget, etc.)
+- [ ] Standard tools installed (uv, curl, wget, etc.)
 - [ ] Build arguments defined for custom packages
 - [ ] WORKDIR set to `/app/src`
 - [ ] Libraries directory environment variable set (e.g., `BLOGS_LIBS_DIR`)
 - [ ] `install_scripts/nop.sh` created
-- [ ] Base image builds successfully with `just build-base-images`
+- [ ] Base image builds successfully with `jaz compose.build-base-images`
 - [ ] Services reference the base image in their Dockerfiles
-- [ ] Custom packages configured in `.local.env` (if needed)
+- [ ] Custom packages configured in `env/local/config/local.yaml` (if needed)

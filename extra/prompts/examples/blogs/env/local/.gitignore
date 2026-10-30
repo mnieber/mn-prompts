@@ -1,2 +1,3 @@
 docker/env_files/*.env
 secrets.env
+config/local.yaml

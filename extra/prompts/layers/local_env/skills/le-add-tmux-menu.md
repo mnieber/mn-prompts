@@ -65,7 +65,7 @@ another pane.
 
 ## How it works, and what to keep when changing it
 
-`tmux.jaz` calls `python3 tmux_menu.py open`, which creates the session, and starts
+`tmux.jaz` calls `⚙️.python tmux_menu.py open`, which creates the session, and starts
 `tmux_menu.py pick` (the menu loop) in the `Menu` window. The script reads the menu with
 `from jazzoo import get_config`, and runs tmux with `from jazzoo import run`.
 
@@ -88,14 +88,14 @@ as `open`.
 ## Requirements
 
 - `tmux` is installed.
-- `python3` on the `PATH` has `jazzoo` installed, i.e. the venv with `jaz` is active.
+- `jaz` is installed. The scripts run with `⚙️.python`, the Python that runs `jaz`, so they can import `jazzoo`.
 
 ## Testing
 
 `examples/blogs/e2e_tests/` has an end-to-end test that runs `jaz tmux` in a pseudo-terminal against an
 isolated tmux server (its socket lives in the test's tmp dir), picks commands and checks the panes. Copy it
-along with the target, and adapt the expected menu entries. Run it with `just e2e-tests` (a recipe in
-`env/local/justfile` that runs `pytest e2e_tests` from the stack's root dir), in the venv that has `jaz`.
+along with the target, and adapt the expected menu entries. Run it with `jaz e2e-tests` (a target in the
+root `jazzoo` module that runs `⚙️.python -m pytest e2e_tests` from the stack's root dir).
 Extra arguments go to pytest. The test is skipped when `tmux` or `jaz` is missing.
 
 ## Checklist
@@ -105,4 +105,4 @@ Extra arguments go to pytest. The test is skipped when `tmux` or `jaz` is missin
 - [ ] The root `jazzoo` module loads the config and exports `tmux`
 - [ ] `jaz --list` shows `tmux`
 - [ ] `jaz tmux` opens the session with the menu in window 1, and a picked command runs in a new pane
-- [ ] The e2e test is copied to `e2e_tests/`, adapted to the menu, and `just e2e-tests` passes
+- [ ] The e2e test is copied to `e2e_tests/`, adapted to the menu, and `jaz e2e-tests` passes

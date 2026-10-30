@@ -1,6 +1,6 @@
-from e2e_test_env import OVERRIDE_YML, Context, TestEnv, requires_jaz
+from e2e_test_env import OVERRIDE_YML, SECRETS, Context, TestEnv, requires_jaz
 
-SECRETS = "POSTGRES_PASSWORD=pg-secret\n"
+SECRETS_ENV = "".join(f"{name}={value}\n" for name, value in SECRETS.items())
 OVERRIDE = "services: {}\n"
 POSTGRES_ENV = "env/local/docker/env_files/postgres.env"
 
@@ -28,7 +28,7 @@ def test_compose_keeps_the_developer_files(context: Context):
     # We have a secrets.env and an override file of our own.
     if env.step(
         env.install_fake_tools(),
-        env.write_file("env/local/secrets.env", SECRETS),
+        env.write_file("env/local/secrets.env", SECRETS_ENV),
         env.write_file(OVERRIDE_YML, OVERRIDE),
     ):
         pass
@@ -41,7 +41,7 @@ def test_compose_keeps_the_developer_files(context: Context):
         env.run_jaz("compose.up"),
     ):
         assert env.exit_code == 0
-        assert env.read_file("env/local/secrets.env") == SECRETS
+        assert env.read_file("env/local/secrets.env") == SECRETS_ENV
         assert env.read_file(OVERRIDE_YML) == OVERRIDE
 
 
@@ -50,10 +50,10 @@ def test_compose_compiles_the_env_files(context: Context):
     # Create the test environment
     env = create_env(context)
 
-    # We have a secret in secrets.env.
+    # We have the secrets in secrets.env.
     if env.step(
         env.install_fake_tools(),
-        env.write_file("env/local/secrets.env", SECRETS),
+        env.write_file("env/local/secrets.env", SECRETS_ENV),
     ):
         pass
 
@@ -79,6 +79,7 @@ def test_compose_reports_a_failing_docker(context: Context):
     # It should fail without a traceback: docker has already printed its error.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
         env.fail_tool("docker", 3),
         env.run_jaz("compose.up"),
     ):

@@ -11,10 +11,15 @@ RUN apk update && apk add \
     bash \
     curl \
     fish \
-    nano
+    nano \
+    py3-pip \
+    python3
 
-# Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+# Copy the requirements file(s) for each library
+COPY libs/jazzoo/pyproject.toml libs/jazzoo/setup.py libs/jazzoo/README.md /app/libs/jazzoo/
+
+# Install the libraries
+RUN pip install --break-system-packages -e /app/libs/jazzoo
 
 # Install claude code
 RUN curl -fsSL https://claude.ai/install.sh | bash

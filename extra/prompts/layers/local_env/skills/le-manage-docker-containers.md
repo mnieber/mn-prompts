@@ -69,15 +69,16 @@ docker:
   `com.docker.compose.project` label). Without it, all running containers are listed.
 - `/docker/shell` is the shell that `exec` opens when no `cmd` is given. Without it, `sh` is used.
 
-RULE: `/docker/compose_project` must equal the `COMPOSE_PROJECT_NAME` in `env/local/justfile` (see
-`le-use-compose-ops`). Otherwise no container is found.
+`/docker/compose_project` is also the `COMPOSE_PROJECT_NAME` that the `compose` layer starts the stack with
+(see `le-use-compose-ops`), so the two always match.
 
 RULE: use a shell that exists in every container of the stack. `sh` does; `bash` and `fish` are often missing
-in images such as `postgres`. A developer who prefers another shell passes `cmd=fish`.
+in images such as `postgres`. A developer who prefers another shell passes `cmd=fish`, or sets `/docker/shell`
+in their own `env/local/config/local.yaml`.
 
 ## How it works, and what to keep when changing it
 
-Each target calls `python3 docker_tools.py <action> --name=<name> ...`. The script lists the containers with
+Each target calls `⚙️.python docker_tools.py <action> --name=<name> ...`. The script lists the containers with
 `docker ps`, picks one or more, and runs docker with `from jazzoo import run`. It reads `/docker` with
 `from jazzoo import get_config`.
 
@@ -89,19 +90,18 @@ RULE: the targets quote their string arguments with `⚙️.sh-quote`, because t
 RULE: `commit` writes to the image that the container was started from, so that the next `up` uses it. It
 does not create a new image name.
 
-Compose itself (`up`, `down`, `build`) is not part of this layer: it goes through `just` (see
+Compose itself (`up`, `down`, `build`) is not part of this layer: it goes through the `compose` layer (see
 `le-use-compose-ops`).
 
 ## Requirements
 
 - `docker` is installed, and the developer may run it without `sudo`.
-- `python3` on the `PATH` has `jazzoo` installed, i.e. the venv with `jaz` is active.
+- `jaz` is installed. The scripts run with `⚙️.python`, the Python that runs `jaz`, so they can import `jazzoo`.
 
 ## Checklist
 
 - [ ] `docker.jaz` and `docker_tools.py` copied to `env/local/jaz/docker/`
 - [ ] `env/local/config/base.yaml` defines `/docker/compose_project` (and optionally `/docker/shell`)
-- [ ] `/docker/compose_project` equals `COMPOSE_PROJECT_NAME` in `env/local/justfile`
 - [ ] The root `jazzoo` module loads the config and exports the `docker` layer
 - [ ] `jaz --list docker` shows `docker.exec`, `docker.kill`, `docker.inspect` and `docker.commit`
 - [ ] With the stack running, `jaz docker.exec` lists the stack's containers and opens a shell in the picked one

@@ -28,8 +28,8 @@ shell, and switch along with `zoo env <name>`. A key that is not in the config d
 
 `jaz` only loads the `jazzoo` file of the current directory, so after the first `cd` into a service the keys
 would stop working. `zoo` runs the target in the root directory of the active zoo environment, from any
-directory. The active environment also puts its venv on the `PATH`, so the `python3` that the target runs has
-`jazzoo` installed, also in a shell where the developer did not activate a venv by hand.
+directory. The target runs its script with `⚙️.python`, the Python that runs `zoo`, so the script can import `jazzoo`,
+also in a shell where the developer did not activate a venv by hand.
 
 RULE: the fish functions call `zoo`, never `jaz`.
 
@@ -111,7 +111,7 @@ The bindings are made for the default (emacs) key bindings of fish. Vi mode is n
 runs `zoo dial.get <n> group=<group> dir=true`, and `cd`s to the output. Both do nothing when `zoo` is not on
 the `PATH` or the output is empty.
 
-`dial.get` calls `python3 dial_tools.py get`, which reads `/dial/<group>` with `from jazzoo import get_config`,
+`dial.get` calls `⚙️.python dial_tools.py get`, which reads `/dial/<group>` with `from jazzoo import get_config`,
 and prints the value of the key with `~` expanded. With `dir=true` it joins it to the root directory of the
 stack. An unknown key prints nothing and exits with 0, so that a key binding can ignore it.
 

@@ -2,6 +2,8 @@ services:
   blogs_be:
     volumes:
       - ${ROOT_DIR}/src/services/blogs_be:/app/src
+      - ${ROOT_DIR}/src/libs/jazzoo:/app/libs/jazzoo
   blogs_fe:
     volumes:
       - ${ROOT_DIR}/src/services/blogs_fe:/app/src
+      - ${ROOT_DIR}/src/libs/jazzoo:/app/libs/jazzoo

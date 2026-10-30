@@ -1,362 +1,167 @@
 # Skill: le-use-compose-ops
 
-Applies when setting up Just commands to manage Docker Compose operations for the local development stack.
+Applies when adding the `jaz compose.*` and `jaz python.*` targets to a stack: they build and run the
+stack with Docker Compose, compile the env files, and compile the requirements of the Python services.
 
-Primary reference: `../examples/blogs/env/local/just/compose/`
-
----
-
-## What this skill covers
-
-This skill describes how to set up and use Just commands for Docker Compose operations:
-
-- Setting up the justfile structure for compose operations
-- Configuring ROOT_DIR, COMPOSE_DIR, and COMPOSE_PROJECT_NAME
-- Using the standard compose operation commands
-
-## What this skill does NOT cover
-
-- **Service-specific Just commands** → see target-specific documentation (e.g., `targets/django_app`)
-- **Python-specific Just commands** → see `layers/local_env/skills/le-use-python-ops.md`
+The `examples/blogs` stack has a complete setup. Copy its files and adapt the config.
 
 ---
 
-## Justfile structure
+## What the developer sees
 
-The stack uses a modular justfile structure:
+```
+$ jaz compose.build-base-images             # build the base images
+$ jaz compose.build                         # build the images of the services
+$ jaz compose.up                            # start the stack
+$ jaz compose.down                          # stop the stack, remove its containers
+$ jaz compose.restart                       # down, python.pip-compile, build, up
+$ jaz compose.run blogs_be cmd="pytest"     # run a command in a new container
+$ jaz compose.compile-env-files             # compile the .env.in files
+$ jaz python.pip-compile                    # compile requirements.txt of the Python services
+```
+
+`jaz --list compose` lists the targets.
+
+- `build`, `up`, `restart` and `run` take `local=true` to use the `Dockerfile.local` images, and `local=false`
+  to use the `Dockerfile` images. Without `local`, `/compose/use_dockerfile_local` decides.
+- `build`, `build-base-images` and `restart` take `no-cache=true` to build without the docker cache.
+- `build`, `up`, `down` and `run` first compile the env files. `up` first creates an empty
+  `docker-compose.override.yml` if it is missing.
+- `run` passes the words of `cmd` after the service name; without `cmd`, the service runs its own command.
+  The container is removed when the command ends.
+- To open a shell in a running container, use `jaz docker.exec` (see
+  [le-manage-docker-containers](./le-manage-docker-containers.md)); there is no `compose.shell`.
+
+**When to use which target.** `compose.run` is the target to run commands when debugging or operating the
+stack together with the developer. `compose.up`, `compose.down` and `compose.restart` change the developer's
+running stack: only run them when the developer asks.
+
+### Typical workflow
+
+```bash
+# Initial setup
+jaz compose.build-base-images
+jaz compose.build
+jaz compose.up
+
+# After dependency changes
+jaz compose.restart
+```
+
+## Files
 
 ```
 <stack>/
-├── justfile                           # Root justfile (delegates to env/local)
-└── env/
-    └── local/
-        ├── justfile                   # Main local env justfile
-        ├── .local.env                 # Developer-specific variables (gitignored)
-        └── just/
-            ├── compose/
-            │   ├── index.just         # Compose operations coordinator
-            │   ├── build.just         # Build commands
-            │   ├── run.just           # Run commands (up, down, shell, run_cmd)
-            │   ├── env-files.just     # Environment file compilation
-            │   └── lib/               # Internal implementation helpers
-            └── python/
-                └── index.just         # Python operations
+    jazzoo                                    # root module: loads the config, exports the layers
+    env/local/
+        .gitignore                            # docker/env_files/*.env, secrets.env, config/local.yaml
+        secrets.env                           # the secrets of the env files (gitignored)
+        config/base.yaml                      # /docker, /compose and /python
+        config/local.yaml                     # the developer's own settings (gitignored, optional)
+        jaz/compose/compose.jaz               # the compose targets
+        jaz/compose/compose_tools.py          # the script that does the work
+        jaz/python/python.jaz                 # the python targets
+        jaz/python/python_tools.py            # the script that does the work
+        scripts/compile_env_files.py          # compiles the .env.in files
+        docker/                               # the compose files and env_files/*.env.in
 ```
 
----
-
-## Step 1: Create the root justfile
-
-Create `<stack>/justfile` that delegates to the local environment:
-
-```makefile
-import 'env/local/justfile'
-```
-
-**RULE:** The root justfile should be minimal and just import the environment-specific justfile.
-
----
-
-## Step 2: Set up env/local/justfile
-
-Create `<stack>/env/local/justfile` with the core configuration:
-
-```makefile
-import './just/compose/index.just'
-
-set dotenv-load := true
-set dotenv-filename := 'env/local/.local.env'
-
-# Determine root properties
-export ROOT_DIR := canonicalize(source_directory() / "../..")
-
-# Determine compose properties
-export COMPOSE_DIR := source_directory() / "docker"
-export COMPOSE_PROJECT_NAME := "blogs"
-```
-
-### Configuration variables
-
-**ROOT_DIR:** Absolute path to the stack root directory
-
-```makefile
-export ROOT_DIR := canonicalize(source_directory() / "../..")
-```
-
-Uses `source_directory()` to get the justfile's location and goes up two levels to reach the stack root.
-
-**COMPOSE_DIR:** Directory containing docker-compose files
-
-```makefile
-export COMPOSE_DIR := source_directory() / "docker"
-```
-
-Points to `env/local/docker/` where all compose files live.
-
-**COMPOSE_PROJECT_NAME:** Docker Compose project name
-
-```makefile
-export COMPOSE_PROJECT_NAME := "blogs"
-```
-
-Replace `"blogs"` with your stack name. This determines the prefix for container names and networks.
-
-**HOST_IP:** The host machine's IP address on the local network
-
-```makefile
-export HOST_IP := env_var_or_default("HOST_IP", `ip -4 addr show 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v 127.0.0.1 | head -1 || echo ""`)
-```
-
-Detected automatically from the host's network interfaces, excluding loopback. Useful when a container needs to reach a service running on the host machine (e.g. an external dependency not in Docker Compose). Falls back to an empty string if detection fails, in which case the developer can set it explicitly in `.local.env`.
-
-**PYTHON:** Python executable path
-
-```makefile
-export PYTHON := `which python3 2>/dev/null || which python`
-```
-
-Used by Python-related commands.
-
-**RULE:** Always use `canonicalize()` for ROOT_DIR to ensure absolute paths.
-
-**RULE:** The COMPOSE_PROJECT_NAME should match your stack name and be lowercase.
-
----
-
-## Step 3: Create .local.env for developer settings
-
-Create `<stack>/env/local/.local.env` for developer-specific variables (gitignored):
-
-```bash
-BLOGS_SHELL_COMMAND=fish
-BLOGS_USE_DOCKERFILE_LOCAL=true
-BLOGS_OS_CUSTOM_PACKAGES="nano curl fish"
-BLOGS_PIP_CUSTOM_PACKAGES=""
-```
-
-**Common variables:**
-
-- `<STACK>_SHELL_COMMAND`: Shell to use when running `just shell` (e.g., `bash`, `fish`, `zsh`)
-- `<STACK>_USE_DOCKERFILE_LOCAL`: Whether to use Dockerfile.local by default (`true`/`false`)
-- `<STACK>_OS_CUSTOM_PACKAGES`: Additional OS packages to install in base images
-
-**RULE:** Replace `BLOGS` prefix with your stack name in uppercase.
-
-**RULE:** This file should be gitignored as it contains developer preferences.
-
----
-
-## Step 4: Copy the docker operations justfiles
-
-Copy the following structure from the blogs example to your stack:
+The root module loads the config and exports the layers:
 
 ```
-env/local/just/compose/
-├── index.just              # Copy and update
-├── build.just              # Copy as-is
-├── run.just                # Copy as-is
-├── env-files.just          # Copy as-is
-└── lib/                    # Copy entire directory as-is
+⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "env/local/config/local.yaml", required=false)
+
+from ./env/local/jaz/compose/compose.jaz export * as compose
+from ./env/local/jaz/python/python.jaz export * as python
 ```
 
-### Update Just file to use the correct stack name in environment variables.
+**RULE:** Copy `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py`
+as they are. The only stack-specific name in them is `BLOGS_LIBS_DIR` in `python_tools.py`: rename it to
+`<STACK>_LIBS_DIR`.
 
-The following renamings can safely be done globally in the <xxx_stack>/env/local directory:
+## The config
 
-- Replace BLOGS_USE_DOCKERFILE_LOCAL with <XXX_STACK>\_USE_DOCKERFILE_LOCAL
-- Replace BLOGS_SHELL_COMMAND with <XXX_STACK>\_SHELL_COMMAND
-- Replace BLOGS_OS_CUSTOM_PACKAGES with <XXX_STACK>\_OS_CUSTOM_PACKAGES
-- Replace BLOGS_PIP_CUSTOM_PACKAGES with <XXX_STACK>\_PIP_CUSTOM_PACKAGES
-- Replace BLOGS_LIBS_DIR with <XXX_STACK>\_LIBS_DIR
-
----
-
-## Available compose operation commands
-
-Once the justfiles are set up, you can use these commands from the stack root:
-
-### `just build [use_dockerfile_local=true/false] [use_no_cache=true/false]`
-
-Builds all service images.
-
-```bash
-# Build using Dockerfile (production)
-just build
-
-# Build using Dockerfile.local (development)
-just build use_dockerfile_local=true
-
-# Build without cache
-just build use_no_cache=true
+```yaml
+# env/local/config/base.yaml
+docker:
+  compose_project: blogs
+  shell: sh
+compose:
+  use_dockerfile_local: false
+  os_custom_packages: ""
+  pip_custom_packages: ""
+python:
+  services:
+    - blogs_be
 ```
 
-**What it does:**
+- `/docker/compose_project` is the Docker Compose project name: the stack name, in lower case. It prefixes
+  the container names and networks.
+- `/compose/use_dockerfile_local` is the default of `local`.
+- `/compose/os_custom_packages` and `/compose/pip_custom_packages` are passed to `build-base-images` as the
+  build args `OS_CUSTOM_PACKAGES` and `PIP_CUSTOM_PACKAGES` when they are not empty (see
+  [le-add-base-image](./le-add-base-image.md)).
+- `/python/services` lists the services whose requirements `python.pip-compile` compiles.
 
-1. Compiles environment files (`.env.in` → `.env`)
-   - In a service's `.env.in` file, reference secrets with `${VARIABLE_NAME}` where VARIABLE_NAME is defined in `secrets.env`.
-   - Non-secrets are hard-coded directly in the .env.in file
-2. Builds all services defined in docker-compose.yml
-3. Uses Dockerfile.local if `use_dockerfile_local=true`
+### The developer's own settings
 
-Note that the user is responsible for calling `pip install compile-env` in their local python env.
+`env/local/config/local.yaml` is a config layer that belongs to the developer. It is not in git, and the
+stack works without it. Because the root module loads it after `base.yaml`, it overrides it:
 
-**When to use:** After changing Dockerfile, requirements, or dependencies.
-
-### `just build-base-images [use_no_cache=true/false]`
-
-Builds base images (e.g., `<stack>_base_python`).
-
-```bash
-just build-base-images
+```yaml
+# env/local/config/local.yaml
+docker:
+  shell: fish
+compose:
+  use_dockerfile_local: true
+  os_custom_packages: nano curl fish
 ```
 
-**What it does:**
+**RULE:** Don't create or edit `local.yaml` for the developer, unless they ask. Put the defaults of the
+stack in `base.yaml`.
 
-1. Builds images defined in `docker-compose.base-images.yml`
-2. These images are used as base for service images
+## How the targets work
 
-**When to use:** After changing base image Dockerfiles or when setting up a new stack.
+`compose.jaz` is a thin wrapper that calls `⚙️.python compose_tools.py <action> --root-dir=<root dir> ...`.
+The script runs `docker compose` with `ROOT_DIR` (the compose files use `${ROOT_DIR}`),
+`COMPOSE_PROJECT_NAME` (from `/docker/compose_project`) and `DOCKER_BUILDKIT=1` in its environment. The
+compose files of each command:
 
-### `just up [use_dockerfile_local=true/false]`
+| command           | compose files                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| build             | `docker-compose.yml` (+ `docker-compose.dockerfile-local.yml`)                         |
+| build-base-images | `docker-compose.base-images.yml`                                                       |
+| up, run           | `docker-compose.yml`, `.src-overlays.yml` (+ `.dockerfile-local.yml`), `.override.yml` |
+| down              | `docker-compose.yml`, `.src-overlays.yml`, `.override.yml`                             |
 
-Starts all services in detached mode.
+`python_tools.py pip-compile` runs `uv pip compile` in `src/services/<service>` of each service in
+`/python/services`, with `<STACK>_LIBS_DIR` set to `<root dir>/src/libs`, so that the `-e
+${<STACK>_LIBS_DIR}/...` lines of `requirements.editable` resolve.
 
-```bash
-# Start with Dockerfile.local images
-just up use_dockerfile_local=true
+A failing `docker` or `uv` command ends the target with its exit code, without a traceback.
 
-# Start with production Dockerfiles
-just up
-```
+## Env files
 
-**What it does:**
+`compose.compile-env-files` creates `secrets.env` if it is missing, and runs `compile_env_files.py`, which
+renders each `env/local/docker/env_files/<service>.env.in` into `<service>.env`.
 
-1. Touches docker-compose.override.yml (creates if missing)
-2. Compiles environment files
-3. Starts all services with docker-compose up
-4. Includes src-overlays and override files (depending on use_dockerfile_local)
+- In a `.env.in` file, reference a secret with `${VARIABLE_NAME}`, where `VARIABLE_NAME` is defined in
+  `secrets.env`. Non-secrets are hard-coded in the `.env.in` file.
+- A secret that is not defined in `secrets.env` (or the environment) makes the compilation fail.
+- `compile_env_files.py` needs `expandvars`: the developer installs it next to jazzoo
+  (`pip install expandvars`).
 
-**When to use:** After building, to start the development environment.
+## Requirements
 
-### `just down`
-
-Stops and removes all containers, networks.
-
-```bash
-just down
-```
-
-**What it does:**
-
-1. Runs `docker compose down --remove-orphans`
-2. Removes stopped containers and networks
-
-**When to use:** To clean up the environment, before rebuilding, or when switching branches.
-
-### `just restart [use_dockerfile_local=true/false] [use_no_cache=true/false]`
-
-Full cycle: down → pip-compile → build → up.
-
-```bash
-# Restart with development images
-just restart use_dockerfile_local=true
-
-# Restart with fresh build
-just restart use_dockerfile_local=true use_no_cache=true
-```
-
-**What it does:**
-
-1. Stops all services (`down`)
-2. Recompiles Python requirements (`pip-compile`)
-3. Rebuilds images (`build`)
-4. Starts services (`up`)
-
-**When to use:** After major changes (dependencies, Dockerfile changes) or when troubleshooting.
-
-### `just shell <service_name>`
-
-Opens a shell in a running service container.
-
-```bash
-just shell blogs_be
-```
-
-**What it does:**
-
-1. Compiles environment files
-2. Execs into the running container
-3. Uses the shell defined in `<STACK>_SHELL_COMMAND` (from `.local.env`)
-
-**When to use:** Never. It's expected that you do not run this command. It's a convenience command for the user.
-
-**RULE:** The container must be running (`just up`) before using `just shell`.
-
-### `just run_cmd <service_name> <cmd> [use_dockerfile_local=true/false]`
-
-Runs a one-off command in a new container instance.
-
-```bash
-# Run Django migrations
-just run_cmd blogs_be "python manage.py migrate"
-
-# Run tests
-just run_cmd blogs_be "pytest"
-```
-
-**What it does:**
-
-1. Compiles environment files
-2. Runs `docker compose run` with the specified command
-3. Creates a new container (doesn't use the running one)
-4. Removes container after command completes (`--rm`)
-
-**When to use:** To run commands when debugging or operating the stack in collaboration with the user.
-
-### `just compile-env-files`
-
-Compiles `.env.in` templates to `.env` files.
-
-```bash
-just compile-env-files
-```
-
-**What it does:**
-
-1. Touches `secrets.env` if it doesn't exist
-2. Runs the Python script to compile all `.env.in` files in `env/local/docker/env_files/`
-3. Substitutes variables from `secrets.env`
-
-**When to use:** After modifying `.env.in` files or `secrets.env`.
-
-**Note:** This command is automatically called by other commands (build, up, down, etc.), so you rarely need to run it manually.
-
----
-
-## Typical workflow
-
-### Initial setup
-
-```bash
-just build-base-images
-just build use_dockerfile_local=true
-just up use_dockerfile_local=true
-```
-
-### After dependency changes
-
-```bash
-just restart use_dockerfile_local=true
-```
-
----
+- `jaz` is installed, and `⚙️.python` (the Python that runs `jaz`) has `expandvars`.
+- `docker` (with compose) and `uv` are on the `PATH`.
 
 ## Checklist
 
-- [ ] Root `justfile` created with import statement
-- [ ] `env/local/justfile` created with ROOT_DIR, COMPOSE_DIR, COMPOSE_PROJECT_NAME
-- [ ] `env/local/.local.env` created with developer preferences (gitignored)
-- [ ] Compose operations justfiles copied to `env/local/just/compose/`
-- [ ] Variable names updated in build.just and run.just to match stack name
-- [ ] `env/local/.gitignore` excludes `docker/env_files/*.env` and `secrets.env`
-- [ ] Non-secrets are hard-coded directly in the .env.in file
+- [ ] The root `jazzoo` file loads `base.yaml` and the optional `local.yaml`, and exports `compose` and `python`
+- [ ] `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py` are copied
+- [ ] `BLOGS_LIBS_DIR` is renamed to `<STACK>_LIBS_DIR` in `python_tools.py`
+- [ ] `base.yaml` has `/docker/compose_project`, `/compose/*` and `/python/services`
+- [ ] `env/local/.gitignore` excludes `docker/env_files/*.env`, `secrets.env` and `config/local.yaml`
+- [ ] Non-secrets are hard-coded in the `.env.in` files

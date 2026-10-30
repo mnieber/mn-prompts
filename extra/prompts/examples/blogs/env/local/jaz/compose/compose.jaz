@@ -1,0 +1,52 @@
+from ../python/python.jaz import (pip-compile) as python
+
+🐭.script = ⚙️.module.dirname / "compose_tools.py"
+
+# Build the images of the services. With local=true, build them from the
+# Dockerfile.local files (default: /compose/use_dockerfile_local). With no-cache, build
+# without the docker cache.
+[interactive]
+build(local="", no-cache=""):
+    🐆.safe-local = 🐆.local | ⚙️.sh-quote
+    🐆.no-cache-flag = "--no-cache" if 🐆.no-cache else ""
+    @⚙️.python 🐭.script build --root-dir=⚙️.root_module.dirname --local=🐆.safe-local 🐆.no-cache-flag
+
+# Build the base images of the services. With no-cache, build without the docker cache.
+[interactive]
+build-base-images(no-cache=""):
+    🐆.no-cache-flag = "--no-cache" if 🐆.no-cache else ""
+    @⚙️.python 🐭.script build-base-images --root-dir=⚙️.root_module.dirname 🐆.no-cache-flag
+
+# Start the stack. With local=true, use the images of the Dockerfile.local files
+# (default: /compose/use_dockerfile_local).
+[interactive]
+up(local=""):
+    🐆.safe-local = 🐆.local | ⚙️.sh-quote
+    @⚙️.python 🐭.script up --root-dir=⚙️.root_module.dirname --local=🐆.safe-local
+
+# Stop the stack, and remove its containers.
+[interactive]
+down():
+    @⚙️.python 🐭.script down --root-dir=⚙️.root_module.dirname
+
+# Stop the stack, compile the requirements, build the images and start the stack.
+[interactive]
+restart(local="", no-cache=""):
+    🐭.down()
+    🐭.python.pip-compile()
+    🐭.build(local=🐆.local, no-cache=🐆.no-cache)
+    🐭.up(local=🐆.local)
+
+# Run cmd (default: the command of the service) in a new container of service.
+[interactive]
+run(service, cmd="", local=""):
+    🐆.safe-service = 🐆.service | ⚙️.sh-quote
+    🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
+    🐆.safe-local = 🐆.local | ⚙️.sh-quote
+    @⚙️.python 🐭.script run --root-dir=⚙️.root_module.dirname --service=🐆.safe-service --cmd=🐆.safe-cmd --local=🐆.safe-local
+
+# Compile the .env.in files of the services into .env files, with the values of
+# secrets.env.
+[interactive]
+compile-env-files():
+    @⚙️.python 🐭.script compile-env-files --root-dir=⚙️.root_module.dirname

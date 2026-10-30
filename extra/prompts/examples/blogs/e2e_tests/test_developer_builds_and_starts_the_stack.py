@@ -27,6 +27,7 @@ def test_developer_builds_and_starts_the_stack(context: Context):
     # We have the blogs project, without a local.yaml, and docker is faked.
     if env.step(
         env.install_fake_tools(),
+        env.export_secrets(),
     ):
         assert not env.project_file("env/local/config/local.yaml").exists()
 

@@ -2,19 +2,20 @@
 # React
 #
 
-install:
+install():
     yarn install
 
-run-server:
+[interactive]
+run-server():
     yarn dev --host
 
 #
 # Stack
 #
 
-init-dev: install
+init-dev(): install()
 
-create-opt-paths:
+create-opt-paths():
     sudo mkdir -p /opt/projects/blogs/blogs_fe
     sudo echo     "- cmd: echo 'start of the fish history'" >> /opt/projects/blogs/blogs_fe/fish_history
     sudo chmod -R 777 /opt/projects/blogs

@@ -35,7 +35,7 @@ deploy():
     ⚙️.load_config(path=⚙️.module.dirname / "env/local/config/deploy.yaml")
     # debug: remove when done
     🐭.config.print(to-file="/tmp/config.json")
-    python3 deploy.py
+    ⚙️.python deploy.py
 ```
 
 Use `to-file` when the target prints other output, so that the config does not get mixed into it.
@@ -93,8 +93,8 @@ RULE: list every config file that the developer may want to change, also the opt
 
 ## How it works, and what to keep when changing it
 
-`config.jaz` calls `python3 config_tools.py edit --root-dir=<dir of the root module>` and
-`python3 config_tools.py print --path=<path> --to-file=<file>`. The script reads the config with
+`config.jaz` calls `⚙️.python config_tools.py edit --root-dir=<dir of the root module>` and
+`⚙️.python config_tools.py print --path=<path> --to-file=<file>`. The script reads the config with
 `from jazzoo import get_config`, and starts the editor with `from jazzoo import run`.
 
 `print` prints the value at the path as JSON (`json.dumps(indent=2)`), so that the script needs only the
@@ -113,7 +113,7 @@ command-line arguments.
 ## Requirements
 
 - The editor is installed.
-- `python3` on the `PATH` has `jazzoo` installed, i.e. the venv with `jaz` is active.
+- `jaz` is installed. The scripts run with `⚙️.python`, the Python that runs `jaz`, so they can import `jazzoo`.
 
 ## Checklist
 

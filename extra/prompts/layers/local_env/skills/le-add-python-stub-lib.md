@@ -69,6 +69,10 @@ src/libs/woodstock/
 
 **IMPORTANT:** Do NOT create a `tests/` directory in the stub. Tests live with the real library.
 
+The stack also has a stub for `jazzoo` (`src/libs/jazzoo/`), which every service installs so that `jaz` runs
+in its container. Its real code is mounted from the jazzoo checkout (e.g. `/home/maarten/projects/jazzoo/src`,
+which has `pyproject.toml` and `src/jazzoo/`).
+
 ---
 
 ## Stub-specific files
@@ -84,6 +88,12 @@ Create `src/<lib_name>/__init__.py` with just a placeholder:
 This file will be overwritten when the real library code is overlaid at runtime.
 
 **RULE:** Do NOT implement any functionality in the stub's `__init__.py`.
+
+### Console scripts
+
+**RULE:** The stub's `pyproject.toml` declares the same `[project.scripts]` as the real library. The editable
+install creates the console scripts (e.g. `jaz`, `zoo`) from the stub's metadata; the code that they call
+arrives with the overlay. Without the overlay, the scripts fail to import their entry points.
 
 ### Minimal README.md
 
@@ -202,13 +212,26 @@ This mounts the real library's source code over the placeholder stub in the cont
 
 ## Keeping stub in sync with real library
 
-When the real library changes dependencies:
+When the real library changes dependencies or console scripts:
 
 1. Update the stub's `pyproject.toml` to match
-2. Run `just pip-compile` in the service
-3. Rebuild the service image: `just build use_dockerfile_local=true`
+2. Run `jaz python.pip-compile`
+3. Rebuild the service images: `jaz compose.build local=true`
 
 **RULE:** The stub's `pyproject.toml` dependencies must match the real library's dependencies.
+
+---
+
+## Services without uv or requirements files
+
+A service that is not a Python service (e.g. a Node service on an alpine image) installs the stub with pip,
+after installing `python3` and `py3-pip`. See `layers/local_env/skills/le-add-react-service-to-compose.md`.
+
+```dockerfile
+# Dockerfile.local
+COPY libs/jazzoo/pyproject.toml libs/jazzoo/setup.py libs/jazzoo/README.md /app/libs/jazzoo/
+RUN pip install --break-system-packages -e /app/libs/jazzoo
+```
 
 ---
 
@@ -229,3 +252,4 @@ When the real library changes dependencies:
 - [ ] Stub overlaid in `docker-compose.src-overlays.yml`
 - [ ] Real library code overlaid in `docker-compose.override.yml` (developer-specific)
 - [ ] Real library uses same src-layout structure as stub expects
+- [ ] Stub declares the same `[project.scripts]` as the real library
