@@ -1,0 +1,16 @@
+🐭.script = ⚙️.module.dirname / "dial_tools.py"
+
+# Print the value of dial key number in group. With dir, resolve it as a directory
+# of this project. Prints nothing when the key is not in the config.
+[interactive]
+get(number, group="default", dir=""):
+    🐆.safe-group = 🐆.group | ⚙️.sh-quote
+    🐆.safe-number = 🐆.number | ⚙️.sh-quote
+    🐆.dir-flag = "--dir" if 🐆.dir else ""
+    @python3 🐭.script get --group=🐆.safe-group --number=🐆.safe-number --root-dir=⚙️.root_module.dirname 🐆.dir-flag
+
+# Install the fish functions and key bindings of dial in the fish config directory.
+[interactive]
+install-fish():
+    🐆.fish-dir = ⚙️.module.dirname / "fish"
+    @python3 🐭.script install-fish --fish-dir=🐆.fish-dir

@@ -3,3 +3,4 @@
 from ./env/local/jaz/tmux/tmux.jaz export tmux
 from ./env/local/jaz/config/config.jaz export * as config
 from ./env/local/jaz/docker/docker.jaz export * as docker
+from ./env/local/jaz/dial/dial.jaz export * as dial

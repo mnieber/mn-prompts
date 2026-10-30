@@ -12,3 +12,16 @@ edit_config:
 docker:
   compose_project: blogs
   shell: sh
+dial:
+  default:
+    1: zoo docker.exec be
+    2: zoo docker.exec fe
+    3: zoo config.print
+  shift:
+    1: .
+    2: src/services/blogs_be
+    3: src/services/blogs_fe
+  ctrl:
+    1: env/local
+    2: env/local/config
+    3: "~"

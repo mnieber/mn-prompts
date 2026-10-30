@@ -73,6 +73,11 @@ A `config` layer of `jaz` targets (`jaz config.edit`, `config.print`) that open 
 A `docker` layer of `jaz` targets (`jaz docker.exec`, `docker.kill`, `docker.inspect`, `docker.commit`) for the stack's running containers.
 → [le-manage-docker-containers](./skills/le-manage-docker-containers.md)
 
+### Dial
+
+A `dial` layer of `zoo` targets, and fish key bindings that call them: F1–F12 insert a command, Shift+F and Ctrl+F `cd` to a directory of the stack.
+→ [le-add-dial](./skills/le-add-dial.md)
+
 ### Spec src
 
 An `extra/spec_src/` directory for a service, wired into the root `sunya.config.yaml`.
