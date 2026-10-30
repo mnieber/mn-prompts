@@ -155,3 +155,7 @@ if __name__ == "__main__":
     except CommandFailedError as e:
         # docker has already printed its error
         sys.exit(e.result.returncode)
+    except KeyboardInterrupt:
+        # ctrl-c cancels; end the line of the prompt instead of showing a traceback
+        print()
+        sys.exit(130)
