@@ -165,6 +165,9 @@ stack in `base.yaml`.
 ## How the targets work
 
 `compose.jaz` is a thin wrapper that calls `⚙️.python compose_tools.py <action> --root-dir=<root dir> ...`.
+It turns the arguments into flags of the script (`--local`, `--no-cache`, `--volumes`), so that jazzoo decides
+whether an argument is true. The default of `local` is a call in the parameter list
+(`local=🐭.use-dockerfile-local()`), which reads `/compose/use_dockerfile_local` with `⚙️.get_config`.
 The script runs `docker compose` with `ROOT_DIR` (the compose files use `${ROOT_DIR}`),
 `COMPOSE_PROJECT_NAME` (from `/docker/compose_project`) and `DOCKER_BUILDKIT=1` in its environment. The
 compose files of each command:

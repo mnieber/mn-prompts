@@ -2,8 +2,7 @@
 
 The compose files live in env/local/docker. Which of them a command uses follows
 the layers of the local env: the base file, the src overlays, the Dockerfile.local
-images (when local is on) and the developer's override file. Local is on when
---local is true, or when it is empty and /compose/use_dockerfile_local is true.
+images (with --local) and the developer's override file.
 
 Before build, up, down, run and init, the .env.in files are compiled into .env files.
 
@@ -38,12 +37,6 @@ def _compose_dir(root_dir):
     return Path(root_dir) / "env/local/docker"
 
 
-def _is_local(local):
-    if local == "":
-        return bool(get("/compose/use_dockerfile_local", default=False))
-    return local == "true"
-
-
 def _compose(root_dir, files, args, is_build=False, check=True):
     file_args = []
     for filename in files:
@@ -65,7 +58,7 @@ def _run_files(root_dir, local):
     return [
         COMPOSE_YML,
         SRC_OVERLAYS_YML,
-        *([DOCKERFILE_LOCAL_YML] if _is_local(local) else []),
+        *([DOCKERFILE_LOCAL_YML] if local else []),
         OVERRIDE_YML,
     ]
 
@@ -86,7 +79,7 @@ def compile_env_files(root_dir):
 
 def build(root_dir, local, no_cache):
     compile_env_files(root_dir)
-    files = [COMPOSE_YML, *([DOCKERFILE_LOCAL_YML] if _is_local(local) else [])]
+    files = [COMPOSE_YML, *([DOCKERFILE_LOCAL_YML] if local else [])]
     no_cache_args = ["--no-cache"] if no_cache else []
     _compose(root_dir, files, ["--progress=plain", "build", *no_cache_args], True)
 
@@ -166,14 +159,14 @@ def _args():
         return result
 
     build_parser = add_parser("build")
-    build_parser.add_argument("--local", default="")
+    build_parser.add_argument("--local", action="store_true")
     build_parser.add_argument("--no-cache", action="store_true")
 
     build_base_images_parser = add_parser("build-base-images")
     build_base_images_parser.add_argument("--no-cache", action="store_true")
 
     up_parser = add_parser("up")
-    up_parser.add_argument("--local", default="")
+    up_parser.add_argument("--local", action="store_true")
 
     down_parser = add_parser("down")
     down_parser.add_argument("--volumes", action="store_true")
@@ -181,10 +174,10 @@ def _args():
     run_parser = add_parser("run")
     run_parser.add_argument("--service", required=True)
     run_parser.add_argument("--cmd", default="")
-    run_parser.add_argument("--local", default="")
+    run_parser.add_argument("--local", action="store_true")
 
     init_parser = add_parser("init")
-    init_parser.add_argument("--local", default="")
+    init_parser.add_argument("--local", action="store_true")
 
     add_parser("compile-env-files")
 

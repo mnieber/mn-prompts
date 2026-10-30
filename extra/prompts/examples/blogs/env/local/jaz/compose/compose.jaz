@@ -2,20 +2,19 @@ from ../python/python.jaz import (pip-compile) as python
 
 🐭.script = ⚙️.module.dirname / "compose_tools.py"
 
-# The local argument as true or false, or "" when it is empty (then the script uses
-# /compose/use_dockerfile_local).
+# The default of local: whether to use the images of the Dockerfile.local files.
 [private]
-local-arg(local):
-    🐆.retval = "" if 🐆.local == "" else (🐆.local | ⚙️.bool)
+use-dockerfile-local():
+    🐆.retval = ⚙️.get_config(path="/compose/use_dockerfile_local", default=false)
 
 # Build the images of the services. With local=true, build them from the
 # Dockerfile.local files (default: /compose/use_dockerfile_local). With no-cache, build
 # without the docker cache.
 [interactive]
-build(local="", no-cache=""):
-    🐆.safe-local = 🐆.local | 🐭.local-arg
+build(local=🐭.use-dockerfile-local(), no-cache=""):
+    🐆.local-flag = "--local" if 🐆.local else ""
     🐆.no-cache-flag = "--no-cache" if 🐆.no-cache else ""
-    @⚙️.python 🐭.script build --root-dir=⚙️.root_module.dirname --local=🐆.safe-local 🐆.no-cache-flag
+    @⚙️.python 🐭.script build --root-dir=⚙️.root_module.dirname 🐆.local-flag 🐆.no-cache-flag
 
 # Build the base images of the services. With no-cache, build without the docker cache.
 [interactive]
@@ -26,9 +25,9 @@ build-base-images(no-cache=""):
 # Start the stack. With local=true, use the images of the Dockerfile.local files
 # (default: /compose/use_dockerfile_local).
 [interactive]
-up(local=""):
-    🐆.safe-local = 🐆.local | 🐭.local-arg
-    @⚙️.python 🐭.script up --root-dir=⚙️.root_module.dirname --local=🐆.safe-local
+up(local=🐭.use-dockerfile-local()):
+    🐆.local-flag = "--local" if 🐆.local else ""
+    @⚙️.python 🐭.script up --root-dir=⚙️.root_module.dirname 🐆.local-flag
 
 # Stop the stack, and remove its containers. With volumes=true, also remove its
 # volumes, so that the next up starts with a new and uninitialised stack.
@@ -39,7 +38,7 @@ down(volumes=false):
 
 # Stop the stack, compile the requirements, build the images and start the stack.
 [interactive]
-restart(local="", no-cache=""):
+restart(local=🐭.use-dockerfile-local(), no-cache=""):
     🐭.down()
     🐭.python.pip-compile()
     🐭.build(local=🐆.local, no-cache=🐆.no-cache)
@@ -47,11 +46,11 @@ restart(local="", no-cache=""):
 
 # Run cmd (default: the command of the service) in a new container of service.
 [interactive]
-run(service, cmd="", local=""):
+run(service, cmd="", local=🐭.use-dockerfile-local()):
     🐆.safe-service = 🐆.service | ⚙️.sh-quote
     🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
-    🐆.safe-local = 🐆.local | 🐭.local-arg
-    @⚙️.python 🐭.script run --root-dir=⚙️.root_module.dirname --service=🐆.safe-service --cmd=🐆.safe-cmd --local=🐆.safe-local
+    🐆.local-flag = "--local" if 🐆.local else ""
+    @⚙️.python 🐭.script run --root-dir=⚙️.root_module.dirname --service=🐆.safe-service --cmd=🐆.safe-cmd 🐆.local-flag
 
 # Compile the .env.in files of the services into .env files, with the values of
 # secrets.env.
@@ -63,6 +62,6 @@ compile-env-files():
 # init-dev and then its server, and wait until the stack is healthy. Then check the
 # homepage (/compose/init/homepage) and offer to open it in the browser.
 [interactive]
-init(local=""):
-    🐆.safe-local = 🐆.local | 🐭.local-arg
-    @⚙️.python 🐭.script init --root-dir=⚙️.root_module.dirname --local=🐆.safe-local
+init(local=🐭.use-dockerfile-local()):
+    🐆.local-flag = "--local" if 🐆.local else ""
+    @⚙️.python 🐭.script init --root-dir=⚙️.root_module.dirname 🐆.local-flag
