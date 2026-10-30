@@ -1,11 +1,11 @@
 import getpass
 
-from e2e_test_env import BLOGS_DIR, Context, TestEnv, requires_tmux_and_jaz
+from e2e_test_env import Context, TestEnv, requires_tmux_and_jaz
 
 SESSION = "blogs"
 MENU_WINDOW = "blogs:1"
 PROMPT = "Select one or more commands"
-CONFIG_FILE = str(BLOGS_DIR / "env/local/config/base.yaml")
+CONFIG_FILE = "env/local/config/base.yaml"
 
 
 def create_env(context: Context):
@@ -25,7 +25,7 @@ def test_developer_runs_commands_in_a_tmux_session(context: Context):
         env.run_jaz("tmux", "nope"),
     ):
         assert env.exit_code != 0
-        assert "Unknown category: nope (known: examples)" in env.error_output
+        assert "Unknown category: nope (known: examples, serve)" in env.error_output
         assert env.sessions() == []
 
     # We run jaz tmux in a terminal.
@@ -41,7 +41,9 @@ def test_developer_runs_commands_in_a_tmux_session(context: Context):
         assert len(env.clients(SESSION)) == 1
         assert " 1 [examples] - whoami" in env.pane_text(MENU_WINDOW)
         assert " 3 [examples] - uptime" in env.pane_text(MENU_WINDOW)
-        assert env.session_env(SESSION, "JAZZOO_CONFIG_FILES") == CONFIG_FILE
+        assert env.session_env(SESSION, "JAZZOO_CONFIG_FILES") == str(
+            env.project_file(CONFIG_FILE)
+        )
 
     # We pick the first two commands in the menu.
     #
