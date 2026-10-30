@@ -93,6 +93,60 @@ does not create a new image name.
 Compose itself (`up`, `down`, `build`) is not part of this layer: it goes through the `compose` layer (see
 `le-use-compose-ops`).
 
+## Service layers
+
+Each service gets a layer on the host with the targets that the developer uses most, e.g. `be` for blogs_be and
+`fe` for blogs_fe:
+
+```
+$ jaz be.run-server                     # jaz run-server in blogs_be
+$ jaz be.shell                          # the shell of /be/shell in blogs_be
+$ jaz be.exec "pytest -x"               # any command in blogs_be (also user= and workdir=)
+```
+
+The layers run their commands with `env/local/jaz/service/service_tools.py run --container=<name> --cmd=<cmd>`,
+which works for any container and command. It uses jazzoo's `run_docker`, so the command gets a terminal only
+when the developer runs it in one, and it does not list or pick containers. `cmd` is split into words like a
+shell would, but it does not run in a shell. Copy `service_tools.py` from `examples/blogs` unchanged.
+
+```
+# env/local/jaz/be/be.jaz
+🐭.script = ⚙️.module.dirname / "../service/service_tools.py"
+
+# Run cmd in the container of blogs_be (/be/container), as user and in workdir if
+# they are given.
+[interactive]
+exec(cmd, user="", workdir=""):
+    🐆.container = ⚙️.get_config(path="/be/container") | ⚙️.sh-quote
+    🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
+    🐆.safe-user = 🐆.user | ⚙️.sh-quote
+    🐆.safe-workdir = 🐆.workdir | ⚙️.sh-quote
+    @⚙️.python 🐭.script run --container=🐆.container --cmd=🐆.safe-cmd --user=🐆.safe-user --workdir=🐆.safe-workdir
+
+# Run the server of blogs_be in its container.
+[interactive]
+run-server():
+    🐭.exec(cmd="jaz run-server")
+
+# Open a shell (/be/shell) in the container of blogs_be.
+[interactive]
+shell():
+    🐆.shell = ⚙️.get_config(path="/be/shell")
+    🐭.exec(cmd=🐆.shell)
+```
+
+The root module exports it (`from ./env/local/jaz/be/be.jaz export * as be`). The config names the container of
+each service layer, and its shell, which follows `/docker/shell` unless the developer overrides it:
+
+```yaml
+be:
+  container: blogs_be
+  shell: ${/docker/shell}
+```
+
+RULE: use `docker.exec` to work in a container that the developer picks; use a service layer for the commands of
+a known service.
+
 ## Requirements
 
 - `docker` is installed, and the developer may run it without `sudo`.
@@ -105,3 +159,5 @@ Compose itself (`up`, `down`, `build`) is not part of this layer: it goes throug
 - [ ] The root `jazzoo` module loads the config and exports the `docker` layer
 - [ ] `jaz --list docker` shows `docker.exec`, `docker.kill`, `docker.inspect` and `docker.commit`
 - [ ] With the stack running, `jaz docker.exec` lists the stack's containers and opens a shell in the picked one
+- [ ] Each service has a layer (e.g. `be`, `fe`) with `exec`, `run-server` and `shell`, and `/<layer>/container`
+      and `/<layer>/shell` in the config

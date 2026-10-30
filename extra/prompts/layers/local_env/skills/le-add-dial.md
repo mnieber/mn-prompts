@@ -12,7 +12,7 @@ The `examples/blogs` stack has a complete setup. Copy its files and adapt the co
 
 ```
 $ zoo dial.install-fish                  # once per machine: install the fish functions and key bindings
-<F2>                                     # inserts `zoo docker.exec fe` into the command line
+<F2>                                     # inserts `zoo be.` into the command line
 <Shift+F2>                               # cd to src/services/blogs_be
 <Ctrl+F1>                                # cd to env/local
 $ zoo dial.get 2 group=shift dir=true    # what the key bindings call: prints the directory
@@ -64,8 +64,8 @@ from ./env/local/jaz/dial/dial.jaz export * as dial
 dial:
   default:
     1: zoo docker.exec be
-    2: zoo docker.exec fe
-    3: zoo config.print
+    2: "zoo be."
+    3: "zoo fe."
   shift:
     1: .
     2: src/services/blogs_be

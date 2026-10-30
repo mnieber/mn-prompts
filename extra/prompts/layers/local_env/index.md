@@ -65,7 +65,7 @@ A `config` layer of `jaz` targets (`jaz config.edit`, `config.print`) that open 
 
 ### Docker containers
 
-A `docker` layer of `jaz` targets (`jaz docker.exec`, `docker.kill`, `docker.inspect`, `docker.commit`) for the stack's running containers.
+A `docker` layer of `jaz` targets (`jaz docker.exec`, `docker.kill`, `docker.inspect`, `docker.commit`) for the stack's running containers, and a layer per service (e.g. `jaz be.run-server`, `jaz be.shell`).
 → [le-manage-docker-containers](./skills/le-manage-docker-containers.md)
 
 ### Dial

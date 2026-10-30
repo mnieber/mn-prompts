@@ -15,6 +15,9 @@ def run_scenario():
     r.run_server_target = c.Services.Targets.RunServer
     r.exec_target = c.Docker.Targets.Exec
     r.tmux_target = c.Tmux.Targets.Tmux
+    r.service_run_server_target = c.ServiceLayers.Targets.RunServer
+    r.service_shell_target = c.ServiceLayers.Targets.Shell
+    r.service_tools = c.ServiceLayers.Scripts.ServiceTools
 
     with goal().install_the(r.jazzoo_stub).in_the(r.service_images):
         the(r.service_image).installs_the(r.jazzoo_stub).in_editable_mode()
@@ -31,8 +34,14 @@ def run_scenario():
     with goal().run_the(r.servers).from_the(r.tmux_menu):
         the(r.developer).runs(r.tmux_target)
         it().picks_the(r.serve_commands).from_the(r.menu)
-        with the(r.exec_target).runs(r.run_server_target).in_each(r.service_container):
+        with the(r.service_run_server_target).calls(r.service_tools):
+            it().runs(r.run_server_target).in_the(r.service_container)
             it().shows_the(r.output).of_the(r.server).in_a(r.pane)
+
+    with goal().open_a(r.shell).in_a(r.service_container):
+        with the(r.developer).runs(r.service_shell_target):
+            it().reads_the(r.shell_command).from_the(r.config)
+            it().calls(r.service_tools).with_the(r.shell_command)
 
 
 markdown_node = sunya.add_markdown_node(scenario, "A developer runs the servers")
@@ -66,11 +75,22 @@ creates the database and runs the migrations.</br>
 
 #### It runs the servers from the tmux menu
 
-The developer runs `jaz tmux`, and picks the commands of the `serve` category of
-the menu.</br>
-Each command (`zoo docker.exec blogs_be cmd="jaz run-server"`, ...) runs the
-`run-server` target in the container of the service, and shows the output of the
-server in its own pane.</br>
+On the host, the `be` and `fe` layers (`env/local/jaz/be/be.jaz`,
+`env/local/jaz/fe/fe.jaz`) have the targets of blogs_be and blogs_fe.</br>
+The developer runs `jaz compose.up`, which starts the containers without the
+servers, and then `jaz tmux`, and picks the commands of the `serve` category of the
+menu: `jaz be.run-server` and `jaz fe.run-server`.</br>
+Each runs `jaz run-server` in the container of the service (`/be/container`,
+`/fe/container`) with `service_tools.py`, which uses jazzoo's `run_docker`, and
+shows the output of the server in its own pane.</br>
+
+#### It opens a shell in a service
+
+The developer runs `jaz be.shell` or `jaz fe.shell`. It opens the shell of
+`/be/shell` or `/fe/shell` in the container of the service. By default these follow
+`/docker/shell`.</br>
+`jaz be.exec` and `jaz fe.exec` run any other command in the container in the same
+way.</br>
 
 ### Diagram
 
@@ -82,6 +102,7 @@ sequenceDiagram
     participant Exec as docker.exec
     participant Jaz as jaz (in the container)
     participant Tmux as tmux menu
+    participant Tools as service_tools.py
 
     Note over Developer,Tmux: Install the jazzoo stub
     Image->>Image: pip install -e /app/libs/jazzoo (stub)
@@ -95,9 +116,12 @@ sequenceDiagram
 
     Note over Developer,Tmux: Run the servers
     Developer->>Tmux: jaz tmux, pick the serve commands
-    loop each serve command
-        Tmux->>Exec: zoo docker.exec <service> cmd="jaz run-server"
-        Exec->>Jaz: jaz run-server
+    loop jaz be.run-server, jaz fe.run-server
+        Tmux->>Tools: service_tools.py run --container=<service> --cmd="jaz run-server"
+        Tools->>Jaz: docker exec <service> jaz run-server
     end
+
+    Note over Developer,Tmux: Open a shell in a service
+    Developer->>Tools: jaz be.shell (--container=blogs_be --cmd=/be/shell)
 ```
 """

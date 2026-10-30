@@ -15,6 +15,7 @@ ENABLED_TEST_FILES = [
     "test_python_impl.py",
     "test_developer_publishes_a_python_lib.py",
     "test_developer_initialises_the_stack.py",
+    "test_developer_runs_the_servers_by_hand.py",
 ]
 
 collect_ignore = [

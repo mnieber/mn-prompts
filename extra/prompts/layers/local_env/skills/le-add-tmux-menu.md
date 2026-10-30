@@ -49,8 +49,8 @@ tmux:
   session: <stack_name>
   menu:
     serve:
-      - jaz be.serve
-      - jaz fe.serve
+      - jaz be.run-server
+      - jaz fe.run-server
     shells:
       - jaz be.shell
 ```

@@ -1,11 +1,22 @@
 import getpass
+import os
 
 from e2e_test_env import Context, TestEnv, requires_tmux_and_jaz
 
 SESSION = "blogs"
 MENU_WINDOW = "blogs:1"
 PROMPT = "Select one or more commands"
-CONFIG_FILE = "env/local/config/base.yaml"
+CONFIG_FILES = ["env/local/config/base.yaml", "env/local/config/local.yaml"]
+
+# Commands that run on the host, next to the serve commands of the base config
+LOCAL_CONFIG = """
+tmux:
+  menu:
+    examples:
+      - whoami
+      - date
+      - uptime
+"""
 
 
 def create_env(context: Context):
@@ -17,6 +28,12 @@ def test_developer_runs_commands_in_a_tmux_session(context: Context):
     # Create the test environment
     env = create_env(context)
 
+    # We add a category of example commands to the menu, in our local config.
+    if env.step(
+        env.write_local_config(LOCAL_CONFIG),
+    ):
+        pass
+
     # We run jaz tmux with a category that is not in the menu.
     #
     # It should fail with the list of known categories, before it creates a
@@ -25,7 +42,7 @@ def test_developer_runs_commands_in_a_tmux_session(context: Context):
         env.run_jaz("tmux", "nope"),
     ):
         assert env.exit_code != 0
-        assert "Unknown category: nope (known: examples, serve)" in env.error_output
+        assert "Unknown category: nope (known: serve, examples)" in env.error_output
         assert env.sessions() == []
 
     # We run jaz tmux in a terminal.
@@ -39,19 +56,19 @@ def test_developer_runs_commands_in_a_tmux_session(context: Context):
     ):
         assert env.sessions() == [SESSION]
         assert len(env.clients(SESSION)) == 1
-        assert " 1 [examples] - whoami" in env.pane_text(MENU_WINDOW)
-        assert " 3 [examples] - uptime" in env.pane_text(MENU_WINDOW)
-        assert env.session_env(SESSION, "JAZZOO_CONFIG_FILES") == str(
-            env.project_file(CONFIG_FILE)
+        assert " 1 [   serve] - jaz be.run-server" in env.pane_text(MENU_WINDOW)
+        assert " 3 [examples] - whoami" in env.pane_text(MENU_WINDOW)
+        assert env.session_env(SESSION, "JAZZOO_CONFIG_FILES") == os.pathsep.join(
+            str(env.project_file(x)) for x in CONFIG_FILES
         )
 
-    # We pick the first two commands in the menu.
+    # We pick the first two example commands in the menu.
     #
     # Each should run in a new pane: the whoami pane shows the user. When the menu
     # asks again, the menu pane should be the active pane, ready for the next pick.
     if env.step(
         env.remember_menu_pane(),
-        env.type_in_pane(MENU_WINDOW, "1,2"),
+        env.type_in_pane(MENU_WINDOW, "3,4"),
         env.wait_until(lambda: len(env.panes(MENU_WINDOW)) == 3),
         env.wait_until(lambda: env.pane_shows_line(getpass.getuser())),
         env.wait_until(lambda: PROMPT in env.last_line(env.menu_pane)),

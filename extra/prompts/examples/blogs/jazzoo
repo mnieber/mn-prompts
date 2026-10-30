@@ -7,6 +7,8 @@ from ./env/local/jaz/docker/docker.jaz export * as docker
 from ./env/local/jaz/dial/dial.jaz export * as dial
 from ./env/local/jaz/compose/compose.jaz export * as compose
 from ./env/local/jaz/python/python.jaz export * as python
+from ./env/local/jaz/be/be.jaz export * as be
+from ./env/local/jaz/fe/fe.jaz export * as fe
 
 # Render the specs of this project, and re-render them when they change.
 [interactive]

@@ -1,13 +1,9 @@
 tmux:
   session: blogs
   menu:
-    examples:
-      - whoami
-      - date
-      - uptime
     serve:
-      - zoo docker.exec blogs_be cmd="jaz run-server"
-      - zoo docker.exec blogs_fe cmd="jaz run-server"
+      - jaz be.run-server
+      - jaz fe.run-server
 edit_config:
   editor: gedit
   files:
@@ -15,6 +11,12 @@ edit_config:
 docker:
   compose_project: blogs
   shell: sh
+be:
+  container: blogs_be
+  shell: ${/docker/shell}
+fe:
+  container: blogs_fe
+  shell: ${/docker/shell}
 compose:
   use_dockerfile_local: false
   os_custom_packages: ""
@@ -30,8 +32,8 @@ python:
 dial:
   default:
     1: zoo docker.exec be
-    2: zoo docker.exec fe
-    3: zoo config.print
+    2: "zoo be."
+    3: "zoo fe."
   shift:
     1: .
     2: src/services/blogs_be
