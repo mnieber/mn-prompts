@@ -10,6 +10,19 @@ Primary reference: `../examples/blogs/src/libs/woodstock/`
 
 A stub library is a minimal Python package structure in `<stack>/src/libs/` that acts as a placeholder for a real library whose source code lives elsewhere (e.g., in a separate repository or development directory).
 
+**Why we need it:**
+
+Sometimes a developer works on the stack and on an external library (e.g. `jazzoo`) at the same time. They want
+changes to the library to show up in the stack's containers straight away, without first releasing the library and
+rebuilding the images. To make that work:
+
+- The image must contain an installed package whose code can be swapped at runtime. An editable install of a
+  package at `/app/libs/<lib_name>` gives us that.
+- The real library's source is not part of the stack's build context, so the build cannot copy it. The stub provides
+  the package metadata (name, dependencies, console scripts) that the editable install needs.
+- At runtime, `docker-compose.override.yml` mounts the developer's checkout of the real library over the stub. The
+  editable install then points at the real code.
+
 **Purpose:**
 
 - Allows the library to be installed in Docker images during build
@@ -17,9 +30,15 @@ A stub library is a minimal Python package structure in `<stack>/src/libs/` that
 - The actual source code is overlaid at runtime via `docker-compose.override.yml`
 - Enables local development of both the stack and the library simultaneously
 
+**Who it is for:**
+
+The stub is only useful to developers who have a checkout of the real library and overlay it. For everyone else, the
+stub is broken: its placeholder code does nothing and its console scripts fail. Other developers should therefore
+install the released package instead. See [Switching between stub and real package](#switching-between-stub-and-real-package).
+
 **When to use:**
 
-- Library is developed in a separate repository
+- Library is developed in a separate repository, and you want to develop it together with the stack
 
 **When NOT to use:**
 
@@ -187,6 +206,8 @@ This mounts the real library's source code over the placeholder stub in the cont
 
 ## How it works
 
+This section describes the case where the stub is installed.
+
 ### During Docker build:
 
 1. Stub library metadata files are copied into the image
@@ -196,7 +217,7 @@ This mounts the real library's source code over the placeholder stub in the cont
 
 ### During container runtime:
 
-1. If no overlay in `docker-compose.override.yml`: the stub's placeholder code is used (minimal functionality)
+1. If no overlay in `docker-compose.override.yml`: the stub's placeholder code is used, so the library does not work
 2. If overlay configured: the real library code is mounted over `/app/libs/woodstock`, replacing the placeholder
 3. The editable install means Python immediately sees the real library code
 4. Dependencies are already installed from the stub's `pyproject.toml`
@@ -205,8 +226,43 @@ This mounts the real library's source code over the placeholder stub in the cont
 
 - No rebuild needed when editing library code
 - Library dependencies are baked into the image
-- Works whether or not the real library is available
 - Multiple developers can have different library paths
+
+---
+
+## Switching between stub and real package
+
+A service's `requirements.editable` decides which one is installed. To switch, edit the line directly:
+
+```
+# Stub (only for developers who overlay the real library code)
+-e ${BLOGS_LIBS_DIR}/jazzoo
+
+# Real package (for everyone else)
+jazzoo==0.1.0
+```
+
+Then run `jaz python.pip-compile` and rebuild the images with `jaz compose.build local=true`.
+
+**RULE:** The committed `requirements.editable` and `requirements.txt` use the real package. A developer who
+switches to the stub must not commit that change.
+
+**RULE:** Use the stub as the committed default only when there is no released version of the library yet.
+
+Notes:
+
+- Services without requirements files install the stub directly in `Dockerfile.local` (see
+  [Services without uv or requirements files](#services-without-uv-or-requirements-files)). Switch these by
+  editing the `pip install` line in the same way.
+- The Dockerfiles keep copying the stub into `/app/libs/<lib_name>`, and the compose files keep mounting it. When
+  the real package is installed, nothing imports from `/app/libs/<lib_name>`, so the copy and the mounts have no
+  effect. A real-code overlay in `docker-compose.override.yml` also has no effect in that case. If edits to the
+  library don't show up in the container, check that the stub is installed.
+- The stub and the real package may have different dependencies, so switching can change other pins in
+  `requirements.txt`. When switching back, check the whole diff. Pins that differ from the stub's version mean
+  that the stub's `pyproject.toml` is out of sync with the real library.
+- Before committing stack changes that depend on unreleased library changes, release the library and bump the
+  version in `requirements.editable`.
 
 ---
 
@@ -243,7 +299,7 @@ RUN pip install --break-system-packages -e /app/libs/jazzoo
 - [ ] `setup.py` created with placeholder generation logic
 - [ ] `README.md` created with library name only
 - [ ] Placeholder `src/<lib_name>/__init__.py` created (just a comment, no implementation)
-- [ ] Service's `requirements.editable` references stub with `${<STACK>_LIBS_DIR}`
+- [ ] Service's `requirements.editable` uses the real package (e.g. `jazzoo==0.1.0`) in the committed version, or the stub (`-e ${<STACK>_LIBS_DIR}/<lib_name>`) if there is no release yet
 
 ### Stub-specific configuration
 - [ ] **No tests directory created** (tests live with real library)
