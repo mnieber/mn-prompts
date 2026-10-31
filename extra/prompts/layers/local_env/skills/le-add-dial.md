@@ -37,7 +37,8 @@ RULE: the fish functions call `zoo`, never `jaz`.
 
 ```
 <stack>/
-    jazzoo                                  # root module: loads the config, exports the dial layer
+    jazzoo                                  # the root proxy, see le-use-compose-ops
+    env/local/jazzoo                        # loads the config, exports the dial layer
     env/local/config/base.yaml              # the keys
     env/local/jaz/dial/dial.jaz             # the dial.* targets
     env/local/jaz/dial/dial_tools.py        # the script that does the work
@@ -47,14 +48,15 @@ RULE: the fish functions call `zoo`, never `jaz`.
 
 Copy `env/local/jaz/dial/` from `examples/blogs` unchanged. It contains nothing that is specific to the stack.
 
-## The root module
+## The env module
 
-If the stack has no `jazzoo` file yet, create it. Otherwise add the missing lines to the existing one:
+If the stack has no `env/local/jazzoo` module yet, create it, together with the root proxy (see
+[le-use-compose-ops](./le-use-compose-ops.md)). Otherwise add the missing lines to the existing one:
 
 ```
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "config/base.yaml")
 
-from ./env/local/jaz/dial/dial.jaz export * as dial
+from ./jaz/dial/dial.jaz export * as dial
 ```
 
 ## The config
@@ -132,7 +134,7 @@ arguments with `⚙️.sh-quote`.
 
 - [ ] `env/local/jaz/dial/` copied from `examples/blogs`
 - [ ] `env/local/config/base.yaml` defines `/dial/default`, `/dial/shift` and `/dial/ctrl`
-- [ ] The root `jazzoo` module loads the config and exports the `dial` layer
+- [ ] The `env/local/jazzoo` module loads the config and exports the `dial` layer
 - [ ] `zoo --list dial` shows `dial.get` and `dial.install-fish`
 - [ ] `zoo dial.get 1` prints the value of F1
 - [ ] After `zoo dial.install-fish` and in a new fish shell, Shift+F1 changes to the directory of `/dial/shift/1`

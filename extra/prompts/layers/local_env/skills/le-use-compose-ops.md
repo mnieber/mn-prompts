@@ -85,8 +85,9 @@ healthcheck: postgres has one (`pg_isready`) in the base compose file, the servi
 
 ```
 <stack>/
-    jazzoo                                    # root module: loads the config, exports the layers
+    jazzoo                                    # the root proxy: exports everything of env/local/jazzoo
     env/local/
+        jazzoo                                # loads the config, exports the layers
         .gitignore                            # docker/env_files/*.env, secrets.env, config/local.yaml
         secrets.env                           # the secrets of the env files (gitignored)
         config/base.yaml                      # /docker, /compose and /python
@@ -100,15 +101,29 @@ healthcheck: postgres has one (`pg_isready`) in the base compose file, the servi
                                               # and env_files/*.env.in
 ```
 
-The root module loads the config and exports the layers:
+### The jazzoo modules
+
+`jaz` loads the `jazzoo` file of the stack's root directory (the root module). It is a proxy that exports
+everything of `env/local/jazzoo`, so that the whole local environment lives in `env/local/`:
 
 ```
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/local.yaml", required=false)
-
-from ./env/local/jaz/compose/compose.jaz export * as compose
-from ./env/local/jaz/python/python.jaz export * as python
+from ./env/local/jazzoo export *
 ```
+
+The `env/local/jazzoo` module loads the config and exports the layers. Its paths are relative to `env/local/`:
+
+```
+⚙️.load_config(path=⚙️.module.dirname / "config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "config/local.yaml", required=false)
+
+from ./jaz/compose/compose.jaz export * as compose
+from ./jaz/python/python.jaz export * as python
+```
+
+**RULE:** Add the stack's own targets and layers to `env/local/jazzoo`, never to the root proxy.
+
+**RULE:** In `env/local/jazzoo`, `⚙️.module.dirname` is `env/local/`. A target that needs the stack's root
+directory (e.g. to `cd` into it, or to pass it as `--root-dir`) uses `⚙️.root_module.dirname`.
 
 **RULE:** Copy `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py`
 as they are. The only stack-specific name in them is `BLOGS_LIBS_DIR` in `python_tools.py`: rename it to
@@ -148,7 +163,7 @@ python:
 ### The developer's own settings
 
 `env/local/config/local.yaml` is a config layer that belongs to the developer. It is not in git, and the
-stack works without it. Because the root module loads it after `base.yaml`, it overrides it:
+stack works without it. Because `env/local/jazzoo` loads it after `base.yaml`, it overrides it:
 
 ```yaml
 # env/local/config/local.yaml
@@ -200,11 +215,14 @@ renders each `env/local/docker/env_files/<service>.env.in` into `<service>.env`.
 ## Requirements
 
 - `jaz` is installed, and `⚙️.python` (the Python that runs `jaz`) has `expandvars`.
+- `jaz` re-exports layers in a flat `export *`, which the root proxy needs. Older versions of jazzoo drop
+  them, and then the layered targets (`jaz compose.*` etc.) are missing.
 - `docker` (with compose) and `uv` are on the `PATH`.
 
 ## Checklist
 
-- [ ] The root `jazzoo` file loads `base.yaml` and the optional `local.yaml`, and exports `compose` and `python`
+- [ ] The root `jazzoo` file is a proxy: `from ./env/local/jazzoo export *`
+- [ ] `env/local/jazzoo` loads `base.yaml` and the optional `local.yaml`, and exports `compose` and `python`
 - [ ] `compose.jaz`, `compose_tools.py`, `python.jaz`, `python_tools.py` and `compile_env_files.py` are copied
 - [ ] `BLOGS_LIBS_DIR` is renamed to `<STACK>_LIBS_DIR` in `python_tools.py`
 - [ ] `base.yaml` has `/docker/compose_project`, `/compose/*` (with `/compose/init/homepage`), `/python/services`

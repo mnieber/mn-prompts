@@ -29,10 +29,11 @@ config list at that point, merged in their order:
   debug helper: insert a call into a target to see the config that its scripts get.
 
 ```
-from ./env/local/jaz/config/config.jaz import * as config
+# env/local/jazzoo
+from ./jaz/config/config.jaz import * as config
 
 deploy():
-    ⚙️.load_config(path=⚙️.module.dirname / "env/local/config/deploy.yaml")
+    ⚙️.load_config(path=⚙️.module.dirname / "config/deploy.yaml")
     # debug: remove when done
     🐭.config.print(to-file="/tmp/config.json")
     ⚙️.python deploy.py
@@ -49,7 +50,8 @@ that no script ever sees.
 
 ```
 <stack>/
-    jazzoo                               # root module: loads the config, exports the config layer
+    jazzoo                               # the root proxy, see le-use-compose-ops
+    env/local/jazzoo                     # loads the config, exports the config layer
     env/local/config/base.yaml           # the editor and the files to open
     env/local/jaz/config/config.jaz      # the config.* targets
     env/local/jaz/config/config_tools.py # the script that does the work
@@ -58,14 +60,15 @@ that no script ever sees.
 Copy `config.jaz` and `config_tools.py` from `examples/blogs/env/local/jaz/config/` unchanged. They contain
 nothing that is specific to the stack.
 
-## The root module
+## The env module
 
-If the stack has no `jazzoo` file yet, create it. Otherwise add the missing lines to the existing one:
+If the stack has no `env/local/jazzoo` module yet, create it, together with the root proxy (see
+[le-use-compose-ops](./le-use-compose-ops.md)). Otherwise add the missing lines to the existing one:
 
 ```
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "config/base.yaml")
 
-from ./env/local/jaz/config/config.jaz export * as config
+from ./jaz/config/config.jaz export * as config
 ```
 
 ## The config
@@ -119,7 +122,7 @@ command-line arguments.
 
 - [ ] `config.jaz` and `config_tools.py` copied to `env/local/jaz/config/`
 - [ ] `env/local/config/base.yaml` defines `/edit_config/files` (and optionally `/edit_config/editor`)
-- [ ] The root `jazzoo` module loads the config and exports the `config` layer
+- [ ] The `env/local/jazzoo` module loads the config and exports the `config` layer
 - [ ] `jaz --list config` shows `config.edit` and `config.print`
 - [ ] `jaz config.edit` opens every config file of the stack in the editor
 - [ ] `jaz config.print` prints the config

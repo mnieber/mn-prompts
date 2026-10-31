@@ -37,7 +37,8 @@ of the shell or command becomes the exit code of the target.
 
 ```
 <stack>/
-    jazzoo                                  # root module: loads the config, exports the docker layer
+    jazzoo                                  # the root proxy, see le-use-compose-ops
+    env/local/jazzoo                        # loads the config, exports the docker layer
     env/local/config/base.yaml              # the compose project and the default shell
     env/local/jaz/docker/docker.jaz         # the docker.* targets
     env/local/jaz/docker/docker_tools.py    # the script that does the work
@@ -46,14 +47,15 @@ of the shell or command becomes the exit code of the target.
 Copy `docker.jaz` and `docker_tools.py` from `examples/blogs/env/local/jaz/docker/` unchanged. They contain
 nothing that is specific to the stack.
 
-## The root module
+## The env module
 
-If the stack has no `jazzoo` file yet, create it. Otherwise add the missing lines to the existing one:
+If the stack has no `env/local/jazzoo` module yet, create it, together with the root proxy (see
+[le-use-compose-ops](./le-use-compose-ops.md)). Otherwise add the missing lines to the existing one:
 
 ```
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "config/base.yaml")
 
-from ./env/local/jaz/docker/docker.jaz export * as docker
+from ./jaz/docker/docker.jaz export * as docker
 ```
 
 ## The config
@@ -135,8 +137,8 @@ shell():
     🐭.exec(cmd=🐆.shell)
 ```
 
-The root module exports it (`from ./env/local/jaz/be/be.jaz export * as be`). The config names the container of
-each service layer, and its shell, which follows `/docker/shell` unless the developer overrides it:
+The `env/local/jazzoo` module exports it (`from ./jaz/be/be.jaz export * as be`). The config names the
+container of each service layer, and its shell, which follows `/docker/shell` unless the developer overrides it:
 
 ```yaml
 be:
@@ -156,7 +158,7 @@ a known service.
 
 - [ ] `docker.jaz` and `docker_tools.py` copied to `env/local/jaz/docker/`
 - [ ] `env/local/config/base.yaml` defines `/docker/compose_project` (and optionally `/docker/shell`)
-- [ ] The root `jazzoo` module loads the config and exports the `docker` layer
+- [ ] The `env/local/jazzoo` module loads the config and exports the `docker` layer
 - [ ] `jaz --list docker` shows `docker.exec`, `docker.kill`, `docker.inspect` and `docker.commit`
 - [ ] With the stack running, `jaz docker.exec` lists the stack's containers and opens a shell in the picked one
 - [ ] Each service has a layer (e.g. `be`, `fe`) with `exec`, `run-server` and `shell`, and `/<layer>/container`

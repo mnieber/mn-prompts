@@ -22,7 +22,8 @@ and each command is typed into a new pane. Running `jaz tmux` again re-attaches 
 
 ```
 <stack>/
-    jazzoo                          # root module: loads the config, exports tmux
+    jazzoo                          # the root proxy, see le-use-compose-ops
+    env/local/jazzoo                # loads the config, exports tmux
     env/local/config/base.yaml      # the session name and the menu
     env/local/jaz/tmux/tmux.jaz     # the tmux target
     env/local/jaz/tmux/tmux_menu.py # the script that does the work
@@ -31,14 +32,15 @@ and each command is typed into a new pane. Running `jaz tmux` again re-attaches 
 Copy `tmux.jaz` and `tmux_menu.py` from `examples/blogs/env/local/jaz/tmux/` unchanged. They contain nothing
 that is specific to the stack.
 
-## The root module
+## The env module
 
-If the stack has no `jazzoo` file yet, create it. Otherwise add the two lines to the existing one:
+If the stack has no `env/local/jazzoo` module yet, create it, together with the root proxy (see
+[le-use-compose-ops](./le-use-compose-ops.md)). Otherwise add the missing lines to the existing one:
 
 ```
-⚙️.load_config(path=⚙️.module.dirname / "env/local/config/base.yaml")
+⚙️.load_config(path=⚙️.module.dirname / "config/base.yaml")
 
-from ./env/local/jaz/tmux/tmux.jaz export tmux
+from ./jaz/tmux/tmux.jaz export tmux
 ```
 
 ## The config
@@ -95,14 +97,14 @@ as `open`.
 `examples/blogs/e2e_tests/` has an end-to-end test that runs `jaz tmux` in a pseudo-terminal against an
 isolated tmux server (its socket lives in the test's tmp dir), picks commands and checks the panes. Copy it
 along with the target, and adapt the expected menu entries. Run it with `jaz e2e-tests` (a target in the
-root `jazzoo` module that runs `⚙️.python -m pytest e2e_tests` from the stack's root dir).
-Extra arguments go to pytest. The test is skipped when `tmux` or `jaz` is missing.
+`env/local/jazzoo` module that runs `⚙️.python -m pytest e2e_tests` from `⚙️.root_module.dirname`, the stack's
+root dir). Extra arguments go to pytest. The test is skipped when `tmux` or `jaz` is missing.
 
 ## Checklist
 
 - [ ] `tmux.jaz` and `tmux_menu.py` copied to `env/local/jaz/tmux/`
 - [ ] `env/local/config/base.yaml` defines `/tmux/session` and `/tmux/menu`
-- [ ] The root `jazzoo` module loads the config and exports `tmux`
+- [ ] The `env/local/jazzoo` module loads the config and exports `tmux`
 - [ ] `jaz --list` shows `tmux`
 - [ ] `jaz tmux` opens the session with the menu in window 1, and a picked command runs in a new pane
 - [ ] The e2e test is copied to `e2e_tests/`, adapted to the menu, and `jaz e2e-tests` passes
