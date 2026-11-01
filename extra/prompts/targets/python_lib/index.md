@@ -22,6 +22,10 @@ Consult ./python_lib_layer/index.md for instructions on:
 
 - Using specific python_lib skills, such as py-write-action.
 
+Consult ./local_env_layer/index.md for instructions on:
+
+- Setting up the local environment for development of the library.
+
 ## Examples
 
 The [examples/bookie/](./examples/bookie/) directory contains a complete example application showing:

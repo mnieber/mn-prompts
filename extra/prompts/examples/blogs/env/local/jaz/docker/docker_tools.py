@@ -1,8 +1,8 @@
 """Run docker commands on the containers of the project.
 
 A container is picked by name: an exact name, or a part of a name that matches one
-container. Without a name, or when the name matches several containers, the
-developer picks from a numbered list. Only the running containers of the compose
+container. Without a name, or when the name matches several or no containers, the
+developer picks from a numbered list, also when only one container runs. Only the running containers of the compose
 project in /docker/compose_project are listed; without it, all running containers.
 """
 
@@ -80,13 +80,14 @@ def _select(name, many=False):
     if exact:
         return exact
 
-    matches = [x for x in containers if name in x["name"]]
-    if not matches:
-        print(f"No container matches: {name}")
-        matches = containers
+    # Only a name picks a container by itself: without one, the developer picks, also
+    # when only one container runs
+    matches = [x for x in containers if name in x["name"]] if name else []
     if len(matches) == 1:
         return matches
-    return _pick(matches, many)
+    if name and not matches:
+        print(f"No container matches: {name}")
+    return _pick(matches or containers, many)
 
 
 def exec_in_container(name, cmd, user):

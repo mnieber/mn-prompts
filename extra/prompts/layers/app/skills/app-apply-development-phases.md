@@ -6,7 +6,9 @@ The paths below assume a flat `spec_src` directory. When `spec_src` has a subdir
 [writing specs](./app-write-specs.md)), they are relative to the topic directory (e.g.
 `extra/spec_src/<topic>/design/design.md`).
 
-## Fast-tracking
+`RULE`: dont insert cross-references (e.g. to milestones) into the spec documents or the code. These cross-references are not helpful and easily go stale.
+
+## Fast-tracking and brief-mode
 
 I can ask you to fast-track a feature to a phase, e.g. "fast-track to the tests". You then do all the phases from
 the current one up to and including that phase, in one go, without stopping for my reviews in between.
@@ -18,7 +20,9 @@ the current one up to and including that phase, in one go, without stopping for 
   review the result. For each decision, also list the alternatives that you didn't pick, so that I can ask you to
   switch to one of them.
 
-`RULE`: dont insert cross-references (e.g. to milestones) into the spec documents or the code. These cross-references are not helpful and easily go stale.
+I will ask you to use brief-mode when I anticipate that design doc and test-plan are not going to be interesting to me.
+In that case you can keep these docs very brief and just write down the essentials there so that they can serve you
+in the next phases.
 
 ## 1. Design
 
