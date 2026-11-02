@@ -27,7 +27,7 @@ The following topics are covered in separate skills/targets:
 - **Creating base images** → see `layers/local_env/skills/le-add-base-image.md`
 - **Stub libraries backed by external code** → see `layers/local_env/skills/le-python-lib-stub.md`
 - **Test configuration** (conftest.py, pytest_plugins) → see target-specific documentation
-- **Specification files** (extra/spec_src) → see the app layer (`app_layer/index.md`) for how spec files are written and used
+- **Specification files** (extra/spec) → see the app layer (`app_layer/index.md`) for how spec files are written and used
 - **Setting up the environment variables** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
 
 ---

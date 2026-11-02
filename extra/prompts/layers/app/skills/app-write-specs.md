@@ -1,6 +1,6 @@
 # Writing specs
 
-When writing a scenario spec file, please follow the examples in the `spec_src` directories of the examples directory.
+When writing a scenario spec file, please follow the examples in the `spec` directories of the examples directory.
 
 `RULE`: spec files should not document previous versions of the system. Especially when you change a spec, avoid referring
 to the old solution (e.g. don't write down how the new solution improves on the old solution).
@@ -17,23 +17,23 @@ can consult.
 
 Modules are defined implicitly through the scenario spec files. All code-unit declarations are made implicitly in the scenario files by referencing module paths such as `c.Books.Actions.CreateBook`, which implies that the books module has an Actions section with a CreateBook action.
 
-## The layout of the spec_src directory
+## The layout of the spec directory
 
-A `spec_src` directory has one of two layouts:
+A `spec` directory has one of two layouts:
 
-1. Flat: the `design` and `scenarios` directories are directly inside `spec_src`.
+1. Flat: the `design` and `scenarios` directories are directly inside `spec`.
 
 ```
-extra/spec_src/
+extra/spec/
 ├── design/
 └── scenarios/
 ```
 
-2. Per topic: `spec_src` has a subdirectory per topic (e.g. `changelog` and `release_notes`), and each topic has its
+2. Per topic: `spec` has a subdirectory per topic (e.g. `changelog` and `release_notes`), and each topic has its
    own `design` and `scenarios` directories.
 
 ```
-extra/spec_src/
+extra/spec/
 ├── changelog/
 │   ├── sunya.config.yaml
 │   ├── design/
@@ -48,20 +48,20 @@ extra/spec_src/
 
 ```yaml
 configs:
-  - extra/spec_src/changelog/sunya.config.yaml
-  - extra/spec_src/release_notes/sunya.config.yaml
+  - extra/spec/changelog/sunya.config.yaml
+  - extra/spec/release_notes/sunya.config.yaml
 ```
 
 `RULE`: in the per-topic layout, ask me which topic we're working on when it's not clear from the task, and
 put new scenarios in the scenarios directory of that topic. Don't add a new topic without asking. When you add a
 topic, also add its `sunya.config.yaml` to the `configs` list of the root `sunya.config.yaml`.
 
-In the rest of the skill files, paths such as `extra/spec_src/scenarios/` refer to the flat layout; in the per-topic
-layout read them as `extra/spec_src/<topic>/scenarios/`.
+In the rest of the skill files, paths such as `extra/spec/scenarios/` refer to the flat layout; in the per-topic
+layout read them as `extra/spec/<topic>/scenarios/`.
 
 ## Specs import from the sunya package
 
-The sunya package can be used to render the spec_src to Markdown files. However, for our purposes, we can leave this step out of consideration.
+The sunya package can be used to render the spec to Markdown files. However, for our purposes, we can leave this step out of consideration.
 
 ### The External module
 
@@ -76,7 +76,7 @@ Each scenario file contains:
 
 ## Numbering
 
-Except in legacy spec_src directories, the initial scenarios use decadal numbering: s10_foo, s20_bar, s30_baz, etc.
+Except in legacy spec directories, the initial scenarios use decadal numbering: s10_foo, s20_bar, s30_baz, etc.
 This leaves room to insert other scenarios later (s05_hello).
 
 ### The run_scenario function

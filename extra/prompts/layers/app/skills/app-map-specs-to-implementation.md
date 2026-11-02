@@ -14,7 +14,7 @@ If the application is called `bookie`, then:
 
 **Example:** A frontend scenario spec referencing `c.Api.Mutations.CreateBlog` implies that the application has a `api` feature package directory with a `mutations` sub-directory that has a `CreateBlog.ts` mutation function.
 
-RULE: Please inspect the example code and example spec_src to understand how the modules that are described in the specs are mapped onto source code files and try to follow the same patterns.
+RULE: Please inspect the example code and example spec to understand how the modules that are described in the specs are mapped onto source code files and try to follow the same patterns.
 
 ## Mapping of specs onto filenames and function names
 

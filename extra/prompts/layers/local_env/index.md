@@ -73,10 +73,10 @@ A `docker` layer of `jaz` targets (`jaz docker.exec`, `docker.kill`, `docker.ins
 A `dial` layer of `zoo` targets, and fish key bindings that call them: F1–F12 insert a command, Shift+F and Ctrl+F `cd` to a directory of the stack.
 → [le-add-dial](./skills/le-add-dial.md)
 
-### Spec src
+### Spec
 
-An `extra/spec_src/` directory for a service, wired into the root `sunya.config.yaml`.
-→ [le-add-spec-src](./skills/le-add-spec-src.md)
+An `extra/spec/` directory for a service, wired into the root `sunya.config.yaml`.
+→ [le-add-spec](./skills/le-add-spec.md)
 
 ---
 
@@ -90,7 +90,7 @@ When setting up a new stack from scratch, apply the skills in roughly this order
 4. `le-add-python-service-to-src` + `le-add-python-service-to-compose` — backend service(s)
 5. `le-add-react-service-to-compose` — frontend service (if applicable)
 6. `le-add-python-lib` + `le-add-python-stub-lib` — in-stack libraries and external library stubs (the jazzoo stub is always needed)
-7. `le-add-spec-src` — spec source directories (if applicable)
+7. `le-add-spec` — spec directories (if applicable)
 8. `le-add-tmux-menu` — tmux session with a menu of commands (if applicable)
 9. `le-manage-jazzoo-configs` — targets that edit and print the config (if applicable)
 10. `le-manage-docker-containers` — targets for the stack's running containers (if applicable)

@@ -2,9 +2,9 @@
 
 A new feature goes through five phases. Each phase is a separate task: I tell you which one we're working on.
 
-The paths below assume a flat `spec_src` directory. When `spec_src` has a subdirectory per topic (see
+The paths below assume a flat `spec` directory. When `spec` has a subdirectory per topic (see
 [writing specs](./app-write-specs.md)), they are relative to the topic directory (e.g.
-`extra/spec_src/<topic>/design/design.md`).
+`extra/spec/<topic>/design/design.md`).
 
 `RULE`: dont insert cross-references (e.g. to milestones) into the spec documents or the code. These cross-references are not helpful and easily go stale.
 
@@ -26,14 +26,14 @@ in the next phases.
 
 ## 1. Design
 
-The new features are described in a design doc (`extra/spec_src/design/design.md`): what the user does, what should happen, and the decisions that were made. The design doc only describes the work that is not yet in the
+The new features are described in a design doc (`extra/spec/design/design.md`): what the user does, what should happen, and the decisions that were made. The design doc only describes the work that is not yet in the
 scenarios.
 
 `RULE`: when I ask you to review a design then focus on weaknesses and gaps in the main features and workflows. Details and less important edge-cases can be identified later.
 
 ### The glossary
 
-The important concepts of the project are described in a glossary (`extra/spec_src/design/glossary.md`). Unlike the
+The important concepts of the project are described in a glossary (`extra/spec/design/glossary.md`). Unlike the
 design doc, the glossary is never emptied: it describes the concepts of the whole project, not only of the feature
 that is being designed.
 
@@ -54,7 +54,7 @@ The collection of books of a user. A book belongs to exactly one library.
 
 ## 2. Test plan
 
-Translate the design doc into a test plan (`extra/spec_src/design/test_plan.md`) that contains a high-level
+Translate the design doc into a test plan (`extra/spec/design/test_plan.md`) that contains a high-level
 description of the tests. Group the tests in batches (one feature or group of related features per batch). In this
 phase we only write and review the test plan: no tests are written yet.
 
@@ -91,7 +91,7 @@ You write the code that makes the tests pass, following the skills of the layer.
 
 ## 5. Scenarios
 
-The scenarios (`extra/spec_src/scenarios/`) are updated with the changes that affect the high-level workflows and
+The scenarios (`extra/spec/scenarios/`) are updated with the changes that affect the high-level workflows and
 features (see [writing specs](./app-write-specs.md)). Edge cases and details are left
 to the tests.
 

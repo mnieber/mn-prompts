@@ -11,7 +11,7 @@ The five phases of developing a feature (design, test plan, tests, code and scen
 
 ### Writing specs
 
-How to write scenario specs: the spec_src layout (flat or per topic), implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section.
+How to write scenario specs: the spec layout (flat or per topic), implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section.
 → [app-write-specs](./skills/app-write-specs.md)
 
 ### Mapping specs to implementation
@@ -31,5 +31,5 @@ General rules for generating code: following `RULE:`s closely, using the code-un
 - **Specs describe the high-level design** — edge cases and details are left to the tests
 - **Implicit declarations** — all code-units (actions, models, rules, etc.) are implicitly declared in scenario specs
 - **The External module is virtual** — it is only used for external actors in scenarios
-- **Follow the examples** — the example spec_src and src directories show how specs map to code
+- **Follow the examples** — the example spec and src directories show how specs map to code
 - **Explicit is better** — when in doubt, ask for spec clarification rather than guessing
