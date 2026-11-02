@@ -1,12 +1,12 @@
 # The test packages are enabled in the order in which their code is implemented
 ENABLED_TEST_PACKAGES = [
-    "list_targets_tests",
-    "install_target_tests",
+    "list_tests",
+    "install_tests",
 ]
 
 ALL_TEST_PACKAGES = [
-    "list_targets_tests",
-    "install_target_tests",
+    "list_tests",
+    "install_tests",
 ]
 
 collect_ignore = [

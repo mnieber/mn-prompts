@@ -2,7 +2,7 @@
 
 Applies when adding a base Docker image that will be used by multiple services in the stack.
 
-Primary reference: `../examples/blogs/env/local/docker/base_images/`
+Primary reference: `examples/blogs/env/local/docker/base_images/`
 
 ---
 

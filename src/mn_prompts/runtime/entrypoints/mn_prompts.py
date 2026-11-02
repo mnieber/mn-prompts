@@ -3,9 +3,11 @@ import sys
 import traceback
 from pathlib import Path
 
+from mn_prompts.instructions.actions.copy_agents_file import copy_agents_file
+from mn_prompts.instructions.actions.install_instructions import install_instructions
+from mn_prompts.layers.rules.get_layer_names import get_layer_names
 from mn_prompts.prompts.rules.get_agents_file import get_agents_file
-from mn_prompts.targets.actions.copy_agents_file import copy_agents_file
-from mn_prompts.targets.actions.install_target import install_target
+from mn_prompts.targets.rules.get_target import get_target
 from mn_prompts.targets.rules.get_target_names import get_target_names
 
 
@@ -18,12 +20,25 @@ def _parse_args(argv):
 
     # Install command
     install_parser = subparsers.add_parser(
-        "install", help="Install the instructions of a target in the cwd"
+        "install",
+        help="Install the instructions of a target and/or layers in the cwd. Without "
+        "a target and layers, the earlier selection is re-installed",
     )
-    install_parser.add_argument("target_name", help="Name of the target")
+    install_parser.add_argument("--target", help="Name of the target")
+    install_parser.add_argument(
+        "--layer",
+        action="append",
+        default=[],
+        help="Name of a layer (can be repeated)",
+    )
+    install_parser.add_argument(
+        "--agents-md",
+        action="store_true",
+        help="Copy the agents file to AGENTS.md instead of CLAUDE.md",
+    )
 
     # List command
-    subparsers.add_parser("list", help="List the available targets")
+    subparsers.add_parser("list", help="List the available targets and layers")
 
     # Global arguments
     parser.add_argument(
@@ -33,22 +48,40 @@ def _parse_args(argv):
     return parser.parse_args(argv)
 
 
+def _print_targets_and_layers():
+    targets = [get_target(target_name) for target_name in get_target_names()]
+    name_width = max((len(target.name) for target in targets), default=0)
+    description_width = max((len(target.description) for target in targets), default=0)
+
+    print("Targets:")
+    for target in targets:
+        print(
+            f"  {target.name:<{name_width}}  "
+            f"{target.description:<{description_width}}  "
+            f"({', '.join(target.layer_names)})"
+        )
+    print("Layers:")
+    for layer_name in get_layer_names():
+        print(f"  {layer_name}")
+
+
 def run(argv=None):
     args = _parse_args(argv)
 
     if args.command == "install":
         project_dir = Path.cwd()
-        install_target(args.target_name, project_dir)
-        if not copy_agents_file(project_dir):
+        manifest = install_instructions(
+            project_dir, args.target, args.layer, args.agents_md
+        )
+        if not copy_agents_file(project_dir, manifest.agents_file_name):
             print(
-                "AGENTS.md already exists, so it was not replaced. Extend it with "
-                f"the contents of {get_agents_file()}",
+                f"{manifest.agents_file_name} already exists, so it was not replaced. "
+                f"Extend it with the contents of {get_agents_file()}",
                 file=sys.stderr,
             )
 
     if args.command == "list":
-        for target_name in get_target_names():
-            print(target_name)
+        _print_targets_and_layers()
 
     return 0
 

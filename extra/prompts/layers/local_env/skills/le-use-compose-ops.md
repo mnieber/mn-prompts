@@ -35,7 +35,7 @@ $ jaz python.publish package-dir=src/libs/x # build a library and upload it to P
 - `run` passes the words of `cmd` after the service name; without `cmd`, the service runs its own command.
   The container is removed when the command ends.
 - `python.publish` asks for the password before the upload. Its config (`/python/pypi`) and its rules are in
-  [py-publish-to-pypi](../../python_lib/skills/py-publish-to-pypi.md).
+  the `py-publish-to-pypi` skill of the python_lib layer.
 - To open a shell in a running container, use `jaz docker.exec` (see
   [le-manage-docker-containers](./le-manage-docker-containers.md)); there is no `compose.shell`.
 

@@ -1,0 +1,2 @@
+description: A Django backend
+layers: [app, django_app, python_lib]

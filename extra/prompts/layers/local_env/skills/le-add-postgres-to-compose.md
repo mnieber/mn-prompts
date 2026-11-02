@@ -2,7 +2,7 @@
 
 Applies when adding a PostgreSQL database service to the Docker Compose configuration for local development.
 
-Primary reference: `../examples/blogs/env/local/docker/docker-compose.yml`, `../examples/blogs/env/local/docker/env_files/postgres.env.in`
+Primary reference: `examples/blogs/env/local/docker/docker-compose.yml`, `examples/blogs/env/local/docker/env_files/postgres.env.in`
 
 ---
 
@@ -15,7 +15,7 @@ Primary reference: `../examples/blogs/env/local/docker/docker-compose.yml`, `../
 ## What this skill does NOT cover
 
 - **Application service environment variables for connecting to postgres** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
-- **Django database configuration** → see the [django_app layer](../../django_app/index.md)
+- **Django database configuration** → see the django_app layer (`django_app_layer/index.md`)
 
 ---
 

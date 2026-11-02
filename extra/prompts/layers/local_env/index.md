@@ -94,3 +94,14 @@ When setting up a new stack from scratch, apply the skills in roughly this order
 8. `le-add-tmux-menu` — tmux session with a menu of commands (if applicable)
 9. `le-manage-jazzoo-configs` — targets that edit and print the config (if applicable)
 10. `le-manage-docker-containers` — targets for the stack's running containers (if applicable)
+
+---
+
+## Key Principles
+
+- **Layered Compose Files** - Base (`docker-compose.yml`) + local dev overrides (`dockerfile-local.yml`, `src-overlays.yml`, `override.yml`)
+- **Src Overlays** - Mount service source code for live editing without rebuilds
+- **Base Images** - Shared images (`<stack>_base_python`) reduce build times
+- **Environment Templates** - Use `.env.in` templates compiled to `.env` files
+- **jazzoo targets** - Consistent interface (`jaz compose.build`, `jaz compose.up`, `jaz docker.exec <service>`)
+- **Developer Customization** - Personal preferences in `env/local/config/local.yaml` and `docker-compose.override.yml`

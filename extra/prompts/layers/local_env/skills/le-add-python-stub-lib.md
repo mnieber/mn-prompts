@@ -2,7 +2,7 @@
 
 Applies when adding a Python library stub to the stack that references external library code stored outside the stack directory.
 
-Primary reference: `../examples/blogs/src/libs/woodstock/`
+Primary reference: `examples/blogs/src/libs/woodstock/`
 
 ---
 

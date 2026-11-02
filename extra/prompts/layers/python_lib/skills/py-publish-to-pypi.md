@@ -73,7 +73,7 @@ python:
 - `/python/pypi/publish_url` is the upload url of the index.
 
 To upload to another index (e.g. TestPyPI, to try out a release), the developer overrides the settings in their
-own `local.yaml` (see [le-use-compose-ops](../../local_env/skills/le-use-compose-ops.md)):
+own `local.yaml` (see the `le-use-compose-ops` skill of the local_env layer):
 
 ```yaml
 # env/local/config/local.yaml

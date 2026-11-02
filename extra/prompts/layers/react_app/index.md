@@ -81,5 +81,8 @@ Use the source code of an npm library on the developer's machine (via a `portal:
 - **Props not unpacked** - Component props are accessed as `props.foo`, not destructured
 - **MobX + React Context** - State is MobX-observable; Contexts pass it to consuming components
 - **Types in api module** - TypeScript types often live in the `api/types/` directory since they cut across feature modules
+- **Feature modules** - Code is grouped per feature (e.g. `blogs/`, `blogPosts/`), with its components, hooks and state
+- **Types and schemas together** - A data model always has both an `XT.ts` type and an `XSchema.ts` Zod schema
+- **camelCase in the app** - The frontend works in camelCase, and converts to the snake_case of the backend at the API boundary
 - **Follow the examples** - The blogs_fe example serves as the primary reference template
 - **Explicit is better** - When in doubt, ask for spec clarification rather than guessing

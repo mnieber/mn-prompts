@@ -2,7 +2,7 @@
 
 Applies when adding a `spec_src` directory to a service and wiring it into the root `sunya.config.yaml`.
 
-Primary reference: `../examples/blogs/src/services/blogs_be/extra/spec_src/`, `../examples/blogs/sunya.config.yaml`
+Primary reference: `examples/blogs/src/services/blogs_be/extra/spec_src/`, `examples/blogs/sunya.config.yaml`
 
 ---
 

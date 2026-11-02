@@ -8,6 +8,7 @@ import mn_prompts
 from mn_prompts.runtime.entrypoints.mn_prompts import main, run
 
 AGENTS_FILE_TEXT = "# Agents\n\nRead instructions/index.md before you write any code.\n"
+INDEX_TEMPLATE_TEXT = "# Instructions\n\n## The layers\n\n{{layers}}\n"
 
 
 @dataclass
@@ -38,16 +39,25 @@ class TestEnv:
     def step(self, *_):
         return True
 
-    def install_editable(self, target_names: T.List[str]):
-        """Creates a clone of mn-prompts with these targets, and installs it."""
+    def install_editable(
+        self,
+        targets: T.Dict[str, T.List[str]],
+        layers: T.Dict[str, T.List[str]],
+    ):
+        """Creates a clone of mn-prompts with these targets (and their layers) and
+        layers (and the layers that they require), and installs it."""
         self.clone_dir = self.context.tmp_path / "mn-prompts"
         self.prompts_dir = self.clone_dir / "extra" / "prompts"
-        for target_name in target_names:
-            target_dir = self.prompts_dir / "targets" / target_name
-            target_dir.mkdir(parents=True)
-            (target_dir / "index.md").write_text(f"# Instructions for {target_name}\n")
-        (self.prompts_dir / "targets").mkdir(parents=True, exist_ok=True)
-        (self.prompts_dir / "agents_files").mkdir(parents=True)
+        (self.prompts_dir / "targets").mkdir(parents=True)
+        (self.prompts_dir / "layers").mkdir(parents=True)
+        for target_name, layer_names in targets.items():
+            self.write_target(target_name, layer_names)
+        for layer_name, required_layer_names in layers.items():
+            self.write_layer(layer_name, required_layer_names)
+        (self.prompts_dir / "index_template.md").write_text(INDEX_TEMPLATE_TEXT)
+        (self.prompts_dir / "examples").mkdir()
+        (self.prompts_dir / "examples" / "README.md").write_text("# Examples\n")
+        (self.prompts_dir / "agents_files").mkdir()
         (self.prompts_dir / "agents_files" / "default.md").write_text(AGENTS_FILE_TEXT)
         self._locate_package(self.clone_dir / "src" / "mn_prompts")
 
@@ -55,6 +65,35 @@ class TestEnv:
         """Installs mn-prompts in site-packages, where there is no prompts-dir."""
         self._locate_package(
             self.context.tmp_path / "env" / "site-packages" / "mn_prompts"
+        )
+
+    def write_target(
+        self,
+        target_name: str,
+        layer_names: T.List[str],
+        description: T.Optional[str] = None,
+    ):
+        description = description or f"The {target_name} target"
+        (self.prompts_dir / "targets" / f"{target_name}.yaml").write_text(
+            f"description: {description}\nlayers: [{', '.join(layer_names)}]\n"
+        )
+
+    def write_layer(
+        self,
+        layer_name: str,
+        required_layer_names: T.List[str] = [],
+        snippet_text: T.Optional[str] = None,
+    ):
+        layer_dir = self.prompts_dir / "layers" / layer_name
+        layer_dir.mkdir(exist_ok=True)
+        (layer_dir / "index.md").write_text(f"# The {layer_name} layer\n")
+        frontmatter = (
+            f"---\nrequires: [{', '.join(required_layer_names)}]\n---\n"
+            if required_layer_names
+            else ""
+        )
+        (layer_dir / "index-snippet.md").write_text(
+            frontmatter + (snippet_text or snippet_line(layer_name) + "\n")
         )
 
     def enter_project_dir(self):
@@ -93,3 +132,7 @@ class TestEnv:
 
     def output_lines(self) -> T.List[str]:
         return self.output.splitlines()
+
+
+def snippet_line(layer_name: str) -> str:
+    return f"Consult ./{layer_name}_layer/index.md for {layer_name}."

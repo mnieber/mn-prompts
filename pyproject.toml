@@ -3,7 +3,7 @@ name = "mn-prompts"
 description = "Maarten Nieber's code generation prompts"
 version = "1.0.0"
 readme = "README.md"
-dependencies = []
+dependencies = ["pyyaml"]
 
 [project.optional-dependencies]
 dev = ["dataclassy", "pytest"]

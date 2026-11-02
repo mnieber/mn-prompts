@@ -2,7 +2,7 @@
 
 Applies when adding a new Python-based service to the stack's `src/services/` directory.
 
-Primary reference: `../examples/blogs/src/services/blogs_be/`
+Primary reference: `examples/blogs/src/services/blogs_be/`
 
 ---
 
@@ -22,12 +22,12 @@ This skill describes the **minimal structure and files** needed for a Python ser
 
 The following topics are covered in separate skills/targets:
 
-- **Django-specific patterns** (models, views, settings, etc.) → see the [django_app layer](../../django_app/index.md)
+- **Django-specific patterns** (models, views, settings, etc.) → see the django_app layer (`django_app_layer/index.md`)
 - **Adding the service to docker-compose.yml** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
 - **Creating base images** → see `layers/local_env/skills/le-add-base-image.md`
 - **Stub libraries backed by external code** → see `layers/local_env/skills/le-python-lib-stub.md`
 - **Test configuration** (conftest.py, pytest_plugins) → see target-specific documentation
-- **Specification files** (extra/spec_src) → see the [app layer](../../app/index.md) for how spec files are written and used
+- **Specification files** (extra/spec_src) → see the app layer (`app_layer/index.md`) for how spec files are written and used
 - **Setting up the environment variables** → see `layers/local_env/skills/le-add-python-service-to-compose.md`
 
 ---

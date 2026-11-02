@@ -1,0 +1,2 @@
+description: A Python library or command line tool
+layers: [app, python_lib, local_env]

@@ -2,7 +2,7 @@
 
 Applies when adding a React (Vite) frontend service to the Docker Compose configuration for local development.
 
-Primary reference: `../examples/blogs/src/services/blogs_fe/`, `../examples/blogs/env/local/docker/`
+Primary reference: `examples/blogs/src/services/blogs_fe/`, `examples/blogs/env/local/docker/`
 
 ---
 
@@ -18,7 +18,7 @@ Primary reference: `../examples/blogs/src/services/blogs_fe/`, `../examples/blog
 ## What this skill does NOT cover
 
 - **Adding the service to `docker-compose.override.yml`** → follow the same interactive process described in `layers/local_env/skills/le-add-python-service-to-compose.md`
-- **React/Vite project structure and configuration** → see the [react_app layer](../../react_app/index.md)
+- **React/Vite project structure and configuration** → see the react_app layer (`react_app_layer/index.md`)
 
 ---
 

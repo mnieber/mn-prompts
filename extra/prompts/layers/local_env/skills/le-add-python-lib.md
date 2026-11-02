@@ -2,7 +2,7 @@
 
 Applies when adding a Python library to the stack where the source code lives within the stack directory.
 
-Primary reference: `../examples/blogs/src/libs/python_toolkit/`
+Primary reference: `examples/blogs/src/libs/python_toolkit/`
 
 ---
 
