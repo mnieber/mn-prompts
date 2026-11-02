@@ -3,6 +3,7 @@ import sys
 import traceback
 from pathlib import Path
 
+from mn_prompts.instructions.actions.add_to_git_ignore import add_to_git_ignore
 from mn_prompts.instructions.actions.copy_agents_file import copy_agents_file
 from mn_prompts.instructions.actions.install_instructions import install_instructions
 from mn_prompts.layers.rules.get_layer_names import get_layer_names
@@ -35,6 +36,11 @@ def _parse_args(argv):
         "--agents-md",
         action="store_true",
         help="Copy the agents file to AGENTS.md instead of CLAUDE.md",
+    )
+    install_parser.add_argument(
+        "--git-ignore",
+        action="store_true",
+        help="Add the agents file and the instructions dir to the .gitignore of the cwd",
     )
 
     # List command
@@ -78,6 +84,10 @@ def run(argv=None):
                 f"{manifest.agents_file_name} already exists, so it was not replaced. "
                 f"Extend it with the contents of {get_agents_file()}",
                 file=sys.stderr,
+            )
+        if args.git_ignore:
+            add_to_git_ignore(
+                project_dir, [f"/{manifest.agents_file_name}", "/instructions/"]
             )
 
     if args.command == "list":

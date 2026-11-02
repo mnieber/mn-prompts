@@ -31,6 +31,27 @@ scenarios.
 
 `RULE`: when I ask you to review a design then focus on weaknesses and gaps in the main features and workflows. Details and less important edge-cases can be identified later.
 
+### The glossary
+
+The important concepts of the project are described in a glossary (`extra/spec_src/design/glossary.md`). Unlike the
+design doc, the glossary is never emptied: it describes the concepts of the whole project, not only of the feature
+that is being designed.
+
+`RULE`: when a design introduces a new concept that seems important (e.g. a term that the specs, tests or code will
+use, or that a reader needs to know to understand the design), add it to the glossary. When a design changes the
+meaning of a concept that is already in the glossary, update its entry. Create the glossary if it doesn't exist yet.
+
+Each entry is a `###` heading with the name of the concept, followed by a short description of what it is and how
+it relates to other concepts. Keep the entries in alphabetical order.
+
+```markdown
+# Glossary
+
+### Library
+
+The collection of books of a user. A book belongs to exactly one library.
+```
+
 ## 2. Test plan
 
 Translate the design doc into a test plan (`extra/spec_src/design/test_plan.md`) that contains a high-level
@@ -75,5 +96,6 @@ features (see [writing specs](./app-write-specs.md)). Edge cases and details are
 to the tests.
 
 - Split the affected scenarios in one or more suitable batches (as you see fit), write/update the scenarios for a batch, and ask me to review.
-- After each review, remove the parts of the design doc that is covered by the batch, together with the details that the tests cover. When the design doc is empty, the feature is done.
+- After each review, remove the parts of the design doc that is covered by the batch, together with the details that the tests cover. When the design doc is empty, the feature is done. The glossary is not emptied:
+  check that the concepts of the feature are in it, and that their entries match the final design.
 - Format the scenario files with `black`. Don't render them with sunya: I do that myself.

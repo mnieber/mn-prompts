@@ -59,6 +59,7 @@ mn-prompts install --target=python_lib                   # install the layers of
 mn-prompts install --target=python_lib --layer=react_app # ... plus extra layers
 mn-prompts install --layer=app --layer=react_app         # install only these layers
 mn-prompts install --target=python_lib --agents-md       # write AGENTS.md instead of CLAUDE.md
+mn-prompts install --target=python_lib --git-ignore      # also add CLAUDE.md and instructions to .gitignore
 mn-prompts install                                       # re-install the current selection
 ```
 
@@ -78,6 +79,10 @@ The layers that the selected layers require are added automatically. This:
 If the agents file already exists, then it's left unchanged, and mn-prompts prints the path of the file whose
 contents you should add to it. When you run `mn-prompts install` without a target or layers, it uses the agents file
 of the earlier install.
+
+With `--git-ignore`, mn-prompts also adds `/CLAUDE.md` (or `/AGENTS.md`) and `/instructions/` to the `.gitignore` of
+the project dir, and creates that file if needed. Entries that are already there are not added again. Without this
+option, mn-prompts leaves version control to you.
 
 ### Working with the agent
 
