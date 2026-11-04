@@ -9,6 +9,7 @@ import {
 } from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
 import { parseResponse } from '/src/api/utils/parseResponse';
+import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
@@ -35,13 +36,12 @@ export const createBlogPost = (args: CreateBlogPostArgsT) => {
     blog_id: args.blog.id,
   })
     .then((response) => {
-      const res = parseResponse(BlogPostSchema, response);
+      const res = parseResponse(BlogPostSchema, response.data);
 
       return waitOnDev(1000, res);
     })
     .catch((error) => {
-      const errorCodes = error.response.data;
-      if (errorCodes.includes('BLOG_NOT_FOUND')) {
+      if (hasErrorCode(error.response.data, ['BLOG_NOT_FOUND'])) {
         return waitOnDev(1000, {
           success: false,
         });

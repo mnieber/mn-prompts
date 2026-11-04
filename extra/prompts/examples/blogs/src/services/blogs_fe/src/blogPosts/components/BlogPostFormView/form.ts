@@ -60,7 +60,7 @@ const getHandleSubmit =
         navTo(
           blogPostsNav.blogPost({
             blogSlug: props.blog.slug,
-            blogPostSlug: response.data.slug,
+            blogPostSlug: response.slug,
           })
         );
         return response;

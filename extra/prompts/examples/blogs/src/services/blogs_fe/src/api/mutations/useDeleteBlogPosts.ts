@@ -6,6 +6,7 @@ import {
 import { queryClient } from '/src/api/queryClient';
 import { post } from '/src/api/restClient';
 import { BlogT } from '/src/api/types/BlogT';
+import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
@@ -25,8 +26,7 @@ export const deleteBlogPosts = (args: DeleteBlogPostsArgsT) => {
       return waitOnDev(1000, response);
     })
     .catch((error) => {
-      const errorCodes = error.response.data;
-      if (errorCodes.includes('BLOG_POSTS_NOT_FOUND')) {
+      if (hasErrorCode(error.response.data, ['BLOG_POSTS_NOT_FOUND'])) {
         return waitOnDev(1000, {
           success: false,
         });

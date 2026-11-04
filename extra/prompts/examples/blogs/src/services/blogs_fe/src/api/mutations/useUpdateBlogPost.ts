@@ -8,6 +8,7 @@ import { CreateBlogPostFormSchema } from '/src/api/mutations/useCreateBlogPost';
 import { BlogPostSchema } from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
 import { parseResponse } from '/src/api/utils/parseResponse';
+import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
@@ -32,19 +33,18 @@ export const updateBlogPost = (args: UpdateBlogPostArgsT) => {
     blog_post_id: args.blogPost.id,
   })
     .then((response) => {
-      const res = parseResponse(BlogPostSchema, response);
+      const res = parseResponse(BlogPostSchema, response.data);
 
       return waitOnDev(1000, res);
     })
     .catch((error) => {
-      const errorCodes = error.response.data;
-      if (errorCodes.includes('BLOG_NOT_FOUND')) {
+      if (hasErrorCode(error.response.data, ['BLOG_NOT_FOUND'])) {
         // TODO return this error and use it in UpdateBlogPostForm
         return waitOnDev(1000, {
           success: false,
         });
       }
-      if (errorCodes.includes('BLOG_POST_NOT_FOUND')) {
+      if (hasErrorCode(error.response.data, ['BLOG_POST_NOT_FOUND'])) {
         // TODO return this error and use it in UpdateBlogPostForm
         return waitOnDev(1000, {
           success: false,

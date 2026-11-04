@@ -1,4 +1,5 @@
 import type { BlogPostRowT, EndpointT } from '/tests/fakeBackend/types';
+import { validationError } from '/tests/fakeBackend/validationError';
 
 export const createBlogPost: EndpointT = {
   name: 'createBlogPost',
@@ -6,7 +7,7 @@ export const createBlogPost: EndpointT = {
   path: '/blogs/:blogId/blog-posts/create/',
   handle: (backend, request) => {
     if (!backend.data.blogs.some((x) => x.id === request.params.blogId)) {
-      return { status: 404, json: ['BLOG_NOT_FOUND'] };
+      return validationError('BLOG_NOT_FOUND');
     }
     const form = request.body.create_blog_post_form;
     const blogPost: BlogPostRowT = {

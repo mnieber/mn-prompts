@@ -1,4 +1,5 @@
 import type { EndpointT } from '/tests/fakeBackend/types';
+import { validationError } from '/tests/fakeBackend/validationError';
 
 export const getBlogPosts: EndpointT = {
   name: 'getBlogPosts',
@@ -9,7 +10,7 @@ export const getBlogPosts: EndpointT = {
       (x) => x.slug === request.params.blogSlug
     );
     if (!blog) {
-      return { status: 404, json: ['BLOG_NOT_FOUND'] };
+      return validationError('BLOG_NOT_FOUND');
     }
     const blogPosts = backend.data.blogPosts.filter(
       (x) => x.blog_id === blog.id

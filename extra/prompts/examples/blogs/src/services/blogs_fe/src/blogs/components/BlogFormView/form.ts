@@ -52,10 +52,17 @@ const getHandleSubmit =
       })
       .then((response: ObjT) => {
         formState.reset(initialValues, initialErrors);
-        navTo(blogsNav.blog({ blogSlug: response.data.slug }));
+        navTo(blogsNav.blog({ blogSlug: response.slug }));
         return response;
       })
       .catch((error: any) => {
+        if (error.errorCode === 'BLOG_NAME_ALREADY_EXISTS') {
+          formState.setError(
+            'blogForm.name',
+            'A blog with this name already exists'
+          );
+          return;
+        }
         formState.setError(
           'global',
           'Oops, something went wrong, please try again later'

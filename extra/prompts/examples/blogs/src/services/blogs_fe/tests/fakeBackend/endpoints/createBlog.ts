@@ -1,4 +1,5 @@
 import type { BlogRowT, EndpointT } from '/tests/fakeBackend/types';
+import { validationError } from '/tests/fakeBackend/validationError';
 
 export const createBlog: EndpointT = {
   name: 'createBlog',
@@ -7,7 +8,7 @@ export const createBlog: EndpointT = {
   handle: (backend, request) => {
     const form = request.body.create_blog_form;
     if (backend.data.blogs.some((x) => x.name === form.name)) {
-      return { status: 400, json: ['BLOG_WITH_NAME_EXISTS'] };
+      return validationError('BLOG_NAME_ALREADY_EXISTS');
     }
     const blog: BlogRowT = {
       id: backend.nextId('blog'),

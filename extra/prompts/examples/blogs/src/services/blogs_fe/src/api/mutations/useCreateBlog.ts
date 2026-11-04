@@ -5,6 +5,7 @@ import { invalidateGetBlogs } from '/src/api/queries/useGetBlogs';
 import { post } from '/src/api/restClient';
 import { BlogSchema } from '/src/api/types/BlogSchema';
 import { parseResponse } from '/src/api/utils/parseResponse';
+import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
 
@@ -25,15 +26,15 @@ export const createBlog = (args: CreateBlogArgsT) => {
     create_blog_form: snakecaseKeys(createBlogForm),
   })
     .then((response) => {
-      const res = parseResponse(BlogSchema, response);
+      const res = parseResponse(BlogSchema, response.data);
 
       return waitOnDev(1000, res);
     })
     .catch((error) => {
-      const errorCodes = error.response.data;
-      if (errorCodes.includes('BLOG_WITH_NAME_EXISTS')) {
+      if (hasErrorCode(error.response.data, ['BLOG_NAME_ALREADY_EXISTS'])) {
         return waitOnDev(1000, {
           success: false,
+          errorCode: 'BLOG_NAME_ALREADY_EXISTS',
         });
       }
 

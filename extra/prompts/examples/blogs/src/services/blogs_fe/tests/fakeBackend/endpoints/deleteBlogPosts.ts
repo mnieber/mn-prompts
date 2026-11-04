@@ -1,4 +1,5 @@
 import type { EndpointT } from '/tests/fakeBackend/types';
+import { validationError } from '/tests/fakeBackend/validationError';
 
 export const deleteBlogPosts: EndpointT = {
   name: 'deleteBlogPosts',
@@ -10,7 +11,7 @@ export const deleteBlogPosts: EndpointT = {
       (x) => x.blog_id === request.params.blogId && ids.includes(x.id)
     );
     if (blogPosts.length !== ids.length) {
-      return { status: 404, json: ['BLOG_POSTS_NOT_FOUND'] };
+      return validationError('BLOG_POSTS_NOT_FOUND');
     }
     backend.data.blogPosts = backend.data.blogPosts.filter(
       (x) => !blogPosts.includes(x)
