@@ -10,6 +10,18 @@ run-server():
     yarn dev --host
 
 #
+# Npm
+#
+
+# Build the package in package-dir and publish it to the npm registry. Logs in to npm
+# when needed, and asks for confirmation before it publishes.
+[interactive]
+npm-publish(package-dir):
+    🐆.script = ⚙️.module.dirname / "extra/jaz/npm_tools.py"
+    🐆.safe-package-dir = 🐆.package-dir | ⚙️.sh-quote
+    @⚙️.python 🐆.script publish --package-dir=🐆.safe-package-dir
+
+#
 # Stack
 #
 
