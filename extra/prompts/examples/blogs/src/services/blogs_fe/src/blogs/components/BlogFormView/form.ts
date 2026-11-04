@@ -63,6 +63,13 @@ const getHandleSubmit =
           );
           return;
         }
+        if (error.errorCode === 'FORM_CONTAINS_FORBIDDEN_WORDS') {
+          formState.setError(
+            `blogForm.${error.fieldName}`,
+            'This field contains forbidden words'
+          );
+          return;
+        }
         formState.setError(
           'global',
           'Oops, something went wrong, please try again later'

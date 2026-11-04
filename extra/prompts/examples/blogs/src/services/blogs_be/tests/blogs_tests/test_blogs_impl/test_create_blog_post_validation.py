@@ -51,18 +51,20 @@ def test_create_blog_post_validation(context: Context):
     # Alice creates blog posts with a forbidden word in the title and in the
     # content.
     #
-    # Both should fail with FORM_CONTAINS_FORBIDDEN_WORDS.
+    # Both should fail with FORM_CONTAINS_FORBIDDEN_WORDS, and name the field.
     if env.step(
         env.create_blog_post(JAZZ_NOTES, "Forbidden Fruit"),
     ):
         assert env.response.status_code == 400
         assert env.error_codes() == ["FORM_CONTAINS_FORBIDDEN_WORDS"]
+        assert env.error_details() == ["title"]
 
     if env.step(
         env.create_blog_post(JAZZ_NOTES, "Giant Steps", content="Forbidden content"),
     ):
         assert env.response.status_code == 400
         assert env.error_codes() == ["FORM_CONTAINS_FORBIDDEN_WORDS"]
+        assert env.error_details() == ["content"]
 
 
 class Env(TestEnv):

@@ -77,3 +77,6 @@ class TestEnv:
 
     def error_codes(self) -> T.List[str]:
         return [error["code"] for error in self.response.json()["errors"]]
+
+    def error_details(self) -> T.List[str]:
+        return [error["detail"] for error in self.response.json()["errors"]]

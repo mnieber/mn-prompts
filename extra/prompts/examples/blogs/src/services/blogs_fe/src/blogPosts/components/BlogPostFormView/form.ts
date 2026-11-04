@@ -66,6 +66,20 @@ const getHandleSubmit =
         return response;
       })
       .catch((error: any) => {
+        if (error.errorCode === 'BLOG_POST_TITLE_ALREADY_EXISTS') {
+          formState.setError(
+            'blogPostForm.title',
+            'A blog post with this title already exists'
+          );
+          return;
+        }
+        if (error.errorCode === 'FORM_CONTAINS_FORBIDDEN_WORDS') {
+          formState.setError(
+            `blogPostForm.${error.fieldName}`,
+            'This field contains forbidden words'
+          );
+          return;
+        }
         formState.setError(
           'global',
           'Oops, something went wrong, please try again later'

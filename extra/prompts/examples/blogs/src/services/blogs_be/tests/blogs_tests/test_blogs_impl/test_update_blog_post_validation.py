@@ -48,12 +48,12 @@ def test_update_blog_post_validation(context: Context):
 
     # Alice renames Kind of Blue to Giant Steps.
     #
-    # It should fail with BLOG_WITH_THIS_TITLE_ALREADY_EXISTS.
+    # It should fail with BLOG_POST_TITLE_ALREADY_EXISTS.
     if env.step(
         env.update_blog_post(JAZZ_NOTES, "kind-of-blue", title=GIANT_STEPS),
     ):
         assert env.response.status_code == 400
-        assert env.error_codes() == ["BLOG_WITH_THIS_TITLE_ALREADY_EXISTS"]
+        assert env.error_codes() == ["BLOG_POST_TITLE_ALREADY_EXISTS"]
 
     # Alice creates Rock Notes with the blog post Paranoid, and renames it to
     # Giant Steps.
@@ -70,18 +70,20 @@ def test_update_blog_post_validation(context: Context):
     # Alice updates Kind of Blue with a forbidden word in the title and in the
     # content.
     #
-    # Both should fail with FORM_CONTAINS_FORBIDDEN_WORDS.
+    # Both should fail with FORM_CONTAINS_FORBIDDEN_WORDS, and name the field.
     if env.step(
         env.update_blog_post(JAZZ_NOTES, "kind-of-blue", title="Forbidden Fruit"),
     ):
         assert env.response.status_code == 400
         assert env.error_codes() == ["FORM_CONTAINS_FORBIDDEN_WORDS"]
+        assert env.error_details() == ["title"]
 
     if env.step(
         env.update_blog_post(JAZZ_NOTES, "kind-of-blue", content="Forbidden content"),
     ):
         assert env.response.status_code == 400
         assert env.error_codes() == ["FORM_CONTAINS_FORBIDDEN_WORDS"]
+        assert env.error_details() == ["content"]
 
 
 class Env(TestEnv):

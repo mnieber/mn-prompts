@@ -1,3 +1,4 @@
+import { hasForbiddenWords } from '/tests/fakeBackend/hasForbiddenWords';
 import type { EndpointT } from '/tests/fakeBackend/types';
 import { validationError } from '/tests/fakeBackend/validationError';
 
@@ -18,6 +19,22 @@ export const updateBlogPost: EndpointT = {
       return validationError('BLOG_POST_NOT_FOUND');
     }
     const form = request.body.update_blog_post_form;
+    if (
+      backend.data.blogPosts.some(
+        (x) =>
+          x.blog_id === request.params.blogId &&
+          x.id !== blogPost.id &&
+          x.title === form.title
+      )
+    ) {
+      return validationError('BLOG_POST_TITLE_ALREADY_EXISTS');
+    }
+    if (hasForbiddenWords(form.title)) {
+      return validationError('FORM_CONTAINS_FORBIDDEN_WORDS', 'title');
+    }
+    if (hasForbiddenWords(form.content)) {
+      return validationError('FORM_CONTAINS_FORBIDDEN_WORDS', 'content');
+    }
     blogPost.title = form.title ?? blogPost.title;
     blogPost.slug = form.slug ?? blogPost.slug;
     blogPost.content = form.content ?? blogPost.content;

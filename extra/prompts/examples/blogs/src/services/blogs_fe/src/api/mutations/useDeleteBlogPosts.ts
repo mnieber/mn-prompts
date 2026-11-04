@@ -6,6 +6,7 @@ import {
 import { queryClient } from '/src/api/queryClient';
 import { post } from '/src/api/restClient';
 import { BlogT } from '/src/api/types/BlogT';
+import { isFailedMutation } from '/src/api/utils/isFailedMutation';
 import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
@@ -41,6 +42,9 @@ export const useDeleteBlogPosts = () => {
     mutationFn: deleteBlogPosts,
     onSuccess: (response: ObjT, args: DeleteBlogPostsArgsT) => {
       invalidateGetBlogPosts({ blogSlug: args.blog.slug });
+      if (isFailedMutation(response)) {
+        return;
+      }
       queryClient.setQueryData(
         getBlogPostsQueryKey({ blogSlug: args.blog.slug }),
         (data: any) => {

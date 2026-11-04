@@ -9,6 +9,7 @@ RUN corepack enable
 # install dev pkg dependencies
 RUN apk update && apk add \
     bash \
+    chromium \
     curl \
     fish \
     nano \

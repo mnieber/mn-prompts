@@ -8,7 +8,9 @@ import {
   BlogPostSchema,
 } from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
+import { isFailedMutation } from '/src/api/utils/isFailedMutation';
 import { parseResponse } from '/src/api/utils/parseResponse';
+import { getErrorDetail } from '/src/auth/utils/getErrorDetail';
 import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
 import { ObjT } from '/src/utils/types';
 import { waitOnDev } from '/src/utils/wait';
@@ -41,6 +43,27 @@ export const createBlogPost = (args: CreateBlogPostArgsT) => {
       return waitOnDev(1000, res);
     })
     .catch((error) => {
+      if (
+        hasErrorCode(error.response.data, ['BLOG_POST_TITLE_ALREADY_EXISTS'])
+      ) {
+        return waitOnDev(1000, {
+          success: false,
+          errorCode: 'BLOG_POST_TITLE_ALREADY_EXISTS',
+        });
+      }
+      if (
+        hasErrorCode(error.response.data, ['FORM_CONTAINS_FORBIDDEN_WORDS'])
+      ) {
+        return waitOnDev(1000, {
+          success: false,
+          errorCode: 'FORM_CONTAINS_FORBIDDEN_WORDS',
+          // The backend names the field that contains the forbidden words
+          fieldName: getErrorDetail(
+            error.response.data,
+            'FORM_CONTAINS_FORBIDDEN_WORDS'
+          ),
+        });
+      }
       if (hasErrorCode(error.response.data, ['BLOG_NOT_FOUND'])) {
         return waitOnDev(1000, {
           success: false,
@@ -55,6 +78,9 @@ export const useCreateBlogPost = () => {
   return useObservableMutation({
     mutationFn: createBlogPost,
     onSuccess: (response: ObjT, args: CreateBlogPostArgsT) => {
+      if (isFailedMutation(response)) {
+        return;
+      }
       invalidateGetBlogPosts({ blogSlug: args.blog.slug });
     },
   });

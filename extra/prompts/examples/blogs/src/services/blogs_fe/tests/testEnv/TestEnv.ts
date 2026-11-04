@@ -53,6 +53,14 @@ export class TestEnv {
     return this.page.locator(`.${name}`);
   }
 
+  /** The error that is shown below the form field that has the given label. */
+  fieldError(label: string) {
+    return this.page
+      .locator('.Field')
+      .filter({ has: this.page.getByLabel(label, { exact: true }) })
+      .locator('.FormFieldError');
+  }
+
   button(name: string) {
     return this.page.getByRole('button', { name, exact: true });
   }

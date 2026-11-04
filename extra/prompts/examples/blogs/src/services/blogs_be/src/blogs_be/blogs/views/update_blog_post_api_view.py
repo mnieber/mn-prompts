@@ -44,7 +44,7 @@ class UpdateBlogPostApiView(APIView):
                 blog_post=blog_post,
             )
         except BlogPostWithTitleAlreadyExistsError:
-            raise ValidationError(code="BLOG_WITH_THIS_TITLE_ALREADY_EXISTS")
+            raise ValidationError(code="BLOG_POST_TITLE_ALREADY_EXISTS")
         except UpdateBlogPostFormContainsForbiddenWordsError as e:
             raise ValidationError(code="FORM_CONTAINS_FORBIDDEN_WORDS", detail=str(e))
 
