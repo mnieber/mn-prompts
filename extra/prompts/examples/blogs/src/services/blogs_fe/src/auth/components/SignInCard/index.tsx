@@ -12,7 +12,6 @@ import { history } from '/src/routes/history';
 import { navTo } from '/src/routes/navHandler';
 import { cn } from '/src/utils/classnames';
 import { useSearchAndUrlParams } from '/src/utils/hooks/useSearchAndUrlParams';
-import { ObjT } from '/src/utils/types';
 
 // Import styles
 import './index.scss';
@@ -27,7 +26,7 @@ export const SignInCard = observer(
   withContextProps((props: PropsT & typeof ContextProps) => {
     useResetAuthState(props.authState);
     const { messages } = useMessages();
-    const signIn = useSignIn(props.authState).mutateAsync;
+    const signIn = useSignIn(props.authState).run;
     const params = useSearchAndUrlParams();
 
     return (
@@ -41,19 +40,30 @@ export const SignInCard = observer(
         <SignInForm
           className={cn(AuthCardS.Form())}
           signIn={(email: string, password: string) => {
-            return signIn({ userId: email, password }).then(
-              (response: ObjT) => {
-                if (props.authState.isAuthenticated) {
-                  const routeSpec = params.nextUrl
-                    ? { url: params.nextUrl, nav: history.push }
-                    : authNav.home({});
-                  navTo(routeSpec);
-                }
+            return signIn({ userId: email, password }).then(() => {
+              if (props.authState.isAuthenticated) {
+                const routeSpec = params.nextUrl
+                  ? { url: params.nextUrl, nav: history.push }
+                  : authNav.home({});
+                navTo(routeSpec);
               }
-            );
+            });
           }}
           errors={props.authState.errors}
         />
+
+        {
+          // 🔳 Forgot your password message 🔳
+        }
+        <div
+          className={cn(
+            AuthCardS.FormCaption(),
+            'SignInCard__ForgotYourPassword',
+            [L.col.banner()]
+          )}
+        >
+          {messages.divForgotYourPassword}
+        </div>
 
         {
           // 🔳 Changed your mind message 🔳
@@ -66,6 +76,17 @@ export const SignInCard = observer(
           )}
         >
           {messages.divChangedYourMind}
+        </div>
+
+        {
+          // 🔳 Create account message 🔳
+        }
+        <div
+          className={cn(AuthCardS.CardFooter(), 'SignInCard__CreateAccount', [
+            L.col.banner(),
+          ])}
+        >
+          {messages.divCreateAccount}
         </div>
       </AuthCard>
     );

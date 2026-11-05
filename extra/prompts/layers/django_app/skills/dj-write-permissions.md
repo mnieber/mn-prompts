@@ -42,11 +42,13 @@ permissions=[
 
 Each entry is `(http_status_code, permission_fn, user_facing_message)`.
 
-RULE: A public endpoint uses `permissions=[]`, not a permission function that always returns `allow()`.
+RULE: A public endpoint uses `permissions=ALLOW_ANY`. `extend_schema` raises a `RuntimeError` when `permissions` is empty or missing, so that a forgotten permission can't make an endpoint public.
+
+RULE: Every view with a url uses `extend_schema`. Without it the view would be public, because that is the default of DRF. `tests/api_tests/test_api_impl/test_view_permissions.py` checks this.
 
 ## Checklist
 
 - [ ] Permission function returns `allow()` or `deny(reason)`
 - [ ] Function arguments match keys in the view's data spec
 - [ ] Function is referenced in the view's `permissions=` list with status code and message
-- [ ] Public endpoints use `permissions=[]`
+- [ ] Public endpoints use `permissions=ALLOW_ANY`

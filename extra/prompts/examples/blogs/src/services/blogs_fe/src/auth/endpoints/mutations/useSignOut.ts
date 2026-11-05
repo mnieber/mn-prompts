@@ -1,17 +1,19 @@
 import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { queryClient } from '/src/api/queryClient';
-import { setAuthTokens } from '/src/api/restClient';
+import { authDelete } from '/src/api/restClient';
+import { authUrl } from '/src/api/utils/allauth';
 import { AuthState, anonymous } from '/src/auth/AuthState';
 import { ObjT } from '/src/utils/types';
 
 export type SignOutArgsT = {};
 
 export function signOut(args: SignOutArgsT) {
-  return Promise.resolve().then(() => {
-    setAuthTokens(undefined, undefined);
-    return {
-      errors: [],
-    };
+  return authDelete(`${authUrl}/session`).catch((error) => {
+    // After signing out, the session endpoint says that nobody is signed in
+    if (error.response?.status === 401) {
+      return { errors: [] };
+    }
+    throw error;
   });
 }
 

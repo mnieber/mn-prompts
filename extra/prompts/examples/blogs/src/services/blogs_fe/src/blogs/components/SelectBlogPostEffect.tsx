@@ -1,4 +1,5 @@
 import { observer } from 'mobx-react-lite';
+import { isLoading } from 'mobx-resource-states';
 import * as R from 'ramda';
 import React from 'react';
 import { withContextProps } from 'react-props-from-context';
@@ -6,6 +7,7 @@ import { useParams } from 'wouter';
 import { BlogPostT } from '/src/api/types/BlogPostT';
 import { blogPostsCtx } from '/src/blogPosts/hooks/useBlogPostsContext';
 import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
+import { NotFoundMessage } from '/src/frames/components/NotFoundMessage';
 import { useRefUrl } from '/src/routes/hooks/useRefUrl';
 import { UrlEffectView } from '/src/utils/components';
 import { ObjT } from '/src/utils/types';
@@ -49,11 +51,17 @@ export const SelectBlogPostEffect = observer(
     });
 
     return (
-      <UrlEffectView
-        resourceName="blog-post"
-        isInSync={isBlogPostInSyncWithUrl}
-        className="absolute"
-      />
+      <>
+        <UrlEffectView
+          resourceName="blog-post"
+          isInSync={isBlogPostInSyncWithUrl}
+          className="absolute"
+        />
+        <NotFoundMessage
+          isMissing={!!props.blog && !isLoading(blogPosts) && !blogPostFromUrl}
+          message="This blog post doesn't exist"
+        />
+      </>
     );
   }, ContextProps)
 );

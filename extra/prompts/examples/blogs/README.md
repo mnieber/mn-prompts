@@ -54,6 +54,12 @@ $ jaz be.exec "python manage.py check"
 `jaz compose.down` stops the stack. `jaz compose.down volumes=true` also removes its volumes (e.g. the database), so
 that you can start again with `jaz compose.init`.
 
+## Tests
+
+This app is a toy that showcases code patterns, so its tests do the same: each pattern gets one representative test.
+We don't test every edge case, and we don't repeat a test on another form or endpoint. If an edge case breaks later,
+we simply fix it. In a real application you would test the edge cases as well, so don't copy this policy to one.
+
 ## Configuration
 
 The config is in `env/local/config/base.yaml`. Put your own settings in `env/local/config/local.yaml`, which

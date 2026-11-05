@@ -1,7 +1,6 @@
 .MainView .FormFieldLabel__Label {
-  @apply font-bold;
-  @apply text-gray-600 text-sm tracking-wider;
+  @apply text-xs font-semibold tracking-wider text-ink-soft;
 
   // Margin below the label is considered intrinsic.
-  @apply mb-1;
+  @apply mb-1.5;
 }

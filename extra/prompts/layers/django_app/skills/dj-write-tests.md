@@ -57,8 +57,11 @@ status code, and on the error codes (via the `env.error_codes()` query):
 
 ## Users and permissions
 
-- Users sign up and sign in through the API (`env.sign_up_and_sign_in(ALICE)`). Signing in makes the `APIClient`
-  send the access token in the next requests, and `env.sign_out()` stops it. Don't use `force_authenticate`.
+- Users sign in through the API (`env.sign_up_and_sign_in(ALICE)`). Signing in gives the `APIClient` the session
+  cookie for the next requests, and `env.sign_out()` ends the session. Don't use `force_authenticate`.
+- `sign_up_and_sign_in` creates the account with a factory, so that most tests don't depend on the emails. The tests of
+  the `users` module sign up through the API and follow the links in `mail.outbox`.
+- The rate limits of allauth live in the cache, so an autouse fixture in `tests/conftest.py` clears it per test.
 - A test can switch between users by signing in as another user.
 - Permissions are tested through their behaviour: another user tries the action, gets a 403, and nothing changes
   (see `test_blog_ownership.py`). There are no separate tests of the permission functions.

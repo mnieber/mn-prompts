@@ -4,22 +4,31 @@ info:
   version: 1.0.0
   description: Blogs REST API
 paths:
-  /api/blogs/blogs/{blog_id}/blog-posts/:
+  /api/blogs/{blog_key}/blog-posts/{blog_post_key}/publish/:
     post:
-      operationId: blogs_blogs_blog_posts_create
+      operationId: blogs_blog_posts_publish_create
+      description: |-
+        Entrypoint permissions:
+        - user_is_blog_owner
+
+
+        Permissions: AllowAny
       parameters:
-        - in: path
-          name: blog_id
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: path
+        name: blog_key
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: blog_post_key
+        schema:
+          type: string
+        required: true
       tags:
-        - blogs
+      - blogs
       security:
-        - cookieAuth: []
-        - basicAuth: []
-        - {}
+      - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -27,8 +36,474 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlogPost'
           description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: ''
+  /api/blogs/{blog_key}/blog-posts/{blog_post_key}/update/:
+    post:
+      operationId: blogs_blog_posts_update_create
+      description: |-
+        Entrypoint permissions:
+        - user_is_blog_owner
+
+
+        Permissions: AllowAny
+      parameters:
+      - in: path
+        name: blog_key
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: blog_post_key
+        schema:
+          type: string
+        required: true
+      tags:
+      - blogs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBlogPostRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBlogPostRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateBlogPostRequestRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: ''
+  /api/blogs/{blog_key}/blog-posts/create/:
+    post:
+      operationId: blogs_blog_posts_create_create
+      description: |-
+        Entrypoint permissions:
+        - user_is_blog_owner
+
+
+        Permissions: AllowAny
+      parameters:
+      - in: path
+        name: blog_key
+        schema:
+          type: string
+        required: true
+      tags:
+      - blogs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlogPostRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateBlogPostRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateBlogPostRequestRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: ''
+  /api/blogs/{blog_key}/blog-posts/delete/:
+    post:
+      operationId: blogs_blog_posts_delete_create
+      description: |-
+        Entrypoint permissions:
+        - user_is_blog_owner
+
+
+        Permissions: AllowAny
+      parameters:
+      - in: path
+        name: blog_key
+        schema:
+          type: string
+        required: true
+      tags:
+      - blogs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBlogPostsRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteBlogPostsRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeleteBlogPostsRequestRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: ''
+  /api/blogs/{blog_key}/blog-posts/list/:
+    get:
+      operationId: blogs_blog_posts_list_list
+      description: |-
+        Entrypoint permissions:
+        - allow_always
+
+
+        Permissions: AllowAny
+      parameters:
+      - in: path
+        name: blog_key
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: is_published
+        schema:
+          type: boolean
+      - in: query
+        name: slug
+        schema:
+          type: string
+      - in: query
+        name: sort
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -title
+            - title
+        description: |-
+          Ordering
+
+          * `title` - Title
+          * `-title` - Title (descending)
+        explode: false
+        style: form
+      tags:
+      - blogs
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPost'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+  /api/blogs/create/:
+    post:
+      operationId: blogs_create_create
+      description: |-
+        Entrypoint permissions:
+        - user_is_authenticated
+
+
+        Permissions: AllowAny
+      tags:
+      - blogs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlogRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateBlogRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateBlogRequestRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
+  /api/blogs/list/:
+    get:
+      operationId: blogs_list_list
+      description: |-
+        Entrypoint permissions:
+        - allow_always
+
+
+        Permissions: AllowAny
+      parameters:
+      - in: query
+        name: audience
+        schema:
+          type: string
+          enum:
+          - any
+          - expert
+          - novice
+        description: |-
+          * `expert` - Expert
+          * `novice` - Novice
+          * `any` - Any
+      - in: query
+        name: slug
+        schema:
+          type: string
+      - in: query
+        name: sort
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -name
+            - name
+        description: |-
+          Ordering
+
+          * `name` - Name
+          * `-name` - Name (descending)
+        explode: false
+        style: form
+      tags:
+      - blogs
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedError'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+          description: ''
 components:
   schemas:
+    AudienceEnum:
+      enum:
+      - expert
+      - novice
+      - any
+      type: string
+      description: |-
+        * `expert` - Expert
+        * `novice` - Novice
+        * `any` - Any
+    BlankEnum:
+      enum:
+      - ''
+    Blog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        owner_id:
+          type: string
+          format: uuid
+          readOnly: true
+        audience:
+          $ref: '#/components/schemas/AudienceEnum'
+      required:
+      - id
+      - name
+      - owner_id
+      - slug
     BlogPost:
       type: object
       properties:
@@ -36,32 +511,165 @@ components:
           type: string
           format: uuid
           readOnly: true
-        created_at:
+        title:
           type: string
-          format: date-time
-          readOnly: true
-        modified_at:
+        slug:
           type: string
-          format: date-time
+        blog_id:
+          type: string
+          format: uuid
           readOnly: true
         content:
           type: string
           nullable: true
+        is_published:
+          type: boolean
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+      required:
+      - blog_id
+      - id
+      - slug
+      - title
+    ConflictError:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    CreateBlogFormRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          nullable: true
+      required:
+      - name
+    CreateBlogPostFormRequest:
+      type: object
+      properties:
         title:
           type: string
-        blog:
+          minLength: 1
+        content:
           type: string
-          format: uuid
+          nullable: true
+        level:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/LevelEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
       required:
-        - blog
-        - created_at
-        - id
-        - modified_at
-        - title
+      - title
+    CreateBlogPostRequestRequest:
+      type: object
+      properties:
+        create_blog_post_form:
+          $ref: '#/components/schemas/CreateBlogPostFormRequest'
+      required:
+      - create_blog_post_form
+    CreateBlogRequestRequest:
+      type: object
+      properties:
+        create_blog_form:
+          $ref: '#/components/schemas/CreateBlogFormRequest'
+      required:
+      - create_blog_form
+    DeleteBlogPostsFormRequest:
+      type: object
+      properties:
+        blog_post_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - blog_post_ids
+    DeleteBlogPostsRequestRequest:
+      type: object
+      properties:
+        delete_blog_posts_form:
+          $ref: '#/components/schemas/DeleteBlogPostsFormRequest'
+      required:
+      - delete_blog_posts_form
+    ForbiddenError:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    LevelEnum:
+      enum:
+      - easy
+      - medium
+      - hard
+      type: string
+      description: |-
+        * `easy` - Easy
+        * `medium` - Medium
+        * `hard` - Hard
+    NotFoundError:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    NullEnum:
+      enum:
+      - null
+    UnauthenticatedError:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    UpdateBlogPostFormRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        content:
+          type: string
+          nullable: true
+        level:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/LevelEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+    UpdateBlogPostRequestRequest:
+      type: object
+      properties:
+        update_blog_post_form:
+          $ref: '#/components/schemas/UpdateBlogPostFormRequest'
+      required:
+      - update_blog_post_form
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        non_field_errors:
+          type: array
+          items:
+            type: string
+      required:
+      - errors
+      - non_field_errors
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
     cookieAuth:
       type: apiKey
       in: cookie

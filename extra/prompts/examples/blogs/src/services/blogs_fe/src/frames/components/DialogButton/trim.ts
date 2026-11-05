@@ -22,7 +22,9 @@ export type DialogButtonTrimT = {
 
 export const DialogButtonS = {
   color: {
-    disabled: () => 'text-gray-400 hover:text-gray-400 border-gray-400',
+    disabled: () => 'cursor-not-allowed bg-canvas text-ink-faint',
+    accent: () => 'bg-accent text-white hover:bg-accent-hover',
+    quiet: () => 'text-ink-soft hover:bg-canvas hover:text-ink',
     blueWithDarkText: () => 'bg-blue-400 text-blue-darkest hover:bg-blue-600',
     tealWithDarkText: () => 'bg-teal-400 text-teal-darkest hover:bg-teal-600',
     tealWithWhiteText: () => 'bg-teal-400 text-white hover:bg-teal-300',
@@ -39,10 +41,12 @@ export const DialogButtonS = {
     none: () => '',
   },
   fontSize: {
+    small: () => 'text-sm',
     medium: () => 'text-base',
     big: () => 'text-lg',
   },
   padding: {
+    small: () => 'px-4 py-1.5',
     medium: () => 'px-4 py-2',
     big: () => 'px-6 py-4',
   },
@@ -57,10 +61,10 @@ export const DefaultDialogButtonTrim = {
   base: {
     componentName: 'Default',
     root: {
-      color: DialogButtonS.color.blueWithDarkText(),
+      color: DialogButtonS.color.accent(),
       border: DialogButtonS.border.none(),
-      fontSize: DialogButtonS.fontSize.medium(),
-      padding: DialogButtonS.padding.medium(),
+      fontSize: DialogButtonS.fontSize.small(),
+      padding: DialogButtonS.padding.small(),
     },
     Icon: {
       margin: DialogButtonS.Icon.margin.medium(),

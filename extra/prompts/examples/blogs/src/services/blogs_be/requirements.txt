@@ -7,7 +7,7 @@
 asgiref==3.11.1
     # via
     #   django
-    #   django-cors-headers
+    #   django-allauth
 attrs==26.1.0
     # via
     #   jsonschema
@@ -22,45 +22,48 @@ bottle==0.13.4
     # via woodstock
 cachebox==5.2.3
     # via deepdiff
+cffi==2.1.1
+    # via cryptography
+cryptography==50.0.2
+    # via pyjwt
 deepdiff==9.1.0
     # via -r requirements.in
-django==4.0.10
+django==5.2.19
     # via
     #   -r requirements.in
     #   django-admin-sortable2
-    #   django-cors-headers
+    #   django-allauth
     #   django-dbbackup
     #   django-extensions
     #   django-filter
     #   djangorestframework
-    #   djangorestframework-simplejwt
+    #   djangorestframework-gis
     #   drf-spectacular
     #   drf-spectacular-sidecar
     #   drf-standardized-errors
-django-admin-sortable2==1.0.4
+django-admin-sortable2==2.3.1
     # via -r requirements.in
-django-cors-headers==4.5.0
+django-allauth==65.21.1
     # via -r requirements.in
-django-dbbackup==4.3.0
+django-dbbackup==5.4.0
     # via -r requirements.in
-django-extensions==3.2.3
+django-extensions==4.1
     # via -r requirements.in
-django-filter==22.1
-    # via -r requirements.in
-djangorestframework==3.14.0
+django-filter==26.2
     # via
     #   -r requirements.in
     #   djangorestframework-gis
-    #   djangorestframework-simplejwt
+djangorestframework==3.18.3
+    # via
+    #   -r requirements.in
+    #   djangorestframework-gis
     #   drf-spectacular
     #   drf-standardized-errors
-djangorestframework-gis==1.0
+djangorestframework-gis==1.3.0
     # via -r requirements.in
-djangorestframework-simplejwt==5.3.1
+drf-spectacular==0.30.0
     # via -r requirements.in
-drf-spectacular==0.26.0
-    # via -r requirements.in
-drf-spectacular-sidecar==2022.12.1
+drf-spectacular-sidecar==2026.10.1
     # via -r requirements.in
 drf-standardized-errors==0.16.0
     # via -r requirements.in
@@ -78,14 +81,14 @@ orderly-set==5.5.0
     # via deepdiff
 psycopg2-binary==2.9.12
     # via -r requirements.in
+pycparser==3.12
+    # via cffi
 pyjwt==2.13.0
-    # via djangorestframework-simplejwt
+    # via django-allauth
+pymemcache==4.0.0
+    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via botocore
-pytz==2026.2
-    # via
-    #   django-dbbackup
-    #   djangorestframework
 pyyaml==6.0.3
     # via drf-spectacular
 referencing==0.37.0

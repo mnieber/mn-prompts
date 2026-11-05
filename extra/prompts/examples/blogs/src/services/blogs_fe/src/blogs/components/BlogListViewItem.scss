@@ -2,16 +2,24 @@
   display: flex;
   cursor: pointer;
   flex-direction: row;
-  margin-bottom: 2px;
-  color: white;
   user-select: none;
+  @apply rounded-lg px-3 py-2;
+  @apply text-sm font-medium text-ink-soft;
+  @apply transition-colors;
+
+  &:hover {
+    @apply bg-canvas text-ink;
+  }
 }
 
 .BlogListViewItem--selected {
-  @apply text-blue-400;
+  @apply bg-accent-soft font-semibold text-accent;
+
+  &:hover {
+    @apply bg-accent-soft text-accent;
+  }
 }
 
 .BlogListViewItem--highlighted {
-  text-decoration: underline;
-  @apply font-bold;
+  @apply font-semibold;
 }

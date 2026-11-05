@@ -5,7 +5,6 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 import blogs_be.api.urls
-import blogs_be.users.urls
 import blogs_be.blogs.urls
 from blogs_be.app.utils.serve_static import serve_static
 
@@ -13,7 +12,7 @@ urlpatterns = [
     path(r"admin/", admin.site.urls),
     path(r"", include(blogs_be.api.urls)),
     path(r"api/blogs/", include(blogs_be.blogs.urls)),
-    path(r"api/users/", include(blogs_be.users.urls)),
+    path(r"api/_allauth/", include("allauth.headless.urls")),
     path(
         "api/v1/schema/",
         staff_member_required(SpectacularAPIView.as_view()),

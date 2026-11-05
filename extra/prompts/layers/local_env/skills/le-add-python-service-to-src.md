@@ -251,9 +251,9 @@ List your **direct dependencies** (not transitive dependencies):
 
 ```
 deepdiff
-Django
-django-cors-headers
-djangorestframework==3.14.0
+Django>=5.2,<5.3
+django-allauth[headless]
+djangorestframework
 psycopg2-binary
 ```
 
@@ -287,10 +287,10 @@ Development-only dependencies:
 ```
 factory-boy
 faker
+pudb
 pytest
 pytest-django
 pytest-html
-pytest_pudb
 pytest-socket
 ```
 

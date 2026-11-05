@@ -5,6 +5,9 @@ from django.urls import path
 from blogs_be.blogs.views.get_blog_posts_api_view import GetBlogPostsApiView
 from blogs_be.blogs.views.delete_blog_posts_api_view import DeleteBlogPostsApiView
 from blogs_be.blogs.views.update_blog_post_api_view import UpdateBlogPostApiView
+from blogs_be.blogs.views.mark_blog_post_as_published_api_view import (
+    MarkBlogPostAsPublishedApiView,
+)
 
 urlpatterns = [
     path(
@@ -27,6 +30,11 @@ urlpatterns = [
         "<str:blog_key>/blog-posts/<str:blog_post_key>/update/",
         UpdateBlogPostApiView.as_view(),
         name="update-blog-post",
+    ),
+    path(
+        "<str:blog_key>/blog-posts/<str:blog_post_key>/publish/",
+        MarkBlogPostAsPublishedApiView.as_view(),
+        name="mark-blog-post-as-published",
     ),
     path(
         "<str:blog_key>/blog-posts/delete/",

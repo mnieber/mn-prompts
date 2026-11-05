@@ -1,5 +1,6 @@
 .DialogButton {
-  @apply rounded-xl;
-  @apply font-bold;
+  @apply rounded-full;
+  @apply font-semibold;
   @apply min-w-[max-content];
+  @apply transition-colors;
 }

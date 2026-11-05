@@ -2,7 +2,7 @@ from blogs_be.blogs.shortcuts import get_blog_or_400
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from blogs_be.api.utils.extend_schema import extend_schema
+from blogs_be.api.utils.extend_schema import ALLOW_ANY, extend_schema
 from blogs_be.blogs.models import BlogPost
 from blogs_be.blogs.serializers import BlogPostSerializer
 from blogs_be.blogs.filters import BlogPostFilterSet
@@ -20,7 +20,7 @@ class GetBlogPostsApiView(APIView):
         data=dict(
             blog=get_blog_or_400,
         ),
-        permissions=[],
+        permissions=ALLOW_ANY,
     )
     def get(self, request, blog):
         blog_posts = apply_filter_set_or_400(

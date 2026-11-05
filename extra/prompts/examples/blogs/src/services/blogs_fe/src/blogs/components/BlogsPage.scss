@@ -1,0 +1,22 @@
+.BlogsPage {
+  @apply mx-auto flex w-full max-w-[1120px] flex-col gap-6 p-4;
+  @apply md:flex-row md:items-start md:py-6;
+}
+
+.BlogsPage__LeftSideBar {
+  @apply rounded-xl p-2;
+  @apply md:sticky md:top-20 md:w-60 md:shrink-0;
+}
+
+.BlogsPage__LeftSideBarTitle {
+  @apply px-3 pb-1 pt-2;
+  @apply text-xs font-semibold uppercase tracking-wider text-ink-faint;
+}
+
+.BlogsPage__RightCanvas {
+  @apply flex min-w-0 grow flex-col gap-4;
+}
+
+.BlogsPage__Toolbar {
+  @apply flex flex-wrap items-center gap-2;
+}

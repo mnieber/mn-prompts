@@ -1,0 +1,19 @@
+.AccountMenu__Menu {
+  @apply z-20 min-w-[180px] rounded-xl border border-line bg-surface p-1 shadow-md;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.AccountMenu__Item {
+  @apply cursor-pointer rounded-lg px-3 py-2;
+  @apply text-sm font-medium text-ink;
+  @apply transition-colors;
+
+  &:hover,
+  &:focus {
+    @apply bg-canvas;
+    outline: none;
+  }
+}

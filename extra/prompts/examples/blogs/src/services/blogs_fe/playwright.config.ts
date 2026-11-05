@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
-import { apiUrl, baseURL, port } from './tests/testEnv/urls';
+import { baseURL, port } from './tests/testEnv/urls';
 
 // The test packages are enabled in the order in which their code is implemented.
-const enabledTestPackages = ['blogs', 'blogPosts'];
+const enabledTestPackages = ['auth', 'blogs', 'blogPosts', 'frames'];
 
 // Playwright's own browsers don't run on Alpine, so use the system chromium when it exists.
 const systemChromium = '/usr/bin/chromium';
@@ -30,6 +30,5 @@ export default defineConfig({
     command: `yarn vite --mode test --port ${port} --strictPort`,
     url: baseURL,
     reuseExistingServer: true,
-    env: { VITE_LOCALHOST_API_ENDPOINT: apiUrl },
   },
 });

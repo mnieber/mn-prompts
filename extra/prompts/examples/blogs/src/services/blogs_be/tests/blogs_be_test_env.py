@@ -1,11 +1,15 @@
 import typing as T
 
+from allauth.account.models import EmailAddress
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 from blogs_be.common.utils.dataclass import dataclass
+from blogs_be.users.tests.factories import UserFactory
 
 PASSWORD = "correct horse battery staple"
+
+AUTH_URL = "/api/_allauth/browser/v1/auth/"
 
 
 @dataclass
@@ -29,40 +33,32 @@ class TestEnv:
     def step(self, *_):
         return True
 
-    def sign_up(self, email: str, password=PASSWORD, password_confirmation=None):
-        self._post(
-            "sign-up-user",
-            create_user_form=dict(
-                email=email,
-                password=password,
-                password_confirmation=password_confirmation or password,
-            ),
-        )
-        if self.response.status_code == 201:
-            self.user_ids[email] = self.response.json()["id"]
+    def sign_up(self, email: str, password=PASSWORD):
+        self._post_auth("signup", email=email, password=password)
 
     def sign_in(self, email: str, password=PASSWORD):
-        """Signs in, and uses the access token in the next requests."""
-        self._post(
-            "sign-in-user", sign_in_user_form=dict(email=email, password=password)
-        )
-        if self.response.status_code == 200:
-            access_token = self.response.json()["access_token"]
-            self.context.api_client.credentials(
-                HTTP_AUTHORIZATION=f"Bearer {access_token}"
-            )
+        """Signs in, and uses the session cookie in the next requests."""
+        self._post_auth("login", email=email, password=password)
 
     def sign_up_and_sign_in(self, email: str):
-        self.sign_up(email)
+        """Creates the account directly, so that these tests don't depend on the emails."""
+        self.sign_out()
+        user = UserFactory(email=email, password=PASSWORD)
+        EmailAddress.objects.create(user=user, email=email, primary=True, verified=True)
+        self.user_ids[email] = str(user.id)
         self.sign_in(email)
 
     def sign_out(self):
-        """Stops sending the access token (as if the frontend forgets it)."""
-        self.context.api_client.credentials()
+        self.response = self.context.api_client.delete(f"{AUTH_URL}session")
 
     def _post(self, url_name: str, url_kwargs=None, **data):
         self.response = self.context.api_client.post(
             reverse(url_name, kwargs=url_kwargs), data, format="json"
+        )
+
+    def _post_auth(self, path: str, **data):
+        self.response = self.context.api_client.post(
+            f"{AUTH_URL}{path}", data, format="json"
         )
 
     def _get(self, url_name: str, url_kwargs=None):

@@ -20,6 +20,8 @@ export class AuthState {
   @observable state: string;
   @observable details: ObjT = {};
   @observable userId: string | Anonymous = anonymous;
+  // The id that blogs use for their owner (the userId is the email of the user)
+  @observable accountId: string | undefined = undefined;
   // False until the user id has been loaded (or set by signing in or out)
   @observable isUserIdKnown = false;
 
@@ -62,8 +64,9 @@ export class AuthState {
     }
   }
 
-  @action setUserId(userId: string | Anonymous) {
+  @action setUserId(userId: string | Anonymous, accountId?: string) {
     this.userId = userId;
+    this.accountId = accountId;
     this.isUserIdKnown = true;
   }
 

@@ -1,3 +1,5 @@
+from rest_framework import status
+
 from blogs_be.common.utils.inspect import get_argument_names
 
 
@@ -65,3 +67,12 @@ def get_permissions_description(permissions):
         if permission_names
         else ""
     )
+
+
+def allow_always():
+    return allow()
+
+
+# The permissions of a public endpoint. The status code is never used, because this
+# permission never denies.
+ALLOW_ANY = [(status.HTTP_403_FORBIDDEN, allow_always)]

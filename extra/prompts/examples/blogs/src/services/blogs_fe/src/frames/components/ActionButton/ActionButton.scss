@@ -1,4 +1,6 @@
 .ActionButton {
-  @apply p-4;
-  @apply rounded-3xl border-2;
+  @apply rounded-full border;
+  @apply font-semibold;
+  @apply min-w-[max-content];
+  @apply transition-colors;
 }

@@ -43,8 +43,7 @@ const AppBody = (props: React.PropsWithChildren<{}>) => {
         R.values({
           root: L.col.banner(),
           // 320px = breakpoints.xs
-          size: `min-width-[320px] h-screen max-w-[1600px]`,
-          pos: `mx-auto`,
+          size: `min-width-[320px] h-screen`,
           scroll: 'overflow-x-hidden',
         }),
       ])}

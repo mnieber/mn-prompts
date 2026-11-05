@@ -5,9 +5,9 @@
     "react-form-state-context": "^2.4.1",
     "react-nav-handler": "^0.2.0",
     "react-props-from-context": "^1.0.0",
-    "skandha": "^0.14.0",
-    "skandha-facets": "^0.14.0",
-    "skandha-mobx": "^0.14.0"
+    "skandha": "^0.15.0",
+    "skandha-facets": "^0.15.0",
+    "skandha-mobx": "^0.15.0"
   },
   "portal_dependencies": {
     "mobx-resource-states": "portal:/npm/mobx-resource-states",

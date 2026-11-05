@@ -7,7 +7,9 @@ export class BlogsTestEnv extends TestEnv {
   // Actions
   //
 
-  async addBlog(values: Omit<BlogRowT, 'id'>) {
+  async addBlog(
+    values: Omit<BlogRowT, 'id' | 'owner_id'> & { owner_id?: string }
+  ) {
     addBlog(this.backend, values);
   }
 

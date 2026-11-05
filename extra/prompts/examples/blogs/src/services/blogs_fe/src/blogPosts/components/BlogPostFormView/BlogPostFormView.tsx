@@ -1,8 +1,9 @@
 import { observer } from 'mobx-react-lite';
+import React from 'react';
 import { FormStateProvider } from 'react-form-state-context';
 import { withContextProps } from 'react-props-from-context';
 import { form } from './form';
-import { getBlogPostLevelOptions } from '/src/api/types/BlogPostT';
+import { BlogPostT, getBlogPostLevelOptions } from '/src/api/types/BlogPostT';
 import { blogPostsCtx } from '/src/blogPosts/hooks/useBlogPostsContext';
 import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
 import {
@@ -13,7 +14,6 @@ import {
   GlobalError,
   MarkdownField,
   NameField,
-  SlugField,
   ValuePickerField,
 } from '/src/forms/components';
 import { usePreviewButton } from '/src/forms/hooks/usePreviewButton';
@@ -35,7 +35,6 @@ export const ContextProps = {
   blogPost: blogPostsCtx.blogPost,
   blogPostsAddition: blogPostsCtx.blogPostsAddition,
   blogPostsEdit: blogPostsCtx.blogPostsEdit,
-  loadBlogTagsOptions: blogPostsCtx.loadBlogTagsOptions,
 };
 
 export const BlogPostFormView = observer(
@@ -45,12 +44,17 @@ export const BlogPostFormView = observer(
       className: 'font-normal',
     });
 
-    const blogPost = props.blogPostsAddition.item ?? props.blogPost;
+    // The form holds on to the blog post that it opened with. It stays open when the blog
+    // post leaves the list (because someone else deleted it), and a refetch doesn't reset
+    // what the user typed.
+    const blogPostRef = React.useRef<BlogPostT>();
+    blogPostRef.current ??= props.blogPostsAddition.item ?? props.blogPost;
+    const blogPost = blogPostRef.current;
     if (!blogPost) {
       return null;
     }
 
-    const initialValues = form.getInitialValues(props);
+    const initialValues = form.getInitialValues(blogPost);
     const initialErrors = form.getInitialErrors(props);
 
     return (
@@ -59,7 +63,7 @@ export const BlogPostFormView = observer(
       //
       <div
         className={cn(CardS.root(), 'BlogPostFormView', [
-          CardS.color.gray(),
+          CardS.color.surface(),
           MainFormS.root.padding.default(),
           props.className,
         ])}
@@ -87,23 +91,7 @@ export const BlogPostFormView = observer(
           }
           <Field fieldName="blogPostForm.title" className={MainFormS.Field()}>
             <FormFieldLabel label="TITLE" />
-            <NameField
-              tabIndex={2}
-              controlled={true}
-              autoSelect={true}
-              slugFieldName={
-                initialValues['blogPostForm.slug'] === '-'
-                  ? 'blogPostForm.slug'
-                  : undefined
-              }
-            />
-          </Field>
-          {
-            // 🔳 SlugField 🔳
-          }
-          <Field fieldName="blogPostForm.slug" className={MainFormS.Field()}>
-            <FormFieldLabel label="SLUG" />
-            <SlugField relatedFieldName="blogPostForm.title" />
+            <NameField tabIndex={2} controlled={true} autoSelect={true} />
           </Field>
           {
             // 🔳 ContentField 🔳
@@ -132,25 +120,6 @@ export const BlogPostFormView = observer(
               tabOnEnter={false}
               labelFromValue={(x: any) => x}
               loadOptions={getBlogPostLevelOptions}
-              defaultOptions
-            />
-          </Field>
-          {
-            // 🔳 TagsField 🔳
-          }
-          <Field
-            fieldName="blogPostForm.tags"
-            tabOnEnter={false}
-            className={MainFormS.Field()}
-          >
-            <FormFieldLabel label="TAGS" />
-            <ValuePickerField
-              tabIndex={7}
-              isCreatable={true}
-              isMulti={true}
-              tabOnEnter={false}
-              labelFromValue={(x: any) => x}
-              loadOptions={props.loadBlogTagsOptions}
               defaultOptions
             />
           </Field>

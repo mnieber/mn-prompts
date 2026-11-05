@@ -2,6 +2,7 @@ from blogs_be.blogs.tests.factories import BlogFactory, BlogPostFactory
 from django.core.management.base import BaseCommand
 
 from django.core.management import call_command
+from django.db import connections
 from blogs_be.users.models import User
 
 
@@ -17,6 +18,9 @@ class Command(BaseCommand):
         if reset_migrations:
             call_command("delete-migration-files")
             call_command("makemigrations")
+            # makemigrations leaves a connection open, and reset_db can't drop the
+            # database while it's in use.
+            connections.close_all()
 
         call_command("reset_db")
         call_command("migrate")

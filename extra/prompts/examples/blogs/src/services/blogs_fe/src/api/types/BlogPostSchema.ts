@@ -11,10 +11,9 @@ export const BlogPostLevelSchema = z.union([
 export const BlogPostSchema: z.ZodType<BlogPostT> = z.object({
   ...EntitySchema.shape,
   title: z.string(),
-  content: z.string(),
+  content: z.string().nullable(),
   slug: z.string(),
   isPublished: z.boolean(),
   level: BlogPostLevelSchema,
-  // tags: z.array(z.string()),
   isTransient: z.boolean().optional(),
 });

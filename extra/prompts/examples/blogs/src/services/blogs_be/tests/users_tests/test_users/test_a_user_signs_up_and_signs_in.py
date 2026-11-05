@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+from django.core import mail
 from users_tests.users_test_env import Context, TestEnv
 
 ALICE = "alice@example.com"
@@ -13,36 +15,48 @@ def test_a_user_signs_up_and_signs_in(context: Context):
 
     # Alice signs up.
     #
-    # Her account should be created, and it should be active.
+    # She should receive a verification email, and verifying should be pending.
     if env.step(
         env.sign_up(ALICE),
     ):
-        assert env.response.status_code == 201
-        assert env.response_json() == {
-            "id": env.user_ids[ALICE],
-            "email": ALICE,
-            "is_active": True,
-        }
+        assert env.response.status_code == 401
+        assert env.pending_flows() == ["verify_email"]
+        assert mail.outbox[-1].to == [ALICE]
+        assert "http://testserver/account/verify-email/" in mail.outbox[-1].body
+
+    # Alice follows the link in the email.
+    #
+    # It should succeed, without signing her in.
+    if env.step(
+        env.verify_email(),
+    ):
+        assert env.response.status_code == 401
+        assert env.pending_flows() == []
+        assert env.signed_in_email() is None
 
     # Alice signs in.
     #
-    # She should receive an access token and a refresh token.
+    # She should be signed in, with her email and id in the response.
     if env.step(
         env.sign_in(ALICE),
     ):
         assert env.response.status_code == 200
-        assert env.response_json()["access_token"]
-        assert env.response_json()["refresh_token"]
+        assert env.response_json()["data"]["user"]["email"] == ALICE
+        assert env.response_json()["data"]["user"]["id"] == env.user_id(ALICE)
+        assert env.signed_in_email() == ALICE
 
-    # The frontend asks who is signed in.
+    # Alice signs out.
     #
-    # It should be Alice.
+    # She should no longer be signed in.
     if env.step(
-        env.get_user_id(),
+        env.sign_out(),
     ):
-        assert env.response_json() == {"user_id": ALICE}
+        assert env.response.status_code == 401
+        assert env.signed_in_email() is None
 
 
 class Env(TestEnv):
-    def get_user_id(self):
-        self._get("user-id")
+    # Queries
+
+    def user_id(self, email: str):
+        return str(get_user_model().objects.get(email=email).id)

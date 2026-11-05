@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { isLoading } from 'mobx-resource-states';
 import { withContextProps } from 'react-props-from-context';
 import { BlogT } from '/src/api/types';
+import { blogPostsCtx } from '/src/blogPosts/hooks/useBlogPostsContext';
 import { BlogListViewItem } from '/src/blogs/components';
 import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
 import { blogsNav } from '/src/blogs/routes';
@@ -18,6 +19,10 @@ export type PropsT = {
 
 const ContextProps = {
   blogs: blogsCtx.blogs,
+  blogsAddition: blogsCtx.blogsAddition,
+  blogsEdit: blogsCtx.blogsEdit,
+  blogPostsAddition: blogPostsCtx.blogPostsAddition,
+  blogPostsEdit: blogPostsCtx.blogPostsEdit,
   blogsSelection: blogsCtx.blogsSelection,
   blogsHighlight: blogsCtx.blogsHighlight,
 };
@@ -25,8 +30,15 @@ const ContextProps = {
 export const BlogListView = observer(
   withContextProps((props: PropsT & typeof ContextProps) => {
     if (isLoading(props.blogs)) {
-      return <BlogListViewLoader className="text-gray-text" />;
+      return <BlogListViewLoader className="px-3 py-1" />;
     }
+
+    // While a form is open, the list ignores clicks
+    const isInert =
+      props.blogsEdit.isEditing ||
+      !!props.blogsAddition.item ||
+      props.blogPostsEdit.isEditing ||
+      !!props.blogPostsAddition.item;
 
     const blogDivs = props.blogs.map((blog: BlogT) => {
       const url = blogsNav.blog({ blogSlug: blog.slug }).url;
@@ -42,13 +54,17 @@ export const BlogListView = observer(
           }}
           blog={blog}
           url={url}
+          isInert={isInert}
         />
       );
     });
 
     return (
       <div
-        className={cn('BlogListView', [L.col.banner(), 'p-4', props.className])}
+        className={cn('BlogListView', { 'BlogListView--inert': isInert }, [
+          L.col.banner(),
+          props.className,
+        ])}
         tabIndex={1}
       >
         {blogDivs}

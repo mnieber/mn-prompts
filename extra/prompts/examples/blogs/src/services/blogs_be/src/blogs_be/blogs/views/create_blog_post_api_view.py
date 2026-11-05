@@ -1,4 +1,5 @@
 from blogs_be.blogs.actions.create_blog_post import (
+    BlogPostTitleTooLongError,
     BlogPostWithTitleAlreadyExistsError,
     CreateBlogPostFormContainsForbiddenWordsError,
     create_blog_post,
@@ -42,6 +43,8 @@ class CreateBlogPostApiView(APIView):
                 create_blog_post_form=request_data.create_blog_post_form,
                 blog=blog,
             )
+        except BlogPostTitleTooLongError:
+            raise ValidationError(code="BLOG_POST_TITLE_TOO_LONG")
         except BlogPostWithTitleAlreadyExistsError:
             raise ValidationError(code="BLOG_POST_TITLE_ALREADY_EXISTS")
         except CreateBlogPostFormContainsForbiddenWordsError as e:

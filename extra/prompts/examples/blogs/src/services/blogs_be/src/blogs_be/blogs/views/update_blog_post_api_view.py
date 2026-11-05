@@ -1,11 +1,13 @@
 from blogs_be.blogs.actions.update_blog_post import (
+    BlogPostTitleBlankError,
+    BlogPostTitleTooLongError,
     BlogPostWithTitleAlreadyExistsError,
     UpdateBlogPostFormContainsForbiddenWordsError,
     update_blog_post,
 )
 from blogs_be.blogs.permissions import user_is_blog_owner
 from blogs_be.blogs.serializers import BlogPostSerializer, UpdateBlogPostFormSerializer
-from blogs_be.blogs.shortcuts import get_blog_post_or_400
+from blogs_be.blogs.shortcuts import get_blog_or_400, get_blog_post_or_400
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -26,8 +28,8 @@ class UpdateBlogPostApiView(APIView):
             200: BlogPostSerializer,
         },
         data=dict(
+            blog=get_blog_or_400,
             blog_post=get_blog_post_or_400,
-            blog=lambda blog_post: blog_post.blog,
         ),
         permissions=[
             (
@@ -43,6 +45,10 @@ class UpdateBlogPostApiView(APIView):
                 update_blog_post_form=request_data.update_blog_post_form,
                 blog_post=blog_post,
             )
+        except BlogPostTitleBlankError:
+            raise ValidationError(code="BLOG_POST_TITLE_BLANK")
+        except BlogPostTitleTooLongError:
+            raise ValidationError(code="BLOG_POST_TITLE_TOO_LONG")
         except BlogPostWithTitleAlreadyExistsError:
             raise ValidationError(code="BLOG_POST_TITLE_ALREADY_EXISTS")
         except UpdateBlogPostFormContainsForbiddenWordsError as e:

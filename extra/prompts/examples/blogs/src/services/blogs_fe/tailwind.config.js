@@ -7,6 +7,24 @@ module.exports = {
       },
     },
     colors: {
+      // The semantic colors of the light theme
+      canvas: 'hsl(210, 25%, 96%)',
+      surface: '#fff',
+      line: 'hsl(212, 22%, 89%)',
+      ink: {
+        DEFAULT: 'hsl(215, 28%, 17%)',
+        soft: 'hsl(215, 16%, 38%)',
+        faint: 'hsl(214, 12%, 58%)',
+      },
+      accent: {
+        DEFAULT: 'hsl(14, 88%, 44%)',
+        hover: 'hsl(14, 88%, 38%)',
+        soft: 'hsl(18, 100%, 96%)',
+      },
+      danger: {
+        DEFAULT: 'hsl(354, 72%, 42%)',
+        soft: 'hsl(354, 100%, 97%)',
+      },
       black: '#000',
       errorRed: '#ff0000',
       transparent: 'transparent',

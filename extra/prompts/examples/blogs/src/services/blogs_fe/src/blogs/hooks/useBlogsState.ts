@@ -38,7 +38,7 @@ export const useBlogsState = (props: PropsT) => {
         const mutation = createBlog;
         return trackPromise({
           name: 'saveBlog',
-          promise: mutation.mutateAsync({
+          promise: mutation.run({
             createBlogForm: values.blogForm,
           } as CreateBlogArgsT),
         }).result;

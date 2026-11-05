@@ -1,7 +1,8 @@
+django-allauth[headless-spec]
 factory-boy
 faker
+pudb
 pytest
 pytest-django
 pytest-html
-pytest_pudb
 pytest-socket

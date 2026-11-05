@@ -35,6 +35,18 @@ generateschema():
     python manage.py spectacular --file api/openapi-schema.yml --validate
 
 #
+# Tests
+#
+
+# Run tests, and open PuDB when a test fails. A kwargs value that starts with a dash is
+# passed to pytest as it is (e.g. "-k mytest -x"). Any other value is the -k expression
+# (e.g. "mytest"), and a name that ends with __ selects only the test with that name.
+[interactive]
+pytest(kwargs=""):
+    🐆.safe-kwargs = 🐆.kwargs | ⚙️.sh-quote
+    case 🐆.safe-kwargs in -*) set -- 🐆.kwargs ;; *) set -- -k 🐆.safe-kwargs ;; esac; pytest --pdbcls=pudb.debugger:Debugger --pdb --capture=no "$@"
+
+#
 # Stack
 #
 

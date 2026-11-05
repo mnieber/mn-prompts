@@ -6,9 +6,8 @@ import {
 import { queryClient } from '/src/api/queryClient';
 import { post } from '/src/api/restClient';
 import { BlogT } from '/src/api/types/BlogT';
-import { isFailedMutation } from '/src/api/utils/isFailedMutation';
-import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
-import { ObjT } from '/src/utils/types';
+import { noFields, requestFailure } from '/src/api/utils/requestFailure';
+import { ok, ResultT, UnexpectedErrorT } from '/src/api/utils/result';
 import { waitOnDev } from '/src/utils/wait';
 
 export type DeleteBlogPostsArgsT = {
@@ -16,33 +15,39 @@ export type DeleteBlogPostsArgsT = {
   blogPostIds: string[];
 };
 
-export const deleteBlogPosts = (args: DeleteBlogPostsArgsT) => {
+export type DeleteBlogPostsResultT = ResultT<void, DeleteBlogPostsErrorT>;
+export type DeleteBlogPostsErrorT =
+  | { code: 'BLOG_POSTS_NOT_FOUND' }
+  | UnexpectedErrorT;
+
+export const deleteBlogPosts = (
+  args: DeleteBlogPostsArgsT
+): Promise<DeleteBlogPostsResultT> => {
   const url = `/blogs/${args.blog.id}/blog-posts/delete/`;
   return post(url, {
     delete_blog_posts_form: {
       blog_post_ids: args.blogPostIds,
     },
-  })
-    .then((response) => {
-      return waitOnDev(1000, response);
-    })
-    .catch((error) => {
-      if (hasErrorCode(error.response.data, ['BLOG_POSTS_NOT_FOUND'])) {
-        return waitOnDev(1000, {
-          success: false,
-        });
-      }
-
-      throw error;
-    });
+  }).then(
+    () => waitOnDev(1000, ok()),
+    (error) =>
+      waitOnDev(
+        1000,
+        requestFailure(error, {
+          //
+          BLOG_POSTS_NOT_FOUND: noFields,
+        })
+      )
+  );
 };
 
 export const useDeleteBlogPosts = () => {
   return useObservableMutation({
     mutationFn: deleteBlogPosts,
-    onSuccess: (response: ObjT, args: DeleteBlogPostsArgsT) => {
+    onSuccess: (result, args) => {
+      // After a failure our list may be stale, so refresh it in both cases
       invalidateGetBlogPosts({ blogSlug: args.blog.slug });
-      if (isFailedMutation(response)) {
+      if (!result.ok) {
         return;
       }
       queryClient.setQueryData(

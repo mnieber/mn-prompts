@@ -91,15 +91,13 @@ test('a user edits a blog post', async ({ ctx }) => {
       .toEqual({
         update_blog_post_form: {
           title: NEW_TITLE,
-          // The slug does not change when the title changes
-          slug: 'o-soto-gari',
           content: NEW_CONTENT,
           level: 'medium',
-          tags: null,
         },
         blog_id: 'blog-1',
         blog_post_id: 'blog-post-2',
       });
+    // The slug does not change when the title changes
     await expect(env.page).toHaveURL('/blogs/judo/blog-posts/o-soto-gari');
     await expect(env.blogPostListItems()).toHaveText([
       /^Breakfalls/,
@@ -153,7 +151,8 @@ test('a user deletes blog posts', async ({ ctx }) => {
   // We press the delete-blog-posts button.
   //
   // It should call DeleteBlogPosts with the selected blog posts, and the
-  // BlogPostListView should only list O-soto-gari.
+  // BlogPostListView should only list O-soto-gari. Breakfalls was open, so it should
+  // navigate to the blog.
   if (
     env.step(
       //
@@ -172,6 +171,7 @@ test('a user deletes blog posts', async ({ ctx }) => {
         },
       });
     await expect(env.blogPostListItems()).toHaveText(['O-soto-gari']);
+    await expect(env.page).toHaveURL('/blogs/judo');
   }
 });
 

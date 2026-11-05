@@ -42,8 +42,8 @@ The State class owns the data and behavioural containers for one module resource
 export type PropsT = {
   // Hook functions connecting State to the outside world
   getBlogPosts: () => BlogPostT[];
-  deleteBlogPosts: (ids: string[]) => Promise<any>;
-  saveBlogPost: (values: ObjT) => Promise<any>;
+  deleteBlogPosts: (ids: string[]) => Promise<DeleteBlogPostsResultT>;
+  saveBlogPost: (values: ObjT) => Promise<SaveBlogPostResultT>;
 };
 
 export class BlogPostsState {
@@ -170,20 +170,23 @@ Reference: `blogs_fe/src/blogPosts/BlogPostsState/facets/BlogPostsAddition.ts`
 
 ```ts
 // facets/BlogPostsDeletion.ts
-import { DeletionWithFlag } from "skandha-facets";
-import { BlogPostT } from "/src/api/types";
+import { Deletion } from "skandha-facets";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
 
-export class BlogPostsDeletion extends DeletionWithFlag<BlogPostT> {
+export class BlogPostsDeletion extends Deletion {
   constructor(private state: BlogPostsState) {
     super();
   }
 
-  protected deleteItems(args: {
-    itemIds: string[];
-    moveToTrash?: boolean;
-  }): any {
-    return this.state.props.deleteBlogPosts(args.itemIds);
+  protected deleteItems(args: { itemIds: string[]; moveToTrash?: boolean }) {
+    return this.state.props.deleteBlogPosts(args.itemIds).then((result) => {
+      if (result.ok) {
+        this.state.blogPostsCtr.selection.deselectItems({
+          itemIds: args.itemIds,
+        });
+      }
+      return result;
+    });
   }
 }
 ```
@@ -196,17 +199,20 @@ Reference: `blogs_fe/src/blogPosts/BlogPostsState/facets/BlogPostsDeletion.ts`
 // facets/BlogPostsEdit.ts
 import { Edit } from "skandha-facets";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
-import { ObjT } from "/src/utils/types";
 
 export class BlogPostsEdit extends Edit {
   constructor(private state: BlogPostsState) {
     super();
   }
 
-  protected saveItem(args: { values: any }): any {
-    return this.state.props.saveBlogPost(args.values).then((response: ObjT) => {
-      this.state.blogPostsCtr.addition.confirm();
-      return response;
+  protected saveItem(args: { values: any }) {
+    return this.state.props.saveBlogPost(args.values).then((result) => {
+      if (result.ok) {
+        this.state.blogPostsCtr.addition.confirm();
+        // A failed save keeps the form in edit mode
+        this.reset();
+      }
+      return result;
     });
   }
 
@@ -339,7 +345,7 @@ export const useBlogPostsState = (props: PropsT) => {
         return trackPromise({
           name: 'deleteBlogPosts',
           states: { updating: blogPosts },
-          promise: deleteBlogPosts.mutateAsync({ ... }),
+          promise: deleteBlogPosts.run({ ... }),
         }).result;
       },
     });

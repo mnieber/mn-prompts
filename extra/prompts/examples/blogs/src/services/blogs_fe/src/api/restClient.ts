@@ -1,50 +1,57 @@
 import axios from 'axios';
 import { flags } from '/src/app/flags';
 
-axios.defaults.withCredentials = true;
+// Django sets this cookie, and checks this header on each write
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
-// Vite proxies this path to the playground server (see tests/playgrounds)
+// Vite proxies this path to the playground server (see tests/playgrounds). In the
+// tests, the FakeBackend intercepts the requests to this path.
 const fakeApiUrl = '/fake-api/';
 
 export const hostUrl =
-  import.meta.env.DEV && flags.useFakeBackend
+  import.meta.env.MODE === 'test' ||
+  (import.meta.env.DEV && flags.useFakeBackend)
     ? fakeApiUrl
-    : window.location.host.startsWith('localhost')
-      ? import.meta.env.VITE_LOCALHOST_API_ENDPOINT
-      : (import.meta.env.VITE_BACKEND_API_ENDPOINT ?? '');
+    : '/api/';
 
 export function get(query: string) {
-  return axios
-    .get(`${hostUrl}${trimLeadingSlash(query)}`, {
-      headers: getHeaders(),
-    })
-    .then((response) => {
-      return response;
-    });
+  return detectExpiredSession(authGet(query));
 }
 
 export function post(query: string, variables: any, headers?: any) {
-  const allHeaders = {
-    ...getHeaders(),
-    ...(headers ?? {}),
-  };
-
-  return axios
-    .post(`${hostUrl}${trimLeadingSlash(query)}`, variables, {
-      headers: allHeaders,
-    })
-    .then((response) => {
-      return response;
-    });
+  return detectExpiredSession(authPost(query, variables, headers));
 }
 
-function getHeaders() {
-  const accessToken = getAccessToken();
-  return accessToken
-    ? {
-        Authorization: `Bearer ${accessToken}`,
-      }
-    : {};
+// The auth endpoints use the functions below. They don't detect an expired session,
+// because a 401 is a normal response of these endpoints.
+export function authGet(query: string) {
+  return axios.get(`${hostUrl}${trimLeadingSlash(query)}`);
+}
+
+export function authPost(query: string, variables: any, headers?: any) {
+  return axios.post(`${hostUrl}${trimLeadingSlash(query)}`, variables, {
+    headers,
+  });
+}
+
+export function authDelete(query: string) {
+  return axios.delete(`${hostUrl}${trimLeadingSlash(query)}`);
+}
+
+let onSessionExpired = () => {};
+
+export const setOnSessionExpired = (callback: () => void) => {
+  onSessionExpired = callback;
+};
+
+function detectExpiredSession(request: Promise<any>) {
+  return request.catch((error) => {
+    if (error.response?.status === 401) {
+      onSessionExpired();
+    }
+    throw error;
+  });
 }
 
 function trimLeadingSlash(query: string) {
@@ -53,27 +60,3 @@ function trimLeadingSlash(query: string) {
   }
   return query;
 }
-
-export const setAuthTokens = (
-  accessToken: string | undefined,
-  refreshToken?: string
-) => {
-  if (accessToken === undefined) {
-    localStorage.removeItem('accessToken');
-  } else {
-    localStorage.setItem('accessToken', accessToken);
-  }
-  if (refreshToken === undefined) {
-    localStorage.removeItem('refreshToken');
-  } else {
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-};
-
-export const getAccessToken = () => {
-  return localStorage.getItem('accessToken');
-};
-
-export const getRefreshToken = () => {
-  return localStorage.getItem('refreshToken');
-};

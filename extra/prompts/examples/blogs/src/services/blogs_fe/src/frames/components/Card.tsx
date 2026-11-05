@@ -7,7 +7,7 @@ import './Card.scss';
 export const CardS = {
   root: () => cn('Card', L.col.banner()),
   color: {
-    gray: () => 'bg-gray-medium',
+    surface: () => 'border border-line bg-surface shadow-sm',
   },
   size: { medium: () => cn('py-[18px] px-4') },
 };

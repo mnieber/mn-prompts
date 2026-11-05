@@ -5,7 +5,7 @@ import { JUDO } from '/tests/blogs/exampleData';
 import { test, type Ctx } from '/tests/testEnv/fixtures';
 
 const TITLE = 'O-goshi for beginners';
-const SLUG = 'o-goshi-for-beginners-';
+const SLUG = 'o-goshi-for-beginners';
 const CONTENT = 'Turn your hips in deeply.';
 
 const createEnv = (ctx: Ctx) => {
@@ -80,14 +80,12 @@ test('a user creates a blog post', async ({ ctx }) => {
       .toEqual({
         create_blog_post_form: {
           title: TITLE,
-          slug: SLUG,
           content: CONTENT,
           level: 'medium',
-          tags: null,
         },
         blog_id: 'blog-1',
       });
-    // The slug is derived from the title (with a trailing dash).
+    // The backend derives the slug from the title.
     await expect(env.page).toHaveURL(`/blogs/judo/blog-posts/${SLUG}`);
     await expect(env.blogPostListItems()).toHaveText([/^Breakfalls/, TITLE]);
     await expect(env.blogPostListItem(TITLE)).toHaveClass(

@@ -19,11 +19,13 @@ Each model gets one `DjangoModelFactory` subclass. Use `factory.Sequence` for fi
 ```python
 import factory
 from blogs_be.blogs.models import Blog, BlogPost
+from django.utils.text import slugify
 from factory.django import DjangoModelFactory
 
 
 class BlogFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Blog{n}")
+    slug = factory.LazyAttribute(lambda x: slugify(x.name))
     description = "Some description"
 
     class Meta:
@@ -32,13 +34,16 @@ class BlogFactory(DjangoModelFactory):
 
 class BlogPostFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: f"BlogPost{n}")
+    slug = factory.LazyAttribute(lambda x: slugify(x.title))
     content = "Some content"
 
     class Meta:
         model = BlogPost
 ```
 
-RULE: Use `factory.Sequence` for fields that are unique in the database (e.g. names, titles, slugs). Use static strings for non-unique filler fields.
+RULE: Use `factory.Sequence` for fields that are unique in the database (e.g. names, titles). Use static strings for non-unique filler fields.
+
+RULE: A factory doesn't run the action, so it sets the fields that the action derives (e.g. a slug). Use `factory.LazyAttribute` for these.
 
 RULE: Do not set ForeignKey fields in the factory default unless every test that creates that model always needs the same parent. Instead let callers pass the related object as a keyword argument (e.g. `BlogPostFactory(blog=my_blog)`).
 

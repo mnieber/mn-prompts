@@ -30,9 +30,9 @@ Use `models.TextField(choices=MyEnum.choices, default=MyEnum.DEFAULT)` for field
 
 Use `on_delete=models.CASCADE` unless there is a specific reason for a different strategy. Use `related_name` to allow reverse access (e.g. `related_name="blog_posts"`).
 
-## `save()` override
+## Derived fields
 
-Override `save()` only when derived fields (e.g. a `slug` auto-computed from `name`) need to be populated before the record is written. Always call `super().save(*args, **kwargs)`.
+RULE: Don't override `save()` to populate derived fields (e.g. a `slug` computed from `name`). The action that creates the record sets them.
 
 ## `__str__`
 
@@ -46,7 +46,6 @@ from django.db import models
 from blogs_be.blogs.enums import Audiences
 from blogs_be.common.fields import SingleLineTextField
 from blogs_be.common.models import BaseModel
-from django.utils.text import slugify
 
 
 class Blog(BaseModel):
@@ -57,11 +56,6 @@ class Blog(BaseModel):
         "users.User", on_delete=models.CASCADE, related_name="blogs"
     )
     audience = models.TextField(choices=Audiences.choices, default=Audiences.ANY)
-
-    def save(self, *args, **kwargs):
-        if not self.slug or self.slug == "-":
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

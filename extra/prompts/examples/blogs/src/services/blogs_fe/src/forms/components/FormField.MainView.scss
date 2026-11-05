@@ -2,25 +2,23 @@
   input:focus,
   textarea:focus {
     @apply outline-0;
-    @apply border;
-    border-color: transparent;
   }
 }
 
 .MainView .FormField {
   @apply rounded-lg;
-  @apply text-white text-base;
-  @apply bg-gray-300;
-  @apply border;
-  border-color: transparent;
+  @apply text-sm text-ink;
+  @apply bg-surface;
+  @apply border border-line;
+  @apply transition-colors;
 
   &:focus-within {
-    @apply border border-gray-text;
+    @apply border-accent;
   }
 
   .FormField__Button {
     @apply px-2;
-    @apply bg-gray-100 text-teal-primary font-bold m-0.5;
+    @apply m-0.5 bg-canvas font-semibold text-accent;
     @apply rounded-lg;
   }
 }

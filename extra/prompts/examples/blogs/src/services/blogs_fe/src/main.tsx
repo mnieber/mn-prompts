@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom/client';
 import { setOptions as setSkandhaOptions } from 'skandha';
 import { App } from '/src/app/components';
 import { flags } from '/src/app/flags';
+import { showUncaughtErrors } from '/src/frames/utils/showUncaughtErrors';
 import { log } from '/src/utils/logging';
 
 const strict = false;
@@ -27,6 +28,8 @@ setResourceStatesOptions({
   logging: flags.logResourceStates,
   log: log,
 });
+
+showUncaughtErrors();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

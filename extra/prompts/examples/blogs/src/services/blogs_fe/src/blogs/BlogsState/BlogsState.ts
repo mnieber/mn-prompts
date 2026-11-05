@@ -1,5 +1,6 @@
 import * as Skandha from 'skandha';
 import { Highlight } from 'skandha-facets';
+import { CreateBlogResultT } from '/src/api/mutations/useCreateBlog';
 import { BlogT } from '/src/api/types';
 import { BlogsAddition } from '/src/blogs/BlogsState/facets/BlogsAddition';
 import { BlogsData } from '/src/blogs/BlogsState/facets/BlogsData';
@@ -10,7 +11,7 @@ import { ObjT } from '/src/utils/types';
 
 export type PropsT = {
   getBlogs: () => BlogT[];
-  saveBlog: (values: ObjT) => Promise<any>;
+  saveBlog: (values: ObjT) => Promise<CreateBlogResultT>;
 };
 
 export class BlogsState {

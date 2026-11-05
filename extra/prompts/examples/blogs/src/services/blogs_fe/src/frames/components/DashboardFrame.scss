@@ -1,0 +1,12 @@
+.DashboardFrame__TopBar {
+  @apply sticky top-0 z-10;
+  @apply border-b border-line bg-surface;
+}
+
+.DashboardFrame__TopBarInner {
+  @apply mx-auto h-14 w-full max-w-[1120px] px-4;
+}
+
+.DashboardFrame__Brand {
+  @apply select-none text-xl font-bold tracking-tight text-ink;
+}

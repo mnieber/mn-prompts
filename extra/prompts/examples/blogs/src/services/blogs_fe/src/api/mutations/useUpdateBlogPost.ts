@@ -7,11 +7,9 @@ import { BlogPostT } from '/src/api/types';
 import { CreateBlogPostFormSchema } from '/src/api/mutations/useCreateBlogPost';
 import { BlogPostSchema } from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
-import { isFailedMutation } from '/src/api/utils/isFailedMutation';
 import { parseResponse } from '/src/api/utils/parseResponse';
-import { getErrorDetail } from '/src/auth/utils/getErrorDetail';
-import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
-import { ObjT } from '/src/utils/types';
+import { noFields, requestFailure } from '/src/api/utils/requestFailure';
+import { ok, ResultT, UnexpectedErrorT } from '/src/api/utils/result';
 import { waitOnDev } from '/src/utils/wait';
 
 // The fields that we send (each one is optional). Parsing the form with this schema
@@ -24,7 +22,16 @@ export type UpdateBlogPostArgsT = {
   updateBlogPostForm: z.input<typeof UpdateBlogPostFormSchema>;
 };
 
-export const updateBlogPost = (args: UpdateBlogPostArgsT) => {
+export type UpdateBlogPostResultT = ResultT<BlogPostT, UpdateBlogPostErrorT>;
+export type UpdateBlogPostErrorT =
+  | { code: 'BLOG_POST_TITLE_ALREADY_EXISTS' }
+  | { code: 'BLOG_POST_NOT_FOUND' }
+  | { code: 'FORM_CONTAINS_FORBIDDEN_WORDS'; fieldName: string }
+  | UnexpectedErrorT;
+
+export const updateBlogPost = (
+  args: UpdateBlogPostArgsT
+): Promise<UpdateBlogPostResultT> => {
   const url = `/blogs/${args.blog.id}/blog-posts/${args.blogPost.id}/update/`;
   const updateBlogPostForm = UpdateBlogPostFormSchema.parse(
     args.updateBlogPostForm
@@ -33,59 +40,40 @@ export const updateBlogPost = (args: UpdateBlogPostArgsT) => {
     update_blog_post_form: snakecaseKeys(updateBlogPostForm),
     blog_id: args.blog.id,
     blog_post_id: args.blogPost.id,
-  })
-    .then((response) => {
-      const res = parseResponse(BlogPostSchema, response.data);
+  }).then(
+    (response) =>
+      waitOnDev(1000, ok(parseResponse(BlogPostSchema, response.data))),
+    (error) =>
+      waitOnDev(
+        1000,
+        requestFailure(error, {
+          BLOG_POST_TITLE_ALREADY_EXISTS: noFields,
+          BLOG_POST_NOT_FOUND: noFields,
+          FORM_CONTAINS_FORBIDDEN_WORDS: (details) => ({ fieldName: details }),
+        })
+      )
+  );
+};
 
-      return waitOnDev(1000, res);
-    })
-    .catch((error) => {
-      if (
-        hasErrorCode(error.response.data, ['BLOG_POST_TITLE_ALREADY_EXISTS'])
-      ) {
-        return waitOnDev(1000, {
-          success: false,
-          errorCode: 'BLOG_POST_TITLE_ALREADY_EXISTS',
-        });
-      }
-      if (
-        hasErrorCode(error.response.data, ['FORM_CONTAINS_FORBIDDEN_WORDS'])
-      ) {
-        return waitOnDev(1000, {
-          success: false,
-          errorCode: 'FORM_CONTAINS_FORBIDDEN_WORDS',
-          // The backend names the field that contains the forbidden words
-          fieldName: getErrorDetail(
-            error.response.data,
-            'FORM_CONTAINS_FORBIDDEN_WORDS'
-          ),
-        });
-      }
-      if (hasErrorCode(error.response.data, ['BLOG_NOT_FOUND'])) {
-        // TODO return this error and use it in UpdateBlogPostForm
-        return waitOnDev(1000, {
-          success: false,
-        });
-      }
-      if (hasErrorCode(error.response.data, ['BLOG_POST_NOT_FOUND'])) {
-        // TODO return this error and use it in UpdateBlogPostForm
-        return waitOnDev(1000, {
-          success: false,
-        });
-      }
-
-      throw error;
-    });
+// Whether this failure means that our list of blog posts is stale.
+const isListStale = (error: UpdateBlogPostErrorT): boolean => {
+  switch (error.code) {
+    case 'BLOG_POST_NOT_FOUND':
+      return true;
+    case 'BLOG_POST_TITLE_ALREADY_EXISTS':
+    case 'FORM_CONTAINS_FORBIDDEN_WORDS':
+    case 'UNEXPECTED':
+      return false;
+  }
 };
 
 export const useUpdateBlogPost = () => {
   return useObservableMutation({
     mutationFn: updateBlogPost,
-    onSuccess: (response: ObjT, args: UpdateBlogPostArgsT) => {
-      if (isFailedMutation(response)) {
-        return;
+    onSuccess: (result, args) => {
+      if (result.ok || isListStale(result.error)) {
+        invalidateGetBlogPosts({ blogSlug: args.blog.slug });
       }
-      invalidateGetBlogPosts({ blogSlug: args.blog.slug });
     },
   });
 };

@@ -4,16 +4,14 @@ import { useObservableMutation } from '/src/api/lib/ObservableMutation';
 import { invalidateGetBlogs } from '/src/api/queries/useGetBlogs';
 import { post } from '/src/api/restClient';
 import { BlogSchema } from '/src/api/types/BlogSchema';
-import { isFailedMutation } from '/src/api/utils/isFailedMutation';
+import { BlogT } from '/src/api/types/BlogT';
 import { parseResponse } from '/src/api/utils/parseResponse';
-import { getErrorDetail } from '/src/auth/utils/getErrorDetail';
-import { hasErrorCode } from '/src/auth/utils/hasErrorCode';
-import { ObjT } from '/src/utils/types';
+import { noFields, requestFailure } from '/src/api/utils/requestFailure';
+import { ok, ResultT, UnexpectedErrorT } from '/src/api/utils/result';
 import { waitOnDev } from '/src/utils/wait';
 
 export const CreateBlogFormSchema = z.object({
   name: z.string(),
-  slug: z.string(),
   description: z.string().nullish(),
 });
 
@@ -21,50 +19,39 @@ export type CreateBlogArgsT = {
   createBlogForm: z.input<typeof CreateBlogFormSchema>;
 };
 
-export const createBlog = (args: CreateBlogArgsT) => {
+export type CreateBlogErrorT =
+  | { code: 'BLOG_NAME_ALREADY_EXISTS' }
+  | { code: 'FORM_CONTAINS_FORBIDDEN_WORDS'; fieldName: string }
+  | UnexpectedErrorT;
+export type CreateBlogResultT = ResultT<BlogT, CreateBlogErrorT>;
+
+export const createBlog = (
+  args: CreateBlogArgsT
+): Promise<CreateBlogResultT> => {
   const url = `/blogs/create/`;
   const createBlogForm = CreateBlogFormSchema.parse(args.createBlogForm);
   return post(url, {
     create_blog_form: snakecaseKeys(createBlogForm),
-  })
-    .then((response) => {
-      const res = parseResponse(BlogSchema, response.data);
-
-      return waitOnDev(1000, res);
-    })
-    .catch((error) => {
-      if (hasErrorCode(error.response.data, ['BLOG_NAME_ALREADY_EXISTS'])) {
-        return waitOnDev(1000, {
-          success: false,
-          errorCode: 'BLOG_NAME_ALREADY_EXISTS',
-        });
-      }
-      if (
-        hasErrorCode(error.response.data, ['FORM_CONTAINS_FORBIDDEN_WORDS'])
-      ) {
-        return waitOnDev(1000, {
-          success: false,
-          errorCode: 'FORM_CONTAINS_FORBIDDEN_WORDS',
-          // The backend names the field that contains the forbidden words
-          fieldName: getErrorDetail(
-            error.response.data,
-            'FORM_CONTAINS_FORBIDDEN_WORDS'
-          ),
-        });
-      }
-
-      throw error;
-    });
+  }).then(
+    (response) => waitOnDev(1000, ok(parseResponse(BlogSchema, response.data))),
+    (error) =>
+      waitOnDev(
+        1000,
+        requestFailure(error, {
+          BLOG_NAME_ALREADY_EXISTS: noFields,
+          FORM_CONTAINS_FORBIDDEN_WORDS: (details) => ({ fieldName: details }),
+        })
+      )
+  );
 };
 
 export const useCreateBlog = () => {
   return useObservableMutation({
     mutationFn: createBlog,
-    onSuccess: (response: ObjT, args: CreateBlogArgsT) => {
-      if (isFailedMutation(response)) {
-        return;
+    onSuccess: (result) => {
+      if (result.ok) {
+        invalidateGetBlogs({});
       }
-      invalidateGetBlogs({});
     },
   });
 };

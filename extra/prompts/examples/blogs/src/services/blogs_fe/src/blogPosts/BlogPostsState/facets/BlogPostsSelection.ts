@@ -1,3 +1,5 @@
+import { runInAction } from 'mobx';
+import * as R from 'ramda';
 import { Selection, handleSelectItem } from 'skandha-facets';
 import { BlogPostT } from '/src/api/types';
 import { BlogPostsState } from '/src/blogPosts/BlogPostsState';
@@ -7,10 +9,20 @@ export class BlogPostsSelection extends Selection<BlogPostT> {
     super();
   }
 
-  protected performSelection(args: { itemId: string; isCtrl: boolean; isShift: boolean }): void {
+  protected performSelection(args: {
+    itemId: string;
+    isCtrl: boolean;
+    isShift: boolean;
+  }): void {
     handleSelectItem(this, args);
     if (!args.isCtrl && !args.isShift) {
       this.state.blogPostsCtr.highlight.set({ itemId: args.itemId });
     }
+  }
+
+  deselectItems(args: { itemIds: string[] }) {
+    runInAction(() => {
+      this.itemIds = R.without(args.itemIds, this.itemIds);
+    });
   }
 }

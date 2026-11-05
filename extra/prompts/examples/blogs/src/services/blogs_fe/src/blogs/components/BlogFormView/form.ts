@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import {
   FormState,
   HandleCancelArgsT,
@@ -7,16 +6,20 @@ import {
   unflatten,
 } from 'react-form-state-context';
 import { ContextProps, PropsT } from './index';
+import {
+  CreateBlogErrorT,
+  CreateBlogResultT,
+} from '/src/api/mutations/useCreateBlog';
+import { getFailureMessage } from '/src/api/utils/getFailureMessage';
 import { authNav } from '/src/auth/routes';
 import { blogsNav } from '/src/blogs/routes';
+import { getNameError } from '/src/forms/utils/getNameError';
 import { navTo } from '/src/routes/navHandler';
-import { ObjT } from '/src/utils/types';
 
 const getInitialValues = (props: PropsT & typeof ContextProps) => {
   const blog = props.blogsAddition.item || props.blog;
   return {
     'blogForm.name': blog.name ?? null,
-    'blogForm.slug': blog.slug ?? null,
     'blogForm.description': blog.description ?? null,
     'blogForm.isTransient': blog.isTransient ?? null,
   };
@@ -29,10 +32,26 @@ const getInitialErrors = (props: PropsT & typeof ContextProps) => {
 const getHandleValidate =
   (props: PropsT & typeof ContextProps) =>
   ({ values, setError }: HandleValidateArgsT) => {
-    if (R.isNil(values['blogForm.name'])) {
-      setError('blogForm.name', 'This field is required');
+    const nameError = getNameError(values['blogForm.name']);
+    if (nameError) {
+      setError('blogForm.name', nameError);
     }
   };
+
+// Returns the form field that a failed save belongs to, and its message.
+const getSaveError = (error: CreateBlogErrorT): [string, string] => {
+  switch (error.code) {
+    case 'BLOG_NAME_ALREADY_EXISTS':
+      return ['blogForm.name', 'A blog with this name already exists'];
+    case 'FORM_CONTAINS_FORBIDDEN_WORDS':
+      return [
+        `blogForm.${error.fieldName}`,
+        'This field contains forbidden words',
+      ];
+    case 'UNEXPECTED':
+      return ['global', getFailureMessage(error.cause)];
+  }
+};
 
 const getHandleSubmit =
   (
@@ -46,34 +65,16 @@ const getHandleSubmit =
         values: unflatten({
           ...values,
           'blogForm.name': values['blogForm.name'],
-          'blogForm.slug': values['blogForm.slug'],
           'blogForm.description': values['blogForm.description'],
         }),
       })
-      .then((response: ObjT) => {
+      .then((result: CreateBlogResultT) => {
+        if (!result.ok) {
+          formState.setError(...getSaveError(result.error));
+          return;
+        }
         formState.reset(initialValues, initialErrors);
-        navTo(blogsNav.blog({ blogSlug: response.slug }));
-        return response;
-      })
-      .catch((error: any) => {
-        if (error.errorCode === 'BLOG_NAME_ALREADY_EXISTS') {
-          formState.setError(
-            'blogForm.name',
-            'A blog with this name already exists'
-          );
-          return;
-        }
-        if (error.errorCode === 'FORM_CONTAINS_FORBIDDEN_WORDS') {
-          formState.setError(
-            `blogForm.${error.fieldName}`,
-            'This field contains forbidden words'
-          );
-          return;
-        }
-        formState.setError(
-          'global',
-          'Oops, something went wrong, please try again later'
-        );
+        navTo(blogsNav.blog({ blogSlug: result.value.slug }));
       });
   };
 

@@ -5,8 +5,9 @@ import { ObjT } from '/src/utils/types';
 
 export type BlogT = EntityT & {
   name: string;
-  description: string;
+  description: string | null;
   slug: string;
+  ownerId?: string;
   isTransient?: boolean;
 };
 

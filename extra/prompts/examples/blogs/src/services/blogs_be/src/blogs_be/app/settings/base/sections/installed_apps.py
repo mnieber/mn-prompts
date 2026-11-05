@@ -11,15 +11,15 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "adminsortable2",
-    "corsheaders",
     "dbbackup",
     "django_extensions",
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "drf_standardized_errors",
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
+    "allauth",
+    "allauth.account",
+    "allauth.headless",
 ]
 
 LOCAL_APPS = [

@@ -34,7 +34,7 @@ const MainViewDialogButtonTrim = createTrim(DefaultDialogButtonTrim, {
   base: {
     componentName: 'FormCancelButton-DialogButton',
     root: {
-      color: DialogButtonS.color.withSkyBlueText(),
+      color: DialogButtonS.color.quiet(),
     },
   },
   disabled: {
@@ -44,7 +44,7 @@ const MainViewDialogButtonTrim = createTrim(DefaultDialogButtonTrim, {
   },
   danger: {
     root: {
-      color: DialogButtonS.color.withWhiteText(),
+      color: DialogButtonS.color.quiet(),
     },
   },
 });

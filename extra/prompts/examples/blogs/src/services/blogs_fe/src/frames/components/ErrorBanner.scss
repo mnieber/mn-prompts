@@ -1,0 +1,8 @@
+.ErrorBanner {
+  @apply flex justify-between gap-4 px-4 py-2;
+  @apply border-b border-danger bg-danger-soft text-sm text-danger;
+
+  button {
+    @apply font-semibold underline;
+  }
+}

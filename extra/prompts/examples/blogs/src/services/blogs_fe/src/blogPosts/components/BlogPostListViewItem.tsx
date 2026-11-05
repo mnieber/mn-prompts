@@ -15,6 +15,7 @@ export type PropsT = {
   blogPost: BlogPostT;
   className?: any;
   selectionUIProps: SelectionUIPropsT;
+  isInert?: boolean;
 };
 
 export const BlogPostListViewItem: React.FC<PropsT> = observer(
@@ -26,18 +27,20 @@ export const BlogPostListViewItem: React.FC<PropsT> = observer(
           { 'animate-delete': isUpdating(props.blogPost) },
           props.className
         )}
-        {...mergeProps(selectionUIHandlers(props.selectionUIProps), {
-          onClick: (e: React.MouseEvent<HTMLDivElement>) => {
-            if (!(e.ctrlKey || e.shiftKey)) {
-              navTo(
-                blogPostsNav.blogPost({
-                  blogSlug: props.blog.slug,
-                  blogPostSlug: props.blogPost.slug,
-                })
-              );
-            }
-          },
-        })}
+        {...(props.isInert
+          ? {}
+          : mergeProps(selectionUIHandlers(props.selectionUIProps), {
+              onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                if (!(e.ctrlKey || e.shiftKey)) {
+                  navTo(
+                    blogPostsNav.blogPost({
+                      blogSlug: props.blog.slug,
+                      blogPostSlug: props.blogPost.slug,
+                    })
+                  );
+                }
+              },
+            }))}
       >
         {props.blogPost.title}
         {props.blogPost.isPublished ? ' ✔️' : ''}

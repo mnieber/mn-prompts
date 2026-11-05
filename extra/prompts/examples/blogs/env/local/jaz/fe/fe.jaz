@@ -15,6 +15,11 @@ exec(cmd, user="", workdir=""):
 run-server():
     🐭.exec(cmd="jaz run-server")
 
+# Run the server of blogs_fe in its container.
+[interactive]
+install():
+    🐭.exec(cmd="jaz install")
+
 # Open a shell (/fe/shell) in the container of blogs_fe.
 [interactive]
 shell():

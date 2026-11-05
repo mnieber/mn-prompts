@@ -1,33 +1,38 @@
 .MarkdownView {
   h1 {
     @apply text-2xl font-bold;
-    font-family: Inter;
   }
 
   h2 {
     @apply text-xl font-bold;
     @apply mt-8;
-    font-family: Inter;
   }
 
   h3 {
     @apply mt-4;
     @apply text-lg font-bold;
-    font-family: Inter;
   }
 
   h4 {
     @apply mt-4;
     @apply text-base font-bold;
-    font-family: Inter;
   }
 
   p {
     @apply mt-4;
   }
 
+  a {
+    @apply text-accent underline;
+  }
+
   ul {
     list-style-type: square;
+    list-style-position: inside;
+  }
+
+  ol {
+    list-style-type: decimal;
     list-style-position: inside;
   }
 }

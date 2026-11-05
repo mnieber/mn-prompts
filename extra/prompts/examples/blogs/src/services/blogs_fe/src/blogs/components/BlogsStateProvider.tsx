@@ -25,11 +25,11 @@ export const BlogsStateProvider = observer((props: PropsT) => {
         );
       },
       get blogs() {
-        return updateSources({ resource: blogsState.blogsCtr.data.blogs }, [
-          'loading',
-          () => isQueryLoading(getBlogs),
-          'getBlogs',
-        ]);
+        return updateSources(
+          //
+          { resource: blogsState.blogsCtr.data.blogs },
+          ['loading', () => isQueryLoading(getBlogs), 'getBlogs']
+        );
       },
     })
   );

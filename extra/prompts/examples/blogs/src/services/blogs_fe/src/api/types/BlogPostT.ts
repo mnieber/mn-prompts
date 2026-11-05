@@ -5,7 +5,7 @@ import { ObjT } from '/src/utils/types';
 
 export type BlogPostT = EntityT & {
   title: string;
-  content: string | undefined;
+  content: string | null | undefined;
   slug: string;
   isPublished: boolean;
   level: BlogPostLevelT;

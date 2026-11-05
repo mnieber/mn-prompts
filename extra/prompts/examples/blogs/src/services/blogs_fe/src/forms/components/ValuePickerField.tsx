@@ -70,58 +70,66 @@ export const ValuePickerField = observer(<ValueT,>(props: PropsT<ValueT>) => {
   );
 });
 
-const gray = 'hsl(209, 14%, 37%)';
-const gray50 = 'hsl(210, 20%, 25%)';
-const gray700 = 'hsl(210, 16%, 82%)';
-const whitish = 'hsl(214, 15%, 91%)';
-
-export function controlRemoveBorder(state: ObjT) {
-  return {
-    border: state.isFocused ? 1 : 1,
-    // This line disable the blue border
-    boxShadow: state.isFocused ? 0 : 0,
-    '&:hover': {
-      boxShadow: state.isFocused ? 0 : 0,
-    },
-  };
-}
+const ink = 'hsl(215, 28%, 17%)';
+const canvas = 'hsl(210, 25%, 96%)';
+const line = 'hsl(212, 22%, 89%)';
+const accent = 'hsl(14, 88%, 44%)';
+const accentSoft = 'hsl(18, 100%, 96%)';
 
 const customStyles = {
   control: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    ...controlRemoveBorder(state),
     borderRadius: '8px',
-    borderColor: state.isFocused ? whitish : gray,
+    borderColor: state.isFocused ? accent : line,
     borderWidth: '1px',
-    border: true,
-    backgroundColor: gray,
-    padding: '4px',
+    boxShadow: 'none',
+    backgroundColor: 'white',
+    fontSize: '14px',
+    '&:hover': {
+      borderColor: state.isFocused ? accent : line,
+    },
   }),
   multiValue: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    backgroundColor: 'transparent',
+    backgroundColor: canvas,
   }),
   valueContainer: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    caretColor: gray700,
+    caretColor: ink,
   }),
   multiValueLabel: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    paddingLeft: '0px',
-    color: gray700,
+    color: ink,
+  }),
+  singleValue: (provided: ObjT, state: ObjT) => ({
+    ...provided,
+    color: ink,
   }),
   option: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    color: gray50,
+    fontSize: '14px',
+    color: state.isSelected ? accent : ink,
+    fontWeight: state.isSelected ? 600 : 400,
+    backgroundColor: state.isSelected
+      ? accentSoft
+      : state.isFocused
+      ? canvas
+      : 'white',
+    '&:active': {
+      backgroundColor: accentSoft,
+    },
   }),
   input: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    color: gray700,
+    color: ink,
   }),
   menu: (provided: ObjT, state: ObjT) => ({
     ...provided,
-    backgroundColor: gray,
+    backgroundColor: 'white',
+    border: `1px solid ${line}`,
     borderRadius: '8px',
-    marginTop: '2px',
+    boxShadow: '0 4px 12px hsla(215, 28%, 17%, 0.1)',
+    marginTop: '4px',
+    overflow: 'hidden',
   }),
 };

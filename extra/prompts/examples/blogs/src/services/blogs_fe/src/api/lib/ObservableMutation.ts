@@ -1,32 +1,31 @@
 import { action, makeObservable, observable } from 'mobx';
 import { useBuilder } from '/src/utils/hooks';
-import { ObjT } from '/src/utils/types';
 
 export type MutationStatusT = 'idle' | 'loading' | 'success' | 'error';
 
-export type ArgsT<MutationArgsT = any> = {
-  mutationFn: (args: MutationArgsT) => Promise<any> | void;
+export type ArgsT<MutationArgsT = any, ResultT = any> = {
+  mutationFn: (args: MutationArgsT) => Promise<ResultT>;
   onMutate?: (args: MutationArgsT) => Promise<any> | void;
-  onSuccess?: (response: ObjT, args: MutationArgsT) => Promise<any> | void;
+  onSuccess?: (response: ResultT, args: MutationArgsT) => Promise<any> | void;
   onError?: (error: Error, args: MutationArgsT) => void;
 };
 
-export class ObservableMutation<MutationArgsT = any> {
+export class ObservableMutation<MutationArgsT = any, ResultT = any> {
   status = 'idle';
-  mutationFn: (args: MutationArgsT) => Promise<any> | void;
+  mutationFn: (args: MutationArgsT) => Promise<ResultT>;
   onMutate?: (args: MutationArgsT) => Promise<any> | void;
-  onSuccess?: (response: ObjT, args: MutationArgsT) => Promise<any> | void;
+  onSuccess?: (response: ResultT, args: MutationArgsT) => Promise<any> | void;
   onError?: (error: Error, args: MutationArgsT) => void;
 
   setStatus = (status: MutationStatusT) => {
     this.status = status;
   };
 
-  mutateAsync = (args: MutationArgsT) => {
+  run = (args: MutationArgsT): Promise<ResultT> => {
     this.setStatus('loading');
     return Promise.resolve(this.onMutate ? this.onMutate(args) : undefined)
       .then(() => this.mutationFn(args))
-      .then((response: any) => {
+      .then((response) => {
         return Promise.resolve(
           this.onSuccess ? this.onSuccess(response, args) : undefined
         ).then(() => {
@@ -39,12 +38,12 @@ export class ObservableMutation<MutationArgsT = any> {
           this.onError ? this.onError(error, args) : undefined
         ).then(() => {
           this.setStatus('error');
-          return error;
+          throw error;
         });
       });
   };
 
-  constructor(args: ArgsT<MutationArgsT>) {
+  constructor(args: ArgsT<MutationArgsT, ResultT>) {
     this.mutationFn = args.mutationFn;
     this.onSuccess = args.onSuccess;
     this.onError = args.onError;
@@ -61,8 +60,8 @@ export const isRunning = (observableMutation: ObservableMutation) => {
   return observableMutation.status === 'loading';
 };
 
-export const useObservableMutation = <MutationArgsT = any>(
-  args: ArgsT<MutationArgsT>
+export const useObservableMutation = <MutationArgsT = any, ResultT = any>(
+  args: ArgsT<MutationArgsT, ResultT>
 ) => {
-  return useBuilder(() => new ObservableMutation<MutationArgsT>(args));
+  return useBuilder(() => new ObservableMutation<MutationArgsT, ResultT>(args));
 };

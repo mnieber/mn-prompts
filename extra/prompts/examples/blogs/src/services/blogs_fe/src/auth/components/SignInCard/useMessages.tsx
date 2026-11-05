@@ -9,10 +9,25 @@ export const useMessages = () => {
     </div>
   );
 
+  const divForgotYourPassword = (
+    <div>
+      <RouterLink to={authNav.requestPasswordReset({}).url}>
+        Did you forget your password?
+      </RouterLink>
+    </div>
+  );
+
+  const divCreateAccount = (
+    <div>
+      <RouterLink to={authNav.signUp({}).url}>Create an account</RouterLink>
+    </div>
+  );
+
   return {
     messages: {
       divChangedYourMind,
-      createAccount: 'Create An Account',
+      divForgotYourPassword,
+      divCreateAccount,
     },
   };
 };

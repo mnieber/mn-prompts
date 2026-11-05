@@ -119,8 +119,10 @@ import {
   BlogPostSchema,
 } from '/src/api/types/BlogPostSchema';
 import { BlogT } from '/src/api/types/BlogT';
+import { BlogPostT } from '/src/api/types/BlogPostT';
+import { noFields, requestFailure } from '/src/api/utils/requestFailure';
 import { parseResponse } from '/src/api/utils/parseResponse';
-import { ObjT } from '/src/utils/types';
+import { ok, ResultT, UnexpectedErrorT } from '/src/api/utils/result';
 import { waitOnDev } from '/src/utils/wait';
 
 // The fields that we send. Parsing the form with this schema drops the other fields
@@ -138,7 +140,15 @@ export type CreateBlogPostArgsT = {
   createBlogPostForm: z.input<typeof CreateBlogPostFormSchema>;
 };
 
-export const createBlogPost = (args: CreateBlogPostArgsT) => {
+export type CreateBlogPostErrorT =
+  | { code: 'BLOG_POST_TITLE_ALREADY_EXISTS' }
+  | { code: 'FORM_CONTAINS_FORBIDDEN_WORDS'; fieldName: string }
+  | UnexpectedErrorT;
+export type CreateBlogPostResultT = ResultT<BlogPostT, CreateBlogPostErrorT>;
+
+export const createBlogPost = (
+  args: CreateBlogPostArgsT
+): Promise<CreateBlogPostResultT> => {
   const url = `/blogs/${args.blog.id}/blog-posts/create/`;
   const createBlogPostForm = CreateBlogPostFormSchema.parse(
     args.createBlogPostForm
@@ -146,25 +156,28 @@ export const createBlogPost = (args: CreateBlogPostArgsT) => {
   return post(url, {
     create_blog_post_form: snakecaseKeys(createBlogPostForm),
     blog_id: args.blog.id,
-  })
-    .then((response) => {
-      const res = parseResponse(BlogPostSchema, response);
-      return waitOnDev(1000, res);
-    })
-    .catch((error) => {
-      const errorCodes = error.response.data;
-      if (errorCodes.includes('BLOG_NOT_FOUND')) {
-        return waitOnDev(1000, { success: false });
-      }
-      throw error;
-    });
+  }).then(
+    (response) =>
+      waitOnDev(1000, ok(parseResponse(BlogPostSchema, response.data))),
+    (error) =>
+      waitOnDev(
+        1000,
+        requestFailure(error, {
+          BLOG_POST_TITLE_ALREADY_EXISTS: noFields,
+          // The backend names the field that contains the forbidden words
+          FORM_CONTAINS_FORBIDDEN_WORDS: (fieldName) => ({ fieldName }),
+        })
+      )
+  );
 };
 
 export const useCreateBlogPost = () => {
   return useObservableMutation({
     mutationFn: createBlogPost,
-    onSuccess: (response: ObjT, args: CreateBlogPostArgsT) => {
-      invalidateGetBlogPosts({ blogSlug: args.blog.slug });
+    onSuccess: (result, args) => {
+      if (result.ok) {
+        invalidateGetBlogPosts({ blogSlug: args.blog.slug });
+      }
     },
   });
 };
@@ -182,10 +195,14 @@ export const useCreateBlogPost = () => {
   `CreateXxxFormSchema.partial()`.
 - **`snakecaseKeys`** — use to convert camelCase form keys to snake_case before posting. The server expects snake_case; the frontend works in camelCase.
 - **`post(url, body)`** — the `post` function from `restClient` does not convert keys automatically; apply `snakecaseKeys` manually on the form payload.
-- **`onSuccess` → invalidate** — always invalidate the relevant query cache in `onSuccess` so the list refreshes after a write.
+- **`onSuccess` → invalidate** — `onSuccess` runs for every result, so check `result.ok` before you invalidate the query cache. Invalidate after a failure too when that failure means that the cached list is stale (e.g. `BLOG_POSTS_NOT_FOUND`).
 - **`parseResponse`** — validate the response when the mutation returns entity data (e.g. create returning the new entity). Omit for mutations that return no meaningful body.
 - **`waitOnDev`** — wrap the return value for realistic dev latency.
-- **Error handling** — catch known server error codes and return a structured failure value; re-throw unknown errors.
+- **Error handling** — a failed request is a result, not an exception. Return a `ResultT` whose error type lists the known error codes and `UnexpectedErrorT`.
+- **Two-argument `.then`** — pass the failure handler as the second argument of `.then`, not to `.catch`. It then only handles a failed request: a bug in the success handler (or a response that fails `parseResponse` in the tests) still rejects.
+- **`requestFailure(error, handlers)`** — turns a failed request into a result: a known code, or `UNEXPECTED`. List every known code of the mutation here. Each handler receives the error detail and returns the extra fields of the error; use `noFields` for a code without extra fields. Use `unexpectedErr(error)` for a mutation without known codes.
+- **`mutation.run(args)`** — call this from the `useXState` hook. It resolves with the result, and rejects only on a bug. Don't catch that rejection: `showUncaughtErrors` shows it in the `ErrorBanner`.
+- **Handling the result** — the caller of the action handles it, with a `switch` on `result.error.code` in a function that returns a value, so that a new code without a `case` doesn't compile. Do this also when `UNEXPECTED` is the only code. A facet's `save` and `delete` return `Promise<any>`, so annotate the result where the caller receives it (e.g. `.then((result: DeleteBlogPostsResultT) => ...)`). The facet only passes the result on. Store it on the facet only when something needs it after the call has finished.
 - **No URL constant needed** — mutations POST to dynamic URLs (containing entity ids). If the URL is static, define it the same way query hooks do.
 
 ---
@@ -202,4 +219,5 @@ export const useCreateBlogPost = () => {
 - [ ] Mutation hook: the form is parsed with an `XxxFormSchema`, and `XxxArgsT` derives the form type from it
 - [ ] Mutation hook: `snakecaseKeys` applied to form payloads before posting
 - [ ] Mutation hook: `onSuccess` invalidates the relevant query cache
+- [ ] Mutation hook: returns a `ResultT`, with the failure handler as the second argument of `.then`
 - [ ] Fake endpoint written for every query and mutation — see `fe-write-workflow-tests` skill

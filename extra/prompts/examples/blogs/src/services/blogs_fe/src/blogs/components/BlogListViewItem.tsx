@@ -9,6 +9,7 @@ import { BlogT } from '/src/api/types';
 export type PropsT = {
   blog: BlogT;
   url: string;
+  isInert?: boolean;
   className?: any;
 };
 
@@ -16,6 +17,11 @@ export const BlogListViewItem: React.FC<PropsT> = observer((props: PropsT) => {
   return (
     <Link
       href={props.url}
+      onClick={(e: React.MouseEvent) => {
+        if (props.isInert) {
+          e.preventDefault();
+        }
+      }}
       className={classnames(
         'BlogListViewItem',
         { 'animate-delete': isUpdating(props.blog) },

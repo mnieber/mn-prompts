@@ -1,6 +1,7 @@
 import typing as T
 
 import django.contrib.auth.models
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
@@ -21,7 +22,7 @@ class UserManager(django.contrib.auth.models.UserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
 
-        return create_user(
+        user = create_user(
             CreateUserForm(
                 email=email,
                 password=password,
@@ -31,9 +32,11 @@ class UserManager(django.contrib.auth.models.UserManager):
             is_superuser=extra_fields["is_superuser"],
             is_active=extra_fields["is_active"],
         )
-
-    def active_with_confirmed_email(self):
-        return self.filter(email_activated=True, is_active=True)
+        # A superuser can sign in without verifying their email address
+        EmailAddress.objects.create(
+            user=user, email=user.email, primary=True, verified=True
+        )
+        return user
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
@@ -48,10 +51,9 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
         unique=True,
         error_messages={"unique": _("User with this email already exists.")},
     )
-    is_email_activated = models.BooleanField(default=False)
     firstname = models.CharField(max_length=255, default="anonymous")
     lastname = models.CharField(max_length=255, default="anonymous")
-    is_active = models.BooleanField("active", default=False)
+    is_active = models.BooleanField("active", default=True)
     is_anonymous = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField("date joined", auto_now_add=True)
@@ -72,7 +74,3 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
         from blogs_be.users.actions.delete_user import delete_user
 
         delete_user(self, using=using)
-
-
-class BlockedToken(BaseModel):
-    jti = models.TextField(unique=True)

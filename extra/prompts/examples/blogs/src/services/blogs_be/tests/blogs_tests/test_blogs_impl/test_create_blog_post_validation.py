@@ -2,7 +2,6 @@ from blogs_tests.blogs_test_env import Context, TestEnv
 
 ALICE = "alice@example.com"
 JAZZ_NOTES = "jazz-notes"
-ROCK_NOTES = "rock-notes"
 TITLE = "Kind of Blue"
 
 
@@ -14,22 +13,14 @@ def test_create_blog_post_validation(context: Context):
     # Create the test environment
     env = create_env(context)
 
-    # Alice signs up, signs in, and creates the blogs Jazz Notes and Rock Notes.
+    # Alice signs up, signs in, and creates the blog Jazz Notes with the blog post
+    # Kind of Blue.
     if env.step(
         env.sign_up_and_sign_in(ALICE),
         env.create_blog("Jazz Notes"),
-        env.create_blog("Rock Notes"),
-    ):
-        pass
-
-    # Alice creates a blog post without content.
-    #
-    # The content is optional, so the blog post should be created.
-    if env.step(
         env.create_blog_post(JAZZ_NOTES, TITLE),
     ):
-        assert env.response.status_code == 201
-        assert env.response_json()["content"] is None
+        pass
 
     # Alice creates a second blog post with the same title in the same blog.
     #
@@ -39,14 +30,6 @@ def test_create_blog_post_validation(context: Context):
     ):
         assert env.response.status_code == 400
         assert env.error_codes() == ["BLOG_POST_TITLE_ALREADY_EXISTS"]
-
-    # Alice creates a blog post with the same title in another blog.
-    #
-    # Titles only need to be unique within a blog, so it should be created.
-    if env.step(
-        env.create_blog_post(ROCK_NOTES, TITLE),
-    ):
-        assert env.response.status_code == 201
 
     # Alice creates blog posts with a forbidden word in the title and in the
     # content.

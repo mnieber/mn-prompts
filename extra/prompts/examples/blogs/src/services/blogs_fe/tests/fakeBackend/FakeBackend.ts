@@ -11,7 +11,6 @@ export class FakeBackend {
     userId: undefined,
     blogs: [],
     blogPosts: [],
-    blogTags: [],
   };
   requests: RequestT[] = [];
   unexpectedRequests: string[] = [];
@@ -51,7 +50,12 @@ export class FakeBackend {
    * Returns the response to a request. The url is either absolute or relative to the api url.
    * This is used by the page.route handler of the tests and by the playground server.
    */
-  respond(method: string, url: string, body: any): ResponseT {
+  respond(
+    method: string,
+    url: string,
+    body: any,
+    headers: Record<string, string> = {}
+  ): ResponseT {
     const relativeUrl = url.startsWith(this.apiUrl)
       ? url.slice(this.apiUrl.length)
       : url;
@@ -61,7 +65,14 @@ export class FakeBackend {
       const params = matchPath(endpoint.path, path);
       if (endpoint.method !== method || !params) continue;
 
-      const fakeRequest = { name: endpoint.name, method, path, params, body };
+      const fakeRequest = {
+        name: endpoint.name,
+        method,
+        path,
+        params,
+        body,
+        headers,
+      };
       this.requests.push(fakeRequest);
 
       return (
@@ -77,8 +88,15 @@ export class FakeBackend {
   private async handle(route: Route) {
     const request = route.request();
     const body = request.postData() ? request.postDataJSON() : undefined;
-    const response = this.respond(request.method(), request.url(), body);
-    return route.fulfill({ status: response.status, json: response.json });
+    const response = this.respond(
+      request.method(),
+      request.url(),
+      body,
+      await request.allHeaders()
+    );
+    return response.json === undefined
+      ? route.fulfill({ status: response.status })
+      : route.fulfill({ status: response.status, json: response.json });
   }
 }
 

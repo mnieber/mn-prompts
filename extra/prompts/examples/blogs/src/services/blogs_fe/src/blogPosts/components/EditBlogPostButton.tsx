@@ -3,6 +3,8 @@ import { isUpdating } from 'mobx-resource-states';
 import { withContextProps } from 'react-props-from-context';
 import { authStateCtx } from '/src/auth/hooks/useAuthStateContext';
 import { blogPostsCtx } from '/src/blogPosts/hooks/useBlogPostsContext';
+import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
+import { isBlogOwner } from '/src/blogs/utils/isBlogOwner';
 import { ActionButton } from '/src/frames/components/ActionButton/ActionButton';
 import { cn } from '/src/utils/classnames';
 
@@ -15,6 +17,7 @@ export type PropsT = {
 
 export const ContextProps = {
   authState: authStateCtx.authState,
+  blog: blogsCtx.blog,
   blogPost: blogPostsCtx.blogPost,
   blogPostEdit: blogPostsCtx.blogPostsEdit,
 };
@@ -24,12 +27,12 @@ export const EditBlogPostButton = observer(
     const disabled =
       !props.blogPost ||
       isUpdating(props.blogPost) ||
-      !props.authState.isAuthenticated;
+      !isBlogOwner(props.blog, props.authState);
 
     return (
       <ActionButton
         disabled={disabled}
-        className={cn('EditBlogPostButton', 'my-4', props.className)}
+        className={cn('EditBlogPostButton', props.className)}
         onClick={() => props.blogPostEdit.enable()}
         label="Edit selected blog post"
       />

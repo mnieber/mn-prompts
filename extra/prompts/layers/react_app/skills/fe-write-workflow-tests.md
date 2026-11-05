@@ -268,9 +268,8 @@ the api url with `page.route(...)`.
 ## Running the app under test
 
 - `yarn test:workflows` runs the Playwright tests.
-- `playwright.config.ts` starts the app with `webServer` (`yarn vite --mode test --port 3100`), with
-  `VITE_LOCALHOST_API_ENDPOINT` set to `http://localhost:3100/fake-api/`, which the fake backend intercepts. The api
-  url has the same origin as the app, so that CORS plays no role.
+- `playwright.config.ts` starts the app with `webServer` (`yarn vite --mode test --port 3100`). In test mode, the app
+  sends its api requests to `/fake-api/`, which the fake backend intercepts.
 - `waitOnDev` returns immediately in test mode (`import.meta.env.MODE === 'test'`), so that the tests don't wait for
   simulated latency.
 - Playwright's own browsers don't run on Alpine (our `node:20-alpine` image). There, install `chromium` with `apk`;

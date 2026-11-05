@@ -1,9 +1,11 @@
 import * as R from 'ramda';
 import React from 'react';
-import { Addition, Deletion, Edit, Highlight, Selection } from 'skandha-facets';
+import { Addition, Highlight } from 'skandha-facets';
 import { BlogPostT } from '/src/api/types';
 import { BlogPostsState } from '/src/blogPosts/BlogPostsState';
-import { LoadValuePickerOptionsT } from '/src/utils/components/ValuePicker';
+import { BlogPostsDeletion } from '/src/blogPosts/BlogPostsState/facets/BlogPostsDeletion';
+import { BlogPostsEdit } from '/src/blogPosts/BlogPostsState/facets/BlogPostsEdit';
+import { BlogPostsSelection } from '/src/blogPosts/BlogPostsState/facets/BlogPostsSelection';
 
 export const BlogPostsContext = React.createContext<any>(null);
 
@@ -44,8 +46,11 @@ export const blogPostsCtx = R.mergeAll([
     blogPostsDeletion: [
       useBlogPostsContext,
       'blogPostsDeletion',
-    ] as any as Deletion,
-    blogPostsEdit: [useBlogPostsContext, 'blogPostsEdit'] as any as Edit,
+    ] as any as BlogPostsDeletion,
+    blogPostsEdit: [
+      useBlogPostsContext,
+      'blogPostsEdit',
+    ] as any as BlogPostsEdit,
     blogPostsHighlight: [
       useBlogPostsContext,
       'blogPostsHighlight',
@@ -53,10 +58,6 @@ export const blogPostsCtx = R.mergeAll([
     blogPostsSelection: [
       useBlogPostsContext,
       'blogPostsSelection',
-    ] as any as Selection,
-    loadBlogTagsOptions: [
-      useBlogPostsContext,
-      'loadBlogTagsOptions',
-    ] as any as LoadValuePickerOptionsT<any>,
+    ] as any as BlogPostsSelection,
   },
 ]);

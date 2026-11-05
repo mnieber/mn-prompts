@@ -14,20 +14,20 @@ class TestEnv(BlogsBeTestEnv):
             create_blog_form=dict(name=name, description=description),
         )
 
-    def create_blog_post(self, blog_slug: str, title: str, content=None):
+    def create_blog_post(self, blog_slug: str, title: str, content=None, level=None):
         self._post(
             "create-blog-post",
             url_kwargs=dict(blog_key=blog_slug),
-            create_blog_post_form=dict(title=title, content=content),
+            create_blog_post_form=dict(title=title, content=content, level=level),
         )
 
     def update_blog_post(
-        self, blog_slug: str, blog_post_slug: str, title=None, content=None
+        self, blog_slug: str, blog_post_slug: str, title=None, content=None, level=None
     ):
         self._post(
             "update-blog-post",
             url_kwargs=dict(blog_key=blog_slug, blog_post_key=blog_post_slug),
-            update_blog_post_form=dict(title=title, content=content),
+            update_blog_post_form=dict(title=title, content=content, level=level),
         )
 
     def delete_blog_posts(self, blog_slug: str, blog_post_ids: T.List[str]):

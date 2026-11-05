@@ -2,16 +2,31 @@
   display: flex;
   cursor: pointer;
   flex-direction: row;
-  margin-bottom: 2px;
-  color: white;
   user-select: none;
+  @apply border-b border-line px-4 py-3;
+  @apply text-[15px] font-medium text-ink;
+  @apply transition-colors;
+  // The bar of a highlighted item. Other items have a transparent one, to keep the text aligned.
+  box-shadow: inset 3px 0 0 transparent;
+
+  &:last-child {
+    @apply border-b-0;
+  }
+
+  &:hover {
+    @apply bg-canvas;
+  }
 }
 
 .BlogPostListViewItem--selected {
-  @apply text-blue-400;
+  @apply bg-accent-soft;
+
+  &:hover {
+    @apply bg-accent-soft;
+  }
 }
 
 .BlogPostListViewItem--highlighted {
-  text-decoration: underline;
-  @apply font-bold;
+  @apply font-semibold;
+  box-shadow: inset 3px 0 0 theme('colors.accent.DEFAULT');
 }

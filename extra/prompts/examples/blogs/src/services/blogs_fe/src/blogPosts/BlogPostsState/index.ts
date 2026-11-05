@@ -1,1 +1,1 @@
-export { BlogPostsState } from './BlogPostsState';
+export { BlogPostsState, type SaveBlogPostResultT } from './BlogPostsState';

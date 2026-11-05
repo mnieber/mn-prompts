@@ -11,7 +11,6 @@ import {
   GlobalError,
   MarkdownField,
   NameField,
-  SlugField,
 } from '/src/forms/components';
 import { usePreviewButton } from '/src/forms/hooks/usePreviewButton';
 import { CardS } from '/src/frames/components/Card';
@@ -54,7 +53,7 @@ export const BlogFormView = observer(
       //
       <div
         className={cn(CardS.root(), 'BlogFormView', [
-          CardS.color.gray(),
+          CardS.color.surface(),
           MainFormS.root.padding.default(),
           props.className,
         ])}
@@ -82,23 +81,7 @@ export const BlogFormView = observer(
           }
           <Field fieldName="blogForm.name" className={MainFormS.Field()}>
             <FormFieldLabel label="NAME" />
-            <NameField
-              tabIndex={2}
-              controlled={true}
-              autoSelect={true}
-              slugFieldName={
-                initialValues['blogForm.slug'] === '-'
-                  ? 'blogForm.slug'
-                  : undefined
-              }
-            />
-          </Field>
-          {
-            // 🔳 SlugField 🔳
-          }
-          <Field fieldName="blogForm.slug" className={MainFormS.Field()}>
-            <FormFieldLabel label="SLUG" />
-            <SlugField relatedFieldName="blogForm.name" />
+            <NameField tabIndex={2} controlled={true} autoSelect={true} />
           </Field>
           {
             // 🔳 DescriptionField 🔳

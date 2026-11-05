@@ -151,11 +151,10 @@ The entire service directory is mounted to `/app/src`. This includes `package.js
 Create `env/local/docker/env_files/blogs_fe.env.in`:
 
 ```bash
-VITE_LOCALHOST_API_ENDPOINT=http://localhost:8000/api
 COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 ```
 
-Frontend environment variables exposed to Vite must be prefixed with `VITE_`. Non-secret values like API endpoints are hard-coded directly in the `.env.in` file.
+Frontend environment variables exposed to Vite must be prefixed with `VITE_`. The app has no variable for the API url: the browser calls `/api/` on its own origin, and `vite.config.ts` proxies this path to the backend container.
 
 **RULE:** Set `COREPACK_ENABLE_DOWNLOAD_PROMPT=0`. Corepack downloads the yarn version of `packageManager` on first
 use, and otherwise asks first, which blocks `jaz compose.init` (it runs `yarn install` without a terminal).

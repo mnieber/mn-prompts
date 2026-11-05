@@ -10,6 +10,15 @@ export const getExternalErrors = (messages: ObjT, errors: Array<string>) => {
   if (errors?.includes(States.INVALID_CREDENTIALS)) {
     fieldErrors['global'] = messages.divSignInFailedPleaseCheckEmailAndPassword;
   }
+  if (errors?.includes(States.EMAIL_NOT_VERIFIED)) {
+    fieldErrors['global'] = messages.divPleaseVerifyYourEmailAddress;
+  }
+  if (errors?.includes(States.INACTIVE_ACCOUNT)) {
+    fieldErrors['global'] = messages.divYourAccountIsNotActive;
+  }
+  if (errors?.includes(States.TOO_MANY_ATTEMPTS)) {
+    fieldErrors['global'] = messages.divTooManyAttempts;
+  }
   if (errors?.includes(States.SIGN_IN_FAILED)) {
     fieldErrors['global'] = messages.divSorryThereSeemsToBeATechnicalProblem;
   }

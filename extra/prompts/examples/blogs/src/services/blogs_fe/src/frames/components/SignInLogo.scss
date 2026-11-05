@@ -1,15 +1,15 @@
 .SignInLogo__Title {
-  @apply text-6xl font-bold;
+  @apply text-5xl font-bold tracking-tight;
 }
 
 .SignInLogo__TitlePrefix {
-  @apply text-blue-primary;
+  @apply text-ink;
 }
 
 .SignInLogo__TitleSuffix {
-  @apply text-teal-primary;
+  @apply text-accent;
 }
 
 .SignInLogo__SubTitle {
-  @apply tracking-wide text-white;
+  @apply tracking-wide text-ink-soft;
 }

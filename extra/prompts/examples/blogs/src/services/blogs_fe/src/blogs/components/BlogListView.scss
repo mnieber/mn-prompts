@@ -1,3 +1,13 @@
 .BlogListView {
-  color: white;
+  &:focus {
+    outline: none;
+  }
+}
+
+.BlogListView--inert {
+  @apply cursor-not-allowed opacity-60;
+
+  .BlogListViewItem {
+    @apply cursor-not-allowed;
+  }
 }

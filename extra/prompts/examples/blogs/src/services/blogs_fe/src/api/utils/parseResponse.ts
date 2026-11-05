@@ -11,6 +11,10 @@ export const parseResponse = <SchemaT extends AnyZodSchema>(
     const transformedData = convertDataToCamelCase(schema, data);
     return schema.parse(transformedData);
   } catch (error) {
+    // A mismatch with the backend must fail the tests
+    if (import.meta.env.MODE === 'test') {
+      throw error;
+    }
     console.error(error);
     return data;
   }

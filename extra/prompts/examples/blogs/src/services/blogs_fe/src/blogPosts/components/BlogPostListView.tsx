@@ -11,6 +11,7 @@ import { BlogPostT } from '/src/api/types';
 import { BlogPostListViewItem } from '/src/blogPosts/components';
 import { blogPostsCtx } from '/src/blogPosts/hooks/useBlogPostsContext';
 import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
+import { CardS } from '/src/frames/components/Card';
 import { LoaderBar } from '/src/frames/components/LoaderBar';
 import { L } from '/src/frames/layout';
 import { createKeyDownHandler } from '/src/utils';
@@ -26,6 +27,8 @@ export type PropsT = {
 const ContextProps = {
   blog: blogsCtx.blog,
   blogPosts: blogPostsCtx.blogPosts,
+  blogPostsAddition: blogPostsCtx.blogPostsAddition,
+  blogPostsEdit: blogPostsCtx.blogPostsEdit,
   blogPostsSelection: blogPostsCtx.blogPostsSelection,
   blogPostsHighlight: blogPostsCtx.blogPostsHighlight,
 };
@@ -40,7 +43,13 @@ export const BlogPostListView = observer(
       selection: props.blogPostsSelection,
     });
 
-    const keyHandlers = createSelectionKeyHandlers(props.blogPostsSelection);
+    // While the form is open, the list ignores clicks and keys
+    const isInert =
+      props.blogPostsEdit.isEditing || !!props.blogPostsAddition.item;
+
+    const keyHandlers = isInert
+      ? {}
+      : createSelectionKeyHandlers(props.blogPostsSelection);
 
     const blogPostDivs = props.blogPosts.map((blogPost: BlogPostT) => (
       <BlogPostListViewItem
@@ -54,6 +63,7 @@ export const BlogPostListView = observer(
         blog={props.blog}
         blogPost={blogPost}
         selectionUIProps={selectionUIConnector.handle(blogPost.id)}
+        isInert={isInert}
       />
     ));
 
@@ -63,7 +73,12 @@ export const BlogPostListView = observer(
         onKeyEvent={createKeyDownHandler(keyHandlers)}
       >
         <div
-          className={cn('BlogPostListView', [L.col.banner()], props.className)}
+          className={cn(
+            'BlogPostListView',
+            { 'BlogPostListView--inert': isInert },
+            [L.col.banner(), CardS.root(), CardS.color.surface()],
+            props.className
+          )}
           tabIndex={1}
         >
           {blogPostDivs}

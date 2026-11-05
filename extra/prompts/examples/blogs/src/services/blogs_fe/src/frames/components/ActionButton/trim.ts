@@ -9,11 +9,6 @@ export type ActionButtonTrimT = {
       fontSize: any;
       padding: any;
     };
-    Icon: {
-      margin: any;
-      size: any;
-      color: any;
-    };
   };
   danger?: ModeOverlayT<ActionButtonTrimT>;
   disabled?: ModeOverlayT<ActionButtonTrimT>;
@@ -21,19 +16,23 @@ export type ActionButtonTrimT = {
 
 export const ActionButtonS = {
   color: {
-    disabled: () => 'text-gray-400 hover:text-gray-400 border-gray-400',
-    blueWithDarkText: () => 'bg-blue-400 text-blue-darkest hover:bg-blue-600',
-    redWithWhiteText: () =>
-      'text-red-400 hover:text-red-300 border-red-400 hover:border-red-300',
+    disabled: () => 'cursor-not-allowed border-line bg-canvas text-ink-faint',
+    neutral: () => 'border-line bg-surface text-ink hover:bg-canvas',
+    accent: () =>
+      'border-accent bg-accent text-white hover:border-accent-hover hover:bg-accent-hover',
+    danger: () =>
+      'border-line bg-surface text-danger hover:border-danger hover:bg-danger-soft',
   },
   border: {
     none: () => '',
   },
   fontSize: {
+    small: () => 'text-sm',
     medium: () => 'text-base',
     big: () => 'text-lg',
   },
   padding: {
+    small: () => 'px-4 py-1.5',
     medium: () => 'px-4 py-2',
     big: () => 'px-6 py-4',
   },
@@ -43,15 +42,15 @@ export const DefaultActionButtonTrim = {
   base: {
     componentName: 'Default',
     root: {
-      color: ActionButtonS.color.blueWithDarkText(),
+      color: ActionButtonS.color.neutral(),
       border: ActionButtonS.border.none(),
-      fontSize: ActionButtonS.fontSize.medium(),
-      padding: ActionButtonS.padding.medium(),
+      fontSize: ActionButtonS.fontSize.small(),
+      padding: ActionButtonS.padding.small(),
     },
   },
   danger: {
     root: {
-      color: ActionButtonS.color.redWithWhiteText(),
+      color: ActionButtonS.color.danger(),
     },
   },
   disabled: {

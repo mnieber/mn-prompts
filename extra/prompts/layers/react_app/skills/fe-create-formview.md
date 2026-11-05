@@ -146,21 +146,32 @@ const getHandleValidate =
 
 ### `getHandleSubmit`
 
-Returns a submit callback. After a successful save, call `formState.reset(initialValues, initialErrors)` and navigate away. On error, set the `'global'` error.
+Returns a submit callback. After a successful save, call `formState.reset(initialValues, initialErrors)` and navigate away. After a failed save, set the error of the field that the failure belongs to, or the `'global'` error. `getSaveError` uses a `switch` that returns a value, so that a new error code without a `case` doesn't compile.
 
 ```ts
+const getSaveError = (error: CreateBlogPostErrorT): [string, string] => {
+  switch (error.code) {
+    case 'BLOG_POST_TITLE_ALREADY_EXISTS':
+      return ['blogPostForm.title', 'A blog post with this title already exists'];
+    case 'FORM_CONTAINS_FORBIDDEN_WORDS':
+      return [`blogPostForm.${error.fieldName}`, 'This field contains forbidden words'];
+    case 'UNEXPECTED':
+      return ['global', getFailureMessage(error.cause)];
+  }
+};
+
 const getHandleSubmit =
   (props: PropsT & typeof ContextProps, initialValues, initialErrors) =>
   ({ formState, values }: HandleSubmitArgsT) => {
     return props.blogPostsEdit
       .save({ values: unflatten({ ...values }) })
-      .then((response: ObjT) => {
+      .then((result: CreateBlogPostResultT) => {
+        if (!result.ok) {
+          formState.setError(...getSaveError(result.error));
+          return;
+        }
         formState.reset(initialValues, initialErrors);
         navTo(blogPostsNav.blogPost({ ... }));
-        return response;
-      })
-      .catch(() => {
-        formState.setError('global', 'Oops, something went wrong, please try again later');
       });
   };
 ```

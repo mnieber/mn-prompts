@@ -8,7 +8,3 @@ export const createFormErrorsObject = (): ObjT => {
   formErrors.toJSON = () => JSON.stringify(R.keys(formErrors));
   return formErrors;
 };
-
-export const getErrorKeys = (formErrors: ObjT) => {
-  return R.keys(formErrors).filter((x) => x !== 'toJSON');
-};

@@ -27,20 +27,14 @@ const ContextProps = {
 
 export const AccountMenu = observer(
   withContextProps((props: PropsT & typeof ContextProps) => {
-    const signOut = useSignOut(props.authState).mutateAsync;
+    const signOut = useSignOut(props.authState).run;
 
     const accountMenu = useBuilder(() => createContextMenu());
     const StyledMenuItem = (props: any) => {
       return (
         <MenuItem
           {...props}
-          className={cn(
-            L.row.revFlagPole(),
-            'min-w-[200px]',
-            'bg-transparent',
-            'text-gray-800',
-            'cursor-pointer'
-          )}
+          className={cn('AccountMenu__Item', L.row.skewer())}
         />
       );
     };
@@ -57,16 +51,18 @@ export const AccountMenu = observer(
               className={cn(
                 'DialogButton',
                 [
-                  DialogButtonS.color.withTealText(),
-                  DialogButtonS.fontSize.medium(),
+                  DialogButtonS.color.quiet(),
+                  DialogButtonS.fontSize.small(),
                 ],
-                [DialogButtonS.padding.medium(), L.row.skewer()]
+                [DialogButtonS.padding.small(), L.row.skewer()]
               )}
             >
               Account
             </MenuButton>
           }
-          className="mt-4 bg-white font-bold"
+          menuClassName="AccountMenu__Menu"
+          align="end"
+          gap={8}
           transition
         >
           {!props.authState.isAuthenticated && (

@@ -3,7 +3,7 @@ import React from 'react';
 import { Highlight } from 'skandha-facets';
 import { useDeleteBlogPosts } from '/src/api/endpoints';
 import { useObservableQuery } from '/src/api/hooks';
-import { DeleteBlogPostsArgsT, useGetBlogTags } from '/src/api/mutations';
+import { DeleteBlogPostsArgsT } from '/src/api/mutations';
 import {
   CreateBlogPostArgsT,
   useCreateBlogPost,
@@ -20,7 +20,6 @@ import { useBuilder } from '/src/utils/hooks/useBuilder';
 import { useGraftResourceStatesFromMemo } from '/src/utils/hooks/useGraftResourceStatesFromMemo';
 import { lookUp } from '/src/utils/ids';
 import { ObjT } from '/src/utils/types';
-import { toPickerValue } from '/src/utils/valuePicker';
 
 export type PropsT = {
   getBlog: () => BlogT | undefined;
@@ -47,13 +46,6 @@ export const useBlogPostsState = (props: PropsT) => {
       debugLabel: 'getBlogPosts',
     }
   );
-  const getBlogTags = useGetBlogTags();
-
-  const loadBlogTagsOptions = (inputValue: string) => {
-    return getBlogTags.mutateAsync({ inputValue }).then((response: ObjT) => {
-      return response.tags.map(toPickerValue);
-    });
-  };
 
   const blogPostsState = useBuilder(() => {
     const state = new BlogPostsState({
@@ -68,7 +60,7 @@ export const useBlogPostsState = (props: PropsT) => {
         if (values.blogPostForm.isTransient) {
           return trackPromise({
             name: 'createBlogPost',
-            promise: createBlogPost.mutateAsync({
+            promise: createBlogPost.run({
               blog: props.getBlog(),
               blogPost: blogPostsHighlightRef.current?.item,
               createBlogPostForm: values.blogPostForm,
@@ -77,7 +69,7 @@ export const useBlogPostsState = (props: PropsT) => {
         } else {
           return trackPromise({
             name: 'saveBlogPost',
-            promise: updateBlogPost.mutateAsync({
+            promise: updateBlogPost.run({
               blog: props.getBlog(),
               blogPost: blogPostsHighlightRef.current?.item,
               updateBlogPostForm: values.blogPostForm,
@@ -94,7 +86,7 @@ export const useBlogPostsState = (props: PropsT) => {
         return trackPromise({
           name: 'deleteBlogPosts',
           states: { updating: blogPosts },
-          promise: deleteBlogPosts.mutateAsync({
+          promise: deleteBlogPosts.run({
             blog: props.getBlog(),
             blogPostIds: ids,
           } as DeleteBlogPostsArgsT),
@@ -108,7 +100,7 @@ export const useBlogPostsState = (props: PropsT) => {
         }
         return trackPromise({
           name: 'markBlogPostAsPublished',
-          promise: markBlogPostAsPublished.mutateAsync({
+          promise: markBlogPostAsPublished.run({
             blog,
             blogPostId,
           }),
@@ -128,6 +120,5 @@ export const useBlogPostsState = (props: PropsT) => {
     getBlogPosts,
     deleteBlogPosts,
     markBlogPostAsPublished,
-    loadBlogTagsOptions,
   };
 };

@@ -25,6 +25,12 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+      // The browser only talks to its own origin, so that the session cookie works and
+      // there is no CORS. Django's CSRF check compares the Origin with the Host header,
+      // so this must not use changeOrigin.
+      '/api/': {
+        target: 'http://blogs_be:8000',
+      },
       // When flags.useFakeBackend is true, the app sends its api requests to the playground
       '/fake-api/': {
         target: `http://localhost:${playgroundPort}`,

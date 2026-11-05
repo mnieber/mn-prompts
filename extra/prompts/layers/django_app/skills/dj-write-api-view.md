@@ -31,7 +31,7 @@ The `@extend_schema` decorator (from `api.utils.extend_schema`) is placed on the
 | `request` | Serializer class describing the POST body (omit for GET views) |
 | `responses` | Dict mapping HTTP status code to response serializer |
 | `data` | Dict mapping variable names to resolver functions that build the "data spec" |
-| `permissions` | List of `(status_code, permission_fn, message)` tuples; use `[]` for public endpoints |
+| `permissions` | List of `(status_code, permission_fn, message)` tuples, with at least one entry; use `ALLOW_ANY` for public endpoints |
 
 ### Data spec (`data=`)
 
@@ -123,14 +123,14 @@ from blogs_be.blogs.models import BlogPost
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from blogs_be.api.utils.extend_schema import extend_schema
+from blogs_be.api.utils.extend_schema import ALLOW_ANY, extend_schema
 
 
 class GetBlogPostsApiView(APIView):
     @extend_schema(
         responses={200: BlogPostSerializer(many=True)},
         data=dict(blog=get_blog_or_400),
-        permissions=[],
+        permissions=ALLOW_ANY,
     )
     def get(self, request, blog):
         blog_posts = BlogPost.objects.filter(blog=blog)
@@ -149,7 +149,7 @@ from blogs_be.blogs.filters import BlogPostFilterSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from blogs_be.api.utils.extend_schema import extend_schema
+from blogs_be.api.utils.extend_schema import ALLOW_ANY, extend_schema
 from blogs_be.common.utils.apply_filter_set_or_400 import apply_filter_set_or_400
 
 
@@ -160,7 +160,7 @@ class GetBlogPostsApiView(APIView):
     @extend_schema(
         responses={200: BlogPostSerializer(many=True)},
         data=dict(blog=get_blog_or_400),
-        permissions=[],
+        permissions=ALLOW_ANY,
     )
     def get(self, request, blog):
         blog_posts = apply_filter_set_or_400(
@@ -279,7 +279,7 @@ RULE: Return 204 NO_CONTENT for successful deletions. You may include metadata (
 - [ ] One view class per file, in `<module>/views/`
 - [ ] `@extend_schema` on the method, not the class
 - [ ] `data=` dict maps variable names to resolver functions
-- [ ] `permissions=` list is present (empty list `[]` for public endpoints)
+- [ ] `permissions=` is present and not empty (`ALLOW_ANY` for public endpoints)
 - [ ] POST: action exceptions caught and re-raised as `ValidationError(code=...)`
 - [ ] POST: `request_data` used to access deserialized form fields
 - [ ] Response uses the appropriate `status.HTTP_*` constant

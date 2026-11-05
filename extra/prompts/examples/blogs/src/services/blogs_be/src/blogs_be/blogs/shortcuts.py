@@ -13,10 +13,10 @@ def get_blog_or_400(blog_key):
     return blog
 
 
-def get_blog_post_or_400(blog_post_key):
+def get_blog_post_or_400(blog, blog_post_key):
     kwargs = {"pk" if is_uuid(blog_post_key) else "slug": blog_post_key}
 
-    blog_post = BlogPost.objects.filter(**kwargs).first()
+    blog_post = BlogPost.objects.filter(blog=blog, **kwargs).first()
     if not blog_post:
         raise ValidationError(code="BLOG_POST_NOT_FOUND")
 

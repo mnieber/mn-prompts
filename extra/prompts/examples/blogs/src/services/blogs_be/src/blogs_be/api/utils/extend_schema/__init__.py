@@ -6,8 +6,10 @@ from blogs_be.api.utils.extend_schema.data_spec import (
     resolve_data_spec,
 )
 from blogs_be.api.utils.extend_schema.permissions import (  # noqa: F401
+    ALLOW_ANY,
     PermissionResult,
     allow,
+    allow_always,
     check_permission_spec,
     deny,
     get_permissions_description,
@@ -23,6 +25,12 @@ def extend_schema(
     request_arg_pos=1,
     **kwargs,
 ):
+    if not permissions:
+        raise RuntimeError(
+            "extend_schema needs at least one permission. "
+            "Use ALLOW_ANY for a public endpoint."
+        )
+
     serializer_class = kwargs.get("request")
 
     def wrapper(f):
@@ -37,7 +45,8 @@ def extend_schema(
                     serializer = serializer_class(data=request.data)
                     serializer.is_valid(raise_exception=True)
                     request_data = serializer.validated_data
-                    initial_resolved_data.update(request_data.__dict__)
+                    # A serializer without a form class returns a plain dict
+                    initial_resolved_data.update(getattr(request_data, "__dict__", {}))
                 else:
                     request_data = None
 

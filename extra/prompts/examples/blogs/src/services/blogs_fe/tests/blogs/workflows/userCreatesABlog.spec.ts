@@ -4,7 +4,7 @@ import { test, type Ctx } from '/tests/testEnv/fixtures';
 import { JUDO } from '/tests/blogs/exampleData';
 
 const NAME = 'Brazilian jiu-jitsu';
-const SLUG = 'brazilian-jiu-jitsu-';
+const SLUG = 'brazilian-jiu-jitsu';
 const DESCRIPTION = 'Ground fighting, step by step.';
 
 const createEnv = (ctx: Ctx) => {
@@ -67,9 +67,9 @@ test('a user creates a blog', async ({ ctx }) => {
     await expect
       .poll(() => env.backend.lastRequest('createBlog')?.body)
       .toEqual({
-        create_blog_form: { name: NAME, slug: SLUG, description: DESCRIPTION },
+        create_blog_form: { name: NAME, description: DESCRIPTION },
       });
-    // The slug is derived from the name (with a trailing dash).
+    // The backend derives the slug from the name.
     await expect(env.page).toHaveURL(`/blogs/${SLUG}`);
     await expect(env.blogListItems()).toHaveText(['Judo', NAME]);
     await expect(env.blogListItem(NAME)).toHaveClass(
