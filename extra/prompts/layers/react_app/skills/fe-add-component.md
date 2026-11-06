@@ -22,7 +22,6 @@ Primary reference: `blogs_fe/src/blogs/components/BlogsPage.tsx`
 import { observer } from 'mobx-react-lite';
 import { withContextProps } from 'react-props-from-context';
 import { blogsCtx } from '/src/blogs/hooks/useBlogsContext';
-import { L } from '/src/frames/layout';
 import { cn } from '/src/utils/classnames';
 import './BlogsPage.scss';
 
@@ -38,7 +37,7 @@ export type PropsT = React.PropsWithChildren<{
 export const BlogsPage = observer(
   withContextProps((props: PropsT & typeof ContextProps) => {
     return (
-      <div className={cn('BlogsPage', L.row.bar(), props.className)}>
+      <div className={cn('BlogsPage', props.className)}>
         {/* ... */}
       </div>
     );
@@ -76,6 +75,8 @@ Use `L` from `frames/layout.ts` to express layout intent. The available layouts 
 
 Pass `L.xxx()` as the first positional class to `cn(...)` after the component name class.
 
+A layout that changes per breakpoint doesn't fit in `L`: it goes into the `.scss` file (e.g. `BlogsPage.scss`).
+
 ### SCSS — intrinsic vs ad-hoc styles
 
 Styles are split into two categories:
@@ -85,10 +86,11 @@ Styles are split into two categories:
 
 Guidelines:
 
-- **Margins are always ad-hoc** — they are outside the boundary of the element and belong to the parent.
+- **Margins are always ad-hoc** — they are outside the boundary of the element and belong to the parent. The exception is `mx-auto` on a page column that is always centred (e.g. `BlogsPage.scss`): that is intrinsic, because no caller would want it to be different.
 - **Background-color is ad-hoc** when callers need to choose it (e.g. a card used in multiple places with different backgrounds). It is intrinsic when the component always has the same background.
 - When in doubt, ask: "would a different caller want this to be different?" If yes, it's ad-hoc.
 - Occasionally an intrinsic property is inlined instead of put in SCSS when it's architecturally interesting (e.g. a `position: relative` that creates a stacking context). Use judgement.
+- **Sass cannot parse `@apply` with an important modifier** (`@apply !bg-accent`). Write the property out instead: `background-color: theme('colors.accent.DEFAULT') !important`.
 
 ### `cn(...)` — class name composition
 

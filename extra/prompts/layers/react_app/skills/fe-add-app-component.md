@@ -59,8 +59,7 @@ const AppBody = (props: React.PropsWithChildren<{}>) => {
       className={cn('App', [
         R.values({
           root: L.col.banner(),
-          size: `min-width-[320px] h-screen max-w-[1600px]`,
-          pos: `mx-auto`,
+          size: `min-width-[320px] h-screen`,
           scroll: 'overflow-x-hidden',
         }),
       ])}

@@ -23,6 +23,7 @@ module.exports = {
       },
       danger: {
         DEFAULT: 'hsl(354, 72%, 42%)',
+        hover: 'hsl(354, 72%, 36%)',
         soft: 'hsl(354, 100%, 97%)',
       },
       black: '#000',

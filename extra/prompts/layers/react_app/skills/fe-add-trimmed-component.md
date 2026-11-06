@@ -48,18 +48,21 @@ export type DialogButtonTrimT = {
 // Callers pick entries from S to fill the slots of a trim object.
 export const DialogButtonS = {
   color: {
-    blueWithDarkText: () => 'bg-blue-400 text-blue-darkest hover:bg-blue-600',
-    tealWithDarkText: () => 'bg-teal-400 text-teal-darkest hover:bg-teal-600',
-    disabled: () => 'text-gray-400 hover:text-gray-400 border-gray-400',
+    accent: () => 'bg-accent text-white hover:bg-accent-hover',
+    quiet: () => 'text-ink-soft hover:bg-canvas hover:text-ink',
+    danger: () => 'bg-danger text-white hover:bg-danger-hover',
+    disabled: () => 'cursor-not-allowed bg-canvas text-ink-faint',
     // ...
   },
   border: {
     none: () => '',
   },
   fontSize: {
+    small: () => 'text-sm',
     medium: () => 'text-base',
   },
   padding: {
+    small: () => 'px-4 py-1.5',
     medium: () => 'px-4 py-2',
   },
 };
@@ -70,10 +73,10 @@ export const DefaultDialogButtonTrim: DialogButtonTrimT = {
   base: {
     componentName: 'Default',
     root: {
-      color: DialogButtonS.color.blueWithDarkText(),
+      color: DialogButtonS.color.accent(),
       border: DialogButtonS.border.none(),
-      fontSize: DialogButtonS.fontSize.medium(),
-      padding: DialogButtonS.padding.medium(),
+      fontSize: DialogButtonS.fontSize.small(),
+      padding: DialogButtonS.padding.small(),
     },
     Icon: { margin: '...', size: '...', color: '...' },
   },
@@ -99,27 +102,14 @@ export const DefaultDialogButtonTrim: DialogButtonTrimT = {
 import { DefaultDialogButtonTrim, DialogButtonS, type DialogButtonTrimT } from '/src/frames/components/DialogButton';
 import { createTrim } from '/src/utils/trim';
 
-export const BlueDialogButtonTrim: DialogButtonTrimT = createTrim(
+export const QuietDialogButtonTrim: DialogButtonTrimT = createTrim(
   DefaultDialogButtonTrim,
   {
     base: {
-      componentName: 'Blue-DialogButton',
+      componentName: 'Quiet-DialogButton',
       root: {
-        color: DialogButtonS.color.blueWithDarkText(),
+        color: DialogButtonS.color.quiet(),
       },
-    },
-    disabled: {
-      root: { color: DialogButtonS.color.disabled() },
-    },
-  }
-);
-
-export const TealDialogButtonTrim: DialogButtonTrimT = createTrim(
-  DefaultDialogButtonTrim,
-  {
-    base: {
-      componentName: 'Teal-DialogButton',
-      root: { color: DialogButtonS.color.tealWithDarkText() },
     },
   }
 );

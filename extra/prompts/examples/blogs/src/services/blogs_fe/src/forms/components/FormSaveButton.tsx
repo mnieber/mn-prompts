@@ -41,7 +41,7 @@ const MainViewDialogButtonTrim = createTrim(DefaultDialogButtonTrim, {
   },
   danger: {
     root: {
-      color: DialogButtonS.color.redWithWhiteText(),
+      color: DialogButtonS.color.danger(),
     },
   },
   disabled: {
