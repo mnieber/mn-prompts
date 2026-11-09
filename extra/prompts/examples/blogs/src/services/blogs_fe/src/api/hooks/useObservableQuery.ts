@@ -29,9 +29,17 @@ export const useObservableQuery = (
     return observableQuery;
   });
 
+  // The tanstack query is a new object on each render, so the effect depends on its
+  // fields (else it would update the observable query, and thereby cause a new render,
+  // after each render)
+  const { data, isFetching, isInitialLoading } = query;
   React.useEffect(() => {
     runInAction(() => {
-      updateObservableQuery(observableQuery, query, fetchAsLoad);
+      updateObservableQuery(
+        observableQuery,
+        { data, isFetching, isInitialLoading },
+        fetchAsLoad
+      );
       if (debugLabel && flags.logQueries) {
         observableQuery.log(
           `ObservableQuery ${observableQuery.id} (${debugLabel}) ` +
@@ -39,7 +47,14 @@ export const useObservableQuery = (
         );
       }
     });
-  }, [query, observableQuery, fetchAsLoad, debugLabel]);
+  }, [
+    data,
+    isFetching,
+    isInitialLoading,
+    observableQuery,
+    fetchAsLoad,
+    debugLabel,
+  ]);
 
   return observableQuery;
 };
