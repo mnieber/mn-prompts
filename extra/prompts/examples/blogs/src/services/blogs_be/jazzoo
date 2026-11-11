@@ -21,6 +21,10 @@ collect-static():
 create-superuser():
     python manage.py createsuperuser --noinput || true
 
+# Marks the email of the superuser as verified, so that they can sign in.
+verify-superuser-email():
+    python manage.py verify_email ${DJANGO_SUPERUSER_EMAIL}
+
 dump-db():
     mkdir -p /app/dumps && python manage.py dbbackup
 
@@ -50,7 +54,7 @@ pytest(kwargs=""):
 # Stack
 #
 
-init-dev(): create-db() migrate() collect-static() create-superuser()
+init-dev(): create-db() migrate() collect-static() create-superuser() verify-superuser-email()
 
 # Succeeds when the server responds (the healthcheck of docker-compose.init-stack.yml).
 check():
