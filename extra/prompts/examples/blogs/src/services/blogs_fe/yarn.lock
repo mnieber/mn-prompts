@@ -1626,9 +1626,9 @@ __metadata:
     react-select: "npm:^5.8.0"
     react-textarea-autosize: "npm:^8.5.3"
     sass: "npm:^1.62.1"
-    skandha: "npm:^0.15.0"
-    skandha-facets: "npm:^0.15.0"
-    skandha-mobx: "npm:^0.15.0"
+    skandha: "npm:^0.15.1"
+    skandha-facets: "npm:^0.15.1"
+    skandha-mobx: "npm:^0.15.1"
     snakecase-keys: "npm:^8.0.1"
     tailwindcss: "npm:^3.3.2"
     tsx: "npm:4.19.2"
@@ -4480,29 +4480,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"skandha-facets@npm:^0.15.0":
-  version: 0.15.0
-  resolution: "skandha-facets@npm:0.15.0"
+"skandha-facets@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "skandha-facets@npm:0.15.1"
   peerDependencies:
     skandha: ">=0.14.0"
-  checksum: 10c0/a56d5cc97175de372c3cb2c669db01569088939de6724b08619df8a8fa31c37f114a9a62e1ea9285f91f3cd9fc2860fcfc3e78b26e609497307d556ac367a509
+  checksum: 10c0/74af98228793fbfd9fc83fc377183701b08f198d0257455d88e6d3d7562a916faf0b4eb68a07642aed22c66d1da563816a4dcd7ca051b31ecf61631826184df5
   languageName: node
   linkType: hard
 
-"skandha-mobx@npm:^0.15.0":
-  version: 0.15.0
-  resolution: "skandha-mobx@npm:0.15.0"
+"skandha-mobx@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "skandha-mobx@npm:0.15.1"
   peerDependencies:
     mobx: ^6.1.8
     skandha: ^0.15.0
-  checksum: 10c0/242f614a692e662b6037ff49a32bc00d77b3b17c556ed614db17a0bbcb918725423a91eef3f3bb6c047b135ddbe06210f1ac04394f12686cd015cffd4e0e94e0
+  checksum: 10c0/efd79fdaca7a41a836933962b1985e730c8492eedd157592ccc72e79391b8de0f91bb7affa8e94eea9aec75cef1e47b3056d0493874c95e9ddff50301c53d1df
   languageName: node
   linkType: hard
 
-"skandha@npm:^0.15.0":
-  version: 0.15.0
-  resolution: "skandha@npm:0.15.0"
-  checksum: 10c0/36656974ca0e8230edb81c85c108441b9be4e52bd3b87ebc729e14db6899379734b5f5f5153f2343eacabe8bf06838720d77b6e8f6c0b09e26c12a1e5b14cd82
+"skandha@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "skandha@npm:0.15.1"
+  checksum: 10c0/5b6811fcaf6c9ea751b686fb740b82207d0385cf9c271b1521438b7ee161d6add1f44a2bff02a386f27db071cd087661e14ab55956c53256c4cf336defebea47
   languageName: node
   linkType: hard
 
