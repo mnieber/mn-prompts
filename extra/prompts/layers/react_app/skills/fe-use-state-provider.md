@@ -145,6 +145,8 @@ import { BlogPostT } from "/src/api/types";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
 
 export class BlogPostsAddition extends Addition<BlogPostT> {
+  static className = () => "BlogPostsAddition";
+
   constructor(private state: BlogPostsState) {
     super();
   }
@@ -174,6 +176,8 @@ import { Deletion } from "skandha-facets";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
 
 export class BlogPostsDeletion extends Deletion {
+  static className = () => "BlogPostsDeletion";
+
   constructor(private state: BlogPostsState) {
     super();
   }
@@ -201,6 +205,8 @@ import { Edit } from "skandha-facets";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
 
 export class BlogPostsEdit extends Edit {
+  static className = () => "BlogPostsEdit";
+
   constructor(private state: BlogPostsState) {
     super();
   }
@@ -233,6 +239,8 @@ import { BlogPostT } from "/src/api/types";
 import { BlogPostsState } from "/src/blogPosts/BlogPostsState";
 
 export class BlogPostsSelection extends Selection<BlogPostT> {
+  static className = () => "BlogPostsSelection";
+
   constructor(private state: BlogPostsState) {
     super();
   }
@@ -254,6 +262,7 @@ Reference: `blogs_fe/src/blogPosts/BlogPostsState/facets/BlogPostsSelection.ts`
 
 ### Key facet patterns
 
+- **Always add the static className function**
 - **Always pass the State reference**: `constructor(private state: BlogPostsState)`
 - **Access other facets via state**: `this.state.blogPostsCtr.edit.cancel()`
 - **Access props via state**: `this.state.props.deleteBlogPosts(args.itemIds)`
