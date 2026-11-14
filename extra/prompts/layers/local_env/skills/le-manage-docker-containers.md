@@ -102,7 +102,7 @@ Each service gets a layer on the host with the targets that the developer uses m
 
 ```
 $ jaz be.run-server                     # jaz run-server in blogs_be
-$ jaz be.shell                          # the shell of /be/shell in blogs_be
+$ jaz be.shell                          # the shell of /services/be/shell in blogs_be
 $ jaz be.exec "pytest -x"               # any command in blogs_be (also user= and workdir=)
 ```
 
@@ -115,11 +115,11 @@ shell would, but it does not run in a shell. Copy `service_tools.py` from `examp
 # env/local/jaz/be/be.jaz
 🐭.script = ⚙️.module.dirname / "../service/service_tools.py"
 
-# Run cmd in the container of blogs_be (/be/container), as user and in workdir if
-# they are given.
+# Run cmd in the container of blogs_be (/services/be/container), as user and in
+# workdir if they are given.
 [interactive]
 exec(cmd, user="", workdir=""):
-    🐆.container = ⚙️.get_config(path="/be/container") | ⚙️.sh-quote
+    🐆.container = ⚙️.get_config(path="/services/be/container") | ⚙️.sh-quote
     🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
     🐆.safe-user = 🐆.user | ⚙️.sh-quote
     🐆.safe-workdir = 🐆.workdir | ⚙️.sh-quote
@@ -130,10 +130,10 @@ exec(cmd, user="", workdir=""):
 run-server():
     🐭.exec(cmd="jaz run-server")
 
-# Open a shell (/be/shell) in the container of blogs_be.
+# Open a shell (/services/be/shell) in the container of blogs_be.
 [interactive]
 shell():
-    🐆.shell = ⚙️.get_config(path="/be/shell")
+    🐆.shell = ⚙️.get_config(path="/services/be/shell")
     🐭.exec(cmd=🐆.shell)
 ```
 
@@ -141,9 +141,10 @@ The `env/local/jazzoo` module exports it (`from ./jaz/be/be.jaz export * as be`)
 container of each service layer, and its shell, which follows `/docker/shell` unless the developer overrides it:
 
 ```yaml
-be:
-  container: blogs_be
-  shell: ${/docker/shell}
+services:
+  be:
+    container: blogs_be
+    shell: ${/docker/shell}
 ```
 
 RULE: use `docker.exec` to work in a container that the developer picks; use a service layer for the commands of

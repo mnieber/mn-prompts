@@ -46,8 +46,8 @@ Pick `1,2` to run both servers, each in its own pane, so that you can watch thei
 To work in a container, open its shell, or run a command in it:
 
 ```
-$ jaz be.shell         # the shell of /be/shell in blogs_be
-$ jaz fe.shell         # the shell of /fe/shell in blogs_fe
+$ jaz be.shell         # the shell of /services/be/shell in blogs_be
+$ jaz fe.shell         # the shell of /services/fe/shell in blogs_fe
 $ jaz be.exec "python manage.py check"
 ```
 

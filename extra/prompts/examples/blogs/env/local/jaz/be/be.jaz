@@ -1,10 +1,10 @@
 🐭.script = ⚙️.module.dirname / "../service/service_tools.py"
 
-# Run cmd in the container of blogs_be (/be/container), as user and in workdir if
-# they are given.
+# Run cmd in the container of blogs_be (/services/be/container), as user and in
+# workdir if they are given.
 [interactive]
 exec(cmd, user="", workdir=""):
-    🐆.container = ⚙️.get_config(path="/be/container") | ⚙️.sh-quote
+    🐆.container = ⚙️.get_config(path="/services/be/container") | ⚙️.sh-quote
     🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
     🐆.safe-user = 🐆.user | ⚙️.sh-quote
     🐆.safe-workdir = 🐆.workdir | ⚙️.sh-quote
@@ -15,8 +15,8 @@ exec(cmd, user="", workdir=""):
 run-server():
     🐭.exec(cmd="jaz run-server")
 
-# Open a shell (/be/shell) in the container of blogs_be.
+# Open a shell (/services/be/shell) in the container of blogs_be.
 [interactive]
 shell():
-    🐆.shell = ⚙️.get_config(path="/be/shell")
+    🐆.shell = ⚙️.get_config(path="/services/be/shell")
     🐭.exec(cmd=🐆.shell)

@@ -11,12 +11,13 @@ edit_config:
 docker:
   compose_project: blogs
   shell: sh
-be:
-  container: blogs_be
-  shell: ${/docker/shell}
-fe:
-  container: blogs_fe
-  shell: ${/docker/shell}
+services:
+  be:
+    container: blogs_be
+    shell: ${/docker/shell}
+  fe:
+    container: blogs_fe
+    shell: ${/docker/shell}
 compose:
   use_dockerfile_local: false
   os_custom_packages: ""
