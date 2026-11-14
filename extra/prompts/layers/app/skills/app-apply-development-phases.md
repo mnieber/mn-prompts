@@ -31,6 +31,40 @@ scenarios.
 
 `RULE`: when I ask you to review a design then focus on weaknesses and gaps in the main features and workflows. Details and less important edge-cases can be identified later.
 
+### The layout of the design doc
+
+`RULE`: write the design doc in this layout, so that each workflow reads as a story that the test plan and the
+scenarios can follow:
+
+- The doc starts with a `#` title and a short introduction: what the feature is about, and the idea that makes it
+  work (if there is one).
+- Each workflow (or milestone) is a numbered `##` section, named after what the user does (e.g. `## 2. A user stores
+  a local sparring debate on the server`).
+- The section is a numbered list of the steps of the workflow: what the user does, and what should happen. Use
+  example people and data (Alice, Bob, a concrete thesis), and nest numbered sub-steps when a step has parts.
+- Under the step that it belongs to, a `- Detail:` bullet adds a rule or a technical choice (e.g. how a token is
+  derived), and a `- Edge-case:` bullet describes what happens when something goes differently (e.g. the server is
+  unreachable, the request is refused). Keep these out of the numbered steps, so that the steps stay the main
+  story.
+- The doc ends with a `## Decisions` section: one bullet per decision that was made, with the alternative(s) that
+  were not chosen, and "(the user's choice)" when I made the decision. Open questions also go here, marked as open.
+
+```markdown
+## 3. A user removes a sparring debate from the server
+
+1. In the debate screen, Alice clicks "Remove from the server", and confirms. For a public debate, the confirmation
+   says that copies that viewers made before cannot be recalled.
+2. The proxy deletes the debate on the central server with Alice's deletion token. The local copy stays.
+   - Detail: the local id of the debate never changes; the id on the server is kept in the central-server link.
+   - Edge-case: when the central server is unreachable, the deletion stays pending, and the proxy retries it when
+     it polls.
+
+## Decisions
+
+- A debate that is stored again gets a new id on the server (the user's choice). Alternative: give the local
+  debate a new id.
+```
+
 ### The glossary
 
 The important concepts of the project are described in a glossary (`extra/spec/design/glossary.md`). Unlike the
