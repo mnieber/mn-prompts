@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" role="img">
+<!--
+  TEMPLATE for a storyboard frame. Copy the <style> and <defs> as they are, keep the background rect,
+  and replace everything after the "CONTENT" comment with the frame's own drawing.
+  The content below only demonstrates the vocabulary: actor boxes, a shared and a private zone,
+  a log tape, numbered steps, arrows, a no-entry sign, and two text runs on one line.
+-->
+<title>Template: an author's machine and the blog server. The draft stays on the author's machine, the published post goes into the server's log.</title>
+<style>
+  :root {
+    --bg: #11151c; --fg: #e5e9f0; --muted: #9aa3b4; --line: #3a4352; --panel: #19202a;
+    --a: #6ea6ee; --a-soft: #1a2a40;          /* first actor */
+    --b: #e9a352; --b-soft: #33261a;          /* second actor */
+    --server: #a299ec; --server-soft: #252240;
+    --private: #ee7d91; --private-soft: #3a1e26;
+    --ok: #6dc78b; --ok-soft: #1a3024;
+  }
+  text { font-family: system-ui, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 14px; fill: var(--fg); }
+  .h { font-size: 17px; font-weight: 600; }
+  .tb { font-weight: 600; }
+  .ts { font-size: 12.5px; }
+  .tm { fill: var(--muted); font-size: 13px; }
+  .i { font-style: italic; }
+  .cap { font-family: ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace; font-size: 11px;
+         letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .mono { font-family: ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace; font-size: 12.5px; }
+  .mid { text-anchor: middle; }
+  .bg { fill: var(--panel); stroke: var(--line); stroke-width: 1; }
+  .box { fill: var(--panel); stroke-width: 2; }
+  .ln { stroke: var(--line); stroke-width: 1.5; fill: none; }
+  .lnm { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  .dash { stroke-dasharray: 5 4; }
+  .sw15 { stroke-width: 1.5; } .sw2 { stroke-width: 2; }
+  .x-fg { fill: var(--fg); } .x-muted { fill: var(--muted); } .x-line { fill: var(--line); } .x-panel { fill: var(--panel); }
+  .x-a { fill: var(--a); } .x-b { fill: var(--b); } .x-server { fill: var(--server); }
+  .x-private { fill: var(--private); } .x-ok { fill: var(--ok); }
+  .f-a-soft { fill: var(--a-soft); } .f-b-soft { fill: var(--b-soft); } .f-server-soft { fill: var(--server-soft); }
+  .f-private-soft { fill: var(--private-soft); } .f-ok-soft { fill: var(--ok-soft); }
+  .s-a { stroke: var(--a); } .s-b { stroke: var(--b); } .s-server { stroke: var(--server); }
+  .s-private { stroke: var(--private); } .s-ok { stroke: var(--ok); } .s-line { stroke: var(--line); }
+  .c-a { color: var(--a); } .c-b { color: var(--b); } .c-server { color: var(--server); }
+  .c-private { color: var(--private); } .c-ok { color: var(--ok); } .c-fg { color: var(--fg); } .c-muted { color: var(--muted); }
+</style>
+<defs>
+  <!-- icons: place with <use href="#id" x y width height class="c-..."/>; they draw in currentColor -->
+  <symbol id="person" viewBox="0 0 22 26"><circle cx="11" cy="7" r="6" fill="currentColor"/><path d="M1 26c0-7 4.5-11 10-11s10 4 10 11z" fill="currentColor"/></symbol>
+  <symbol id="srv" viewBox="0 0 22 24"><rect width="22" height="6.5" rx="2" fill="currentColor"/><rect y="8.75" width="22" height="6.5" rx="2" fill="currentColor"/><rect y="17.5" width="22" height="6.5" rx="2" fill="currentColor"/></symbol>
+  <symbol id="doc" viewBox="0 0 14 18"><path d="M1 1h8l4 4v12H1z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 1v4h4M3.5 8.5h7M3.5 11.5h7M3.5 14.5h4.5" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="lock" viewBox="0 0 14 16"><path d="M3.5 7V5a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="1" y="7" width="12" height="9" rx="1.6" fill="currentColor"/></symbol>
+  <symbol id="key" viewBox="0 0 26 12"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.2 6H25M20 6v4.5M24 6v3.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <!-- arrowheads: one marker per colour -->
+  <marker id="ah-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="x-a"/></marker>
+  <marker id="ah-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="x-b"/></marker>
+  <marker id="ah-server" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="x-server"/></marker>
+  <marker id="ah-ok" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="x-ok"/></marker>
+  <marker id="ah-muted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="x-muted"/></marker>
+</defs>
+<rect class="bg" x="0.5" y="0.5" width="959" height="519" rx="14"/>
+
+<!-- CONTENT (replace from here) -->
+
+<!-- actor box with a shared zone and a private zone -->
+<rect class="box s-a" x="20" y="20" width="320" height="420" rx="14"/>
+<use href="#person" x="38" y="34" width="22" height="26" class="c-a"/>
+<text class="h x-a" x="68" y="52">Author's machine</text>
+<text class="tm" x="68" y="70">browser</text>
+<rect class="f-a-soft" x="40" y="90" width="280" height="120" rx="10"/>
+<text class="cap x-a" x="56" y="114">Sent to the server</text>
+<use href="#doc" x="56" y="126" width="14" height="18" class="c-a"/><text x="80" y="140">post title and body</text>
+<use href="#doc" x="56" y="156" width="14" height="18" class="c-a"/><text x="80" y="170">publish date</text>
+<text class="tm i" x="56" y="196">only after "Publish"</text>
+<rect class="f-private-soft s-private dash sw15" x="40" y="230" width="280" height="190" rx="10"/>
+<use href="#lock" x="56" y="241" width="13" height="15" class="c-private"/>
+<text class="cap x-private" x="76" y="254">Stays on this machine</text>
+<circle class="x-private" cx="60" cy="281" r="3"/><text x="72" y="286">unsaved draft</text>
+<circle class="x-private" cx="60" cy="309" r="3"/><text x="72" y="314">editor settings</text>
+<use href="#key" x="54" y="330" width="24" height="11" class="c-private"/>
+<text x="84" y="340"><tspan class="tb">session key</tspan><tspan class="tm" dx="6">(two runs, one line)</tspan></text>
+
+<!-- arrow out of the shared zone, and a no-entry sign for the private zone -->
+<line class="s-server sw2" x1="324" y1="150" x2="416" y2="150" marker-end="url(#ah-server)"/>
+<text class="tm mid" x="370" y="140">publish</text>
+<circle class="x-panel s-private" stroke-width="2.5" cx="370" cy="325" r="13"/>
+<line class="s-private" stroke-width="2.5" x1="361" y1="334" x2="379" y2="316"/>
+
+<!-- server box with a log tape; the new cell is highlighted -->
+<rect class="box s-server" x="420" y="60" width="260" height="300" rx="14"/>
+<use href="#srv" x="440" y="78" width="22" height="24" class="c-server"/>
+<text class="h x-server" x="472" y="92">Blog server</text>
+<text class="tm" x="472" y="110">PostgreSQL</text>
+<text class="cap x-server" x="440" y="148">Posts · newest last</text>
+<rect class="f-server-soft s-server sw15" x="440" y="160" width="30" height="30" rx="4"/><text class="mono mid" x="455" y="180">1</text>
+<rect class="f-server-soft s-server sw15" x="474" y="160" width="30" height="30" rx="4"/><text class="mono mid" x="489" y="180">2</text>
+<rect class="f-ok-soft s-ok sw2" x="508" y="160" width="30" height="30" rx="4"/><text class="mono tb mid x-ok" x="523" y="180">3</text>
+<rect class="ln dash" x="542" y="160" width="30" height="30" rx="4"/><text class="mono mid x-muted" x="557" y="180">+</text>
+<text class="ts tb x-ok" x="580" y="180">new</text>
+
+<!-- numbered step card (number only when the order is real) -->
+<rect class="box s-server sw15" x="440" y="220" width="220" height="110" rx="10"/>
+<circle class="x-server" cx="460" cy="242" r="11"/><text class="mono tb mid x-panel" x="460" y="246">2</text>
+<text class="tb" x="478" y="247">Check, store</text>
+<text class="ts" x="454" y="272">The server checks the post</text>
+<text class="ts" x="454" y="290">and appends it as post 3</text>
+
+<!-- second actor -->
+<rect class="box s-b" x="720" y="20" width="220" height="420" rx="14"/>
+<use href="#person" x="738" y="34" width="22" height="26" class="c-b"/>
+<text class="h x-b" x="768" y="52">Reader</text>
+<text class="tm" x="768" y="70">any browser</text>
+<rect class="f-b-soft" x="740" y="130" width="180" height="60" rx="10"/>
+<text class="mono tb x-b" x="756" y="156">GET /posts/3</text>
+<text class="ts x-muted" x="756" y="176">example request</text>
+<path class="s-b sw2" fill="none" d="M684 175H736" marker-end="url(#ah-b)"/>
+
+<!-- footer: the one sentence that sums up the frame -->
+<text x="20" y="476">The draft never leaves the author's machine; only a published post reaches the server.</text>
+<text class="x-muted" x="20" y="498">Footer lines carry the takeaway; the message in storyboard.md explains it.</text>
+</svg>

@@ -24,6 +24,11 @@ How the module namespaces and code-units in the scenario specs map onto feature 
 General rules for generating code: following `RULE:`s closely, using the code-unit specific skills, and using example code as a template.
 → [app-generate-code](./skills/app-generate-code.md)
 
+### Writing storyboards
+
+How to explain a settled design to a human reader as a storyboard: a sequence of infographic frames (SVG) with a message each, its layout in `doc/storyboards`, and how to update it.
+→ [app-write-storyboards](./skills/app-write-storyboards.md)
+
 ---
 
 ## Key Principles

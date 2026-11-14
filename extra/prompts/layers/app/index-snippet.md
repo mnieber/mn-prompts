@@ -7,3 +7,4 @@ Consult [app_layer/index.md](./app_layer/index.md) for:
 - writing specifications
 - implementing specifications
 - general code generation guidelines
+- writing storyboards (documentation as infographic frames)
