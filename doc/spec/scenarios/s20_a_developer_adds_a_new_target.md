@@ -4,53 +4,37 @@
 
 ## A developer adds a new target
 
-A developer adds a target with the instructions for generating a type of application (e.g. a django app). The
-target combines the layers of the technologies that this application uses.
+A developer adds a target for a type of application (e.g. a django app). A target is a named set of layers, so
+that a user can install these layers with a single option.
 
 ### Steps
 
-#### It creates the target
+#### It writes the target file
 
-The developer creates the `targets/<target_name>` dir in the prompts-dir. The `<target_name>` is the name that the
-user passes to `mn-prompts install`.</br>
-
-#### It adds the symlinks
-
-For each layer that the target uses, the developer adds a `<layer_name>_layer` symlink to
-`../../layers/<layer_name>`. This lets targets share layers without duplicating them.</br>
-The developer adds an `examples` symlink to `../../examples`.</br>
-
-#### It writes the index file
-
-The developer writes the `index.md` file of the target, which is the starting point for the agent. It explains
-which layer `index.md` files to consult, and for what purpose, and refers to the relevant example apps.</br>
+The developer writes the `targets/<target_name>.yaml` file in the prompts-dir. The `<target_name>` is the name that
+the user passes to `mn-prompts install --target`.</br>
+The file has a `description` of the type of application, and lists the `layers` of the technologies that this
+application uses (e.g. `layers: [app, django_app, python_lib]`). The layers that these layers require don't need
+to be listed, because they are installed automatically.</br>
 
 #### It checks the target
 
-The developer calls `mn-prompts list`, and checks that the new target is listed.</br>
+The developer calls `mn-prompts list`, and checks that the new target is listed, with its description and
+layers.</br>
 
 ### Diagram
 
 ```mermaid
 sequenceDiagram
     actor Developer
-    participant Target as targets/<target_name>
+    participant Targets as targets
     participant MnPrompts as mn-prompts (entrypoint)
 
-    Note over Developer,Target: Create the target
-    Developer->>Target: create dir
-
-    Note over Developer,Target: Add the symlinks
-    loop for each layer
-        Developer->>Target: symlink <layer_name>_layer -> ../../layers/<layer_name>
-    end
-    Developer->>Target: symlink examples -> ../../examples
-
-    Note over Developer,Target: Write the index file
-    Developer->>Target: write index.md
+    Note over Developer,Targets: Write the target file
+    Developer->>Targets: write <target_name>.yaml (description, layers)
 
     Note over Developer,MnPrompts: Check the target
     Developer->>MnPrompts: mn-prompts list
-    MnPrompts-->>Developer: target names (including <target_name>)
+    MnPrompts-->>Developer: targets (including <target_name>) and layers
 ```
 

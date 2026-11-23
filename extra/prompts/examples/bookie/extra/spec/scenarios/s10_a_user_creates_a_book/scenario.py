@@ -40,61 +40,40 @@ def run_scenario():
 markdown_node = sunya.add_markdown_node(scenario, "A user creates a book")
 
 markdown_node.markdown = """
-A user creates a book with lorem ipsum text by calling the `create_book` action with a form.
-The action creates the book, then creates chapters (3 times) each with their paragraphs.
-Each paragraph is filtered to have at most N bad words (words containing 'a' or 'b' after
-stripping the "aaa" prefix) using the `is_bad_word` rule.
+A user creates a book with lorem ipsum text. The book has 3 chapters, and each chapter has paragraphs with at most N
+bad words.
 
-### Steps
-
-#### It creates the book
-
-The user calls `create_book` with the `create_book_form`.</br>
-`create_book` creates the `book`.</br>
-
-#### It creates chapters and paragraphs
-
-For each chapter (3 times), `create_book` calls `create_chapter` with the `create_chapter_form`.</br>
-`create_chapter` creates the `chapter`, then for each paragraph calls `create_paragraph`.</br>
-`create_paragraph` creates a paragraph with lorem ipsum text, filters it to have at most N bad
-words using the `is_bad_word` rule, and adds the accepted paragraph to the chapter.</br>
-Each chapter is added to the book.</br>
-
-### Diagram
+## Diagram
 
 ```mermaid
-sequenceDiagram
-    actor User
-    participant CreateBook as CreateBook (action)
-    participant CreateChapter as CreateChapter (action)
-    participant CreateParagraph as CreateParagraph (action)
-    participant IsBadWord as IsBadWord (rule)
+flowchart TD
+    create(["The user calls create_book with the create_book_form"]) --> book
 
-    Note over User,CreateBook: Create book
-    User->>CreateBook: create_book(create_book_form)
-    CreateBook->>CreateBook: create book
-
-    loop for each chapter (3 times)
-        Note over CreateBook,CreateChapter: Create chapter
-        CreateBook->>CreateChapter: create_chapter(create_chapter_form)
-        CreateChapter->>CreateChapter: create chapter
-
-        loop for each paragraph
-            Note over CreateChapter,IsBadWord: Create paragraph
-            CreateChapter->>CreateParagraph: create_paragraph()
-            CreateParagraph->>CreateParagraph: create paragraph with lorem ipsum text
-            CreateParagraph->>CreateParagraph: filter paragraph to have at most N bad_words
-            loop for each word
-                CreateParagraph->>IsBadWord: is_bad_word(word)
-                IsBadWord-->>CreateParagraph: true / false
-            end
-            CreateParagraph->>CreateChapter: paragraph
-        end
-
-        CreateChapter->>CreateChapter: add chapter to book
-        CreateChapter-->>CreateBook: chapter
+    subgraph create_book ["Create a book with lorem ipsum text"]
+        book["Create the book"] --> chapter["Create a chapter [1]"]
+        chapter --> paragraph["Create a paragraph with lorem ipsum text"]
+        paragraph --> filter["Filter the paragraph to have at most N bad words [2]"]
+        filter --> add_paragraph["Add the paragraph to the chapter"]
+        add_paragraph --> more_paragraphs{{"Are there more paragraphs?"}}:::choice
+        more_paragraphs -- yes --> paragraph
+        more_paragraphs -- no --> add_chapter["Add the chapter to the book"]
+        add_chapter --> all_chapters{{"Are there 3 chapters?"}}:::choice
+        all_chapters -- no --> chapter
+        all_chapters -- yes --> returned["Return the book"]
     end
 
-    CreateBook-->>User: book
+    classDef choice color:#c9a227
 ```
+
+### Footnotes
+
+#### [1] - create_book delegates to the chapter actions
+
+`create_book` calls `create_chapter` with the `create_chapter_form` for each chapter. `create_chapter` calls
+`create_paragraph` for each paragraph.</br>
+
+#### [2] - A bad word contains an 'a' or a 'b'
+
+`create_paragraph` calls the `is_bad_word` rule for each word. A word is bad when it contains an 'a' or a 'b' after
+stripping the "aaa" prefix.</br>
 """

@@ -27,39 +27,26 @@ def run_scenario():
 markdown_node = sunya.add_markdown_node(scenario, "A user creates a blog post")
 
 markdown_node.markdown = """
-The user visits a blog and presses the create-blog-post button to open the blog-post form.
-After filling out the form and submitting, `BlogPostFormView` calls `CreateBlogPost` which
-creates and returns the new blog post.
+The user creates a new blog post in a blog, with a form.
 
-### Steps
-
-#### It creates the blog post
-
-The user visits the blogs route and clicks on a blog to open it.</br>
-`BlogsPage` shows the create-blog-post button.</br>
-The user presses the create-blog-post button to open `BlogPostFormView`.</br>
-The user fills out and submits the blog-post form.</br>
-`BlogPostFormView` calls `CreateBlogPost` with the blog-post form data.</br>
-`CreateBlogPost` creates and returns the blog post.</br>
-
-### Diagram
+## Diagram
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant BLV as BlogListView
-    participant BP as BlogsPage
-    participant BPFV as BlogPostFormView
-    participant CBPM as CreateBlogPost (mutation)
+flowchart TD
+    visit(["The user visits the blogs route"]) --> open_blog
 
-    Note over User,CBPM: Create blog post
-    User->>BLV: visits blogs route
-    User->>BP: clicks on a blog
-    BP-->>User: shows create-blog-post button
-    User->>BPFV: presses create-blog-post button
-    User-->>BPFV: submits blog-post form
-    BPFV->>CBPM: createBlogPost(blogPostFormData)
-    CBPM->>CBPM: create blog post
-    CBPM-->>BPFV: blog post
+    subgraph create_blog_post ["Create a blog post in the blog"]
+        open_blog["The user clicks on a blog to open it"] --> button["Show the create-blog-post button in the BlogsPage"]
+        button --> press["The user presses the create-blog-post button"]
+        press --> form["The user fills out and submits the blog-post form"]
+        form --> create["Create the blog post [1]"]
+    end
 ```
+
+### Footnotes
+
+#### [1] - The BlogPostFormView creates the blog post with a mutation
+
+`BlogPostFormView` calls `CreateBlogPost` with the blog-post form data. `CreateBlogPost` creates and returns the blog
+post.</br>
 """

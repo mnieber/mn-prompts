@@ -24,42 +24,30 @@ def run_scenario():
 markdown_node = sunya.add_markdown_node(scenario, "A user creates a blog post")
 
 markdown_node.markdown = """
-The frontend calls `CreateBlogPostApiView` to create a new blog post within a blog.
-The API view delegates to the `create_blog_post` action, which checks the `title` and `content`
-fields for forbidden words before persisting the post.
+The frontend creates a new blog post in a blog through the API of the backend. A blog post with forbidden words in
+its title or content is refused.
 
-### Steps
-
-#### It creates the blog post
-
-The frontend calls `CreateBlogPostApiView`.</br>
-The API view calls `create_blog_post` with the `create_blog_post_form`.</br>
-`create_blog_post` calls `has_forbidden_words` on the `title` and `content` fields.</br>
-If forbidden words are found, `create_blog_post` raises `CreateBlogPostFormContainsForbiddenWordsError`.</br>
-Otherwise, `create_blog_post` creates and returns the `blog_post`.</br>
-
-### Diagram
+## Diagram
 
 ```mermaid
-sequenceDiagram
-    participant Frontend
-    participant CBPAV as CreateBlogPostApiView
-    participant CBPA as CreateBlogPost (action)
-    participant HFW as HasForbiddenWords (rule)
+flowchart TD
+    request(["The frontend calls the CreateBlogPostApiView"]) --> check
 
-    Note over Frontend,CBPA: Create blog post
-    Frontend->>CBPAV: POST /blogs/{blog_id}/posts/
-    CBPAV->>CBPA: create_blog_post(create_blog_post_form)
-    CBPA->>HFW: has_forbidden_words(title)
-    HFW-->>CBPA: result
-    CBPA->>HFW: has_forbidden_words(content)
-    HFW-->>CBPA: result
-
-    alt forbidden words found
-        CBPA-->>CBPAV: raise CreateBlogPostFormContainsForbiddenWordsError
-    else no forbidden words
-        CBPA->>CBPA: create blog_post
-        CBPA-->>CBPAV: blog_post
+    subgraph create_blog_post ["Create a blog post in the blog"]
+        check["Check the title and the content for forbidden words [1]"] --> forbidden{{"Are there forbidden words?"}}:::choice
+        forbidden -- yes --> refused["Raise an error"]
+        forbidden -- no --> create["Create the blog post"]
+        create --> returned["Return the blog post"]
     end
+
+    classDef choice color:#c9a227
 ```
+
+### Footnotes
+
+#### [1] - The action checks the form before it creates the blog post
+
+The API view calls `create_blog_post` with the `create_blog_post_form`.</br>
+`create_blog_post` calls `has_forbidden_words` on the `title` and the `content`. When it finds forbidden words, it
+raises `CreateBlogPostFormContainsForbiddenWordsError`.</br>
 """

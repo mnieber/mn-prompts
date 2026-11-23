@@ -4,34 +4,57 @@
 
 ## A user installs the prompts for their project
 
-A user installs the instructions of a target (e.g. `python_lib`) in their project. The project gets an
-`instructions` symlink into the user's clone of mn-prompts, and an `AGENTS.md` file that tells the agent how to use
-these instructions.
+A user installs the instructions of a target (e.g. `python_lib`), of a set of layers, or of both, in their project.
+The project gets an `instructions` dir with symlinks to the layers in the user's clone of mn-prompts and a generated
+`index.md`, and a `CLAUDE.md` (or `AGENTS.md`) file that tells the agent how to use these instructions.
 
 ### Steps
 
 #### It installs mn-prompts
 
 The user clones the mn-prompts repository, and pip installs it as an editable install.</br>
-Only editable installs are supported: the prompts-dir (`extra/prompts`) contains symlinks (e.g. from targets to
-layers), which a wheel cannot contain.</br>
+Only editable installs are supported: the project links to the layers in the prompts-dir (`extra/prompts`) of the
+clone.</br>
 The user installs from a plain clone rather than with `pip install -e git+<url>`, because the latter puts the clone
 inside the Python environment, where it's deleted when that environment is recreated.</br>
 
-#### It installs the target
+#### It selects the layers
 
-The user calls `mn-prompts install <target_name>` in the project dir.</br>
-The entrypoint calls `install_target`, which locates the prompts-dir (via `get_targets_dir` and
-`get_prompts_dir`) and checks that the target exists.</br>
-`install_target` creates an `instructions` symlink to the target dir. An existing symlink into the prompts-dir is
-replaced, so that the user can repair it, or switch to another target.</br>
+The user calls `mn-prompts install` in the project dir, with an optional `--target` and any number of `--layer`s
+(e.g. `mn-prompts install --target=python_lib --layer=react_app`).</br>
+The entrypoint calls `install_instructions`, which locates the prompts-dir, and checks that the `instructions` dir
+either doesn't exist or was installed by mn-prompts (it contains a manifest).</br>
+The selection is the union of the layers of the target (`get_target` reads them from the target file) and the
+`--layer`s. `get_selected_layers` adds the layers that these require (`get_layer` reads them from the frontmatter
+of the index snippet), and orders the layers so that each layer comes after the layers that it requires.</br>
+All errors (e.g. an unknown target or layer) are reported before any file is changed.</br>
+
+#### It links the layers
+
+`install_instructions` creates the `instructions` dir, with an absolute `<layer_name>_layer` symlink to each
+selected layer, and an `examples` symlink to the reference apps.</br>
+A new selection replaces the previous one: the symlinks of the layers that are no longer selected are removed.
+Other files in the `instructions` dir are left alone.</br>
+
+#### It generates the index
+
+`get_index_text` inserts the index snippets of the selected layers, in order, into the index template of the
+prompts-dir. `install_instructions` writes the result to `index.md`, which tells the agent which layers to consult,
+and for what purpose.</br>
+It also writes the manifest (`mn-prompts.yaml`), which records the target and the layers that the user asked for,
+and the name of the agents file.</br>
 
 #### It copies the agents file
 
-The entrypoint calls `copy_agents_file`, which copies `agents_files/default.md` of the prompts-dir to `AGENTS.md`
-in the project dir.</br>
-If `AGENTS.md` already exists, then it's left unchanged, and the entrypoint prints how to extend it with the
-contents of the agents file.</br>
+The entrypoint calls `copy_agents_file`, which copies `agents_files/default.md` of the prompts-dir to `CLAUDE.md`
+in the project dir, or to `AGENTS.md` if the user passed `--agents-md`.</br>
+If the file already exists, then it's left unchanged, and the entrypoint prints how to extend it with the contents
+of the agents file.</br>
+
+#### It adds project-specific instructions
+
+The user may write a `project.md` file in the `instructions` dir, e.g. to say which layers apply to which part of
+the project. The generated index tells the agent to read it first, and mn-prompts never changes it.</br>
 
 ### Diagram
 
@@ -39,39 +62,49 @@ contents of the agents file.</br>
 sequenceDiagram
     actor User
     participant MnPrompts as mn-prompts (entrypoint)
-    participant InstallTarget as InstallTarget (action)
-    participant GetTargetsDir as GetTargetsDir (rule)
-    participant GetPromptsDir as GetPromptsDir (rule)
+    participant InstallInstructions as InstallInstructions (action)
+    participant GetTarget as GetTarget (rule)
+    participant GetSelectedLayers as GetSelectedLayers (rule)
+    participant GetIndexText as GetIndexText (rule)
     participant CopyAgentsFile as CopyAgentsFile (action)
 
     Note over User: Install mn-prompts
     User->>User: git clone <repo-url> ~/mn-prompts
     User->>User: pip install -e ~/mn-prompts
 
-    Note over User,GetPromptsDir: Install the target
-    User->>MnPrompts: mn-prompts install <target_name>
-    MnPrompts->>InstallTarget: install_target(target_name)
-    InstallTarget->>GetTargetsDir: get_targets_dir()
-    GetTargetsDir->>GetPromptsDir: get_prompts_dir()
-    GetPromptsDir-->>GetTargetsDir: prompts_dir
-    alt prompts_dir does not exist
-        GetTargetsDir-->>MnPrompts: raise PromptsDirNotFoundError
+    Note over User,GetSelectedLayers: Select the layers
+    User->>MnPrompts: mn-prompts install --target=<target_name> --layer=<layer_name>
+    MnPrompts->>InstallInstructions: install_instructions(target_name, layer_names, agents_md)
+    alt prompts-dir does not exist
+        InstallInstructions-->>MnPrompts: raise PromptsDirNotFoundError
+    else instructions exist, and were not installed by mn-prompts
+        InstallInstructions-->>MnPrompts: raise InstructionsExistError
     end
-    GetTargetsDir-->>InstallTarget: targets_dir
-    alt target does not exist
-        InstallTarget-->>MnPrompts: raise UnknownTargetError
-    else instructions exist (and are not a symlink into targets_dir)
-        InstallTarget-->>MnPrompts: raise InstructionsExistError
-    end
-    InstallTarget->>InstallTarget: create instructions symlink to the target
+    InstallInstructions->>GetTarget: get_target(target_name)
+    GetTarget-->>InstallInstructions: target (with its layer names)
+    InstallInstructions->>GetSelectedLayers: get_selected_layers(layer_names)
+    GetSelectedLayers-->>InstallInstructions: layers, with the required layers, in order
+
+    Note over InstallInstructions: Link the layers
+    InstallInstructions->>InstallInstructions: create <layer_name>_layer symlinks, and the examples symlink
+    InstallInstructions->>InstallInstructions: remove the symlinks of layers that are not selected
+
+    Note over InstallInstructions,GetIndexText: Generate the index
+    InstallInstructions->>GetIndexText: get_index_text(layers)
+    GetIndexText-->>InstallInstructions: index template with the index snippets
+    InstallInstructions->>InstallInstructions: write index.md and mn-prompts.yaml
+    InstallInstructions-->>MnPrompts: manifest
 
     Note over MnPrompts,CopyAgentsFile: Copy the agents file
-    MnPrompts->>CopyAgentsFile: copy_agents_file()
-    alt AGENTS.md does not exist
-        CopyAgentsFile->>CopyAgentsFile: copy agents_files/default.md to AGENTS.md
-    else AGENTS.md exists
+    MnPrompts->>CopyAgentsFile: copy_agents_file(agents_file_name)
+    alt CLAUDE.md (or AGENTS.md) does not exist
+        CopyAgentsFile->>CopyAgentsFile: copy agents_files/default.md
+    else it exists
         CopyAgentsFile-->>MnPrompts: not copied
-        MnPrompts-->>User: how to extend AGENTS.md
+        MnPrompts-->>User: how to extend the agents file
     end
+
+    Note over User: Add project-specific instructions
+    User->>User: write instructions/project.md
 ```
 

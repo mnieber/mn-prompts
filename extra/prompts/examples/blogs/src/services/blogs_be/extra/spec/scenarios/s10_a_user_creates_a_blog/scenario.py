@@ -26,42 +26,30 @@ def run_scenario():
 markdown_node = sunya.add_markdown_node(scenario, "A user creates a blog")
 
 markdown_node.markdown = """
-The frontend calls `CreateBlogApiView` to create a new blog for a user.
-The API view delegates to the `create_blog` action, which checks the `name` and `description`
-fields for forbidden words before persisting the blog.
+The frontend creates a new blog for the user through the API of the backend. A blog with forbidden words in its
+name or description is refused.
 
-### Steps
-
-#### It creates the blog
-
-The frontend calls `CreateBlogApiView`.</br>
-The API view calls `create_blog` with the `create_blog_form`.</br>
-`create_blog` calls `has_forbidden_words` on the `name` and `description` fields.</br>
-If forbidden words are found, `create_blog` raises `CreateBlogFormContainsForbiddenWordsError`.</br>
-Otherwise, `create_blog` creates and returns the `blog`.</br>
-
-### Diagram
+## Diagram
 
 ```mermaid
-sequenceDiagram
-    participant Frontend
-    participant CBAV as CreateBlogApiView
-    participant CBA as CreateBlog (action)
-    participant HFW as HasForbiddenWords (rule)
+flowchart TD
+    request(["The frontend calls the CreateBlogApiView"]) --> check
 
-    Note over Frontend,CBA: Create blog
-    Frontend->>CBAV: POST /blogs/
-    CBAV->>CBA: create_blog(create_blog_form)
-    CBA->>HFW: has_forbidden_words(name)
-    HFW-->>CBA: result
-    CBA->>HFW: has_forbidden_words(description)
-    HFW-->>CBA: result
-
-    alt forbidden words found
-        CBA-->>CBAV: raise CreateBlogFormContainsForbiddenWordsError
-    else no forbidden words
-        CBA->>CBA: create blog
-        CBA-->>CBAV: blog
+    subgraph create_blog ["Create a blog for the user"]
+        check["Check the name and the description for forbidden words [1]"] --> forbidden{{"Are there forbidden words?"}}:::choice
+        forbidden -- yes --> refused["Raise an error"]
+        forbidden -- no --> create["Create the blog"]
+        create --> returned["Return the blog"]
     end
+
+    classDef choice color:#c9a227
 ```
+
+### Footnotes
+
+#### [1] - The action checks the form before it creates the blog
+
+The API view calls `create_blog` with the `create_blog_form`.</br>
+`create_blog` calls `has_forbidden_words` on the `name` and the `description`. When it finds forbidden words, it
+raises `CreateBlogFormContainsForbiddenWordsError`.</br>
 """

@@ -72,7 +72,11 @@ The `External` module is a special virtual namespace used only for external acto
 Each scenario file contains:
 
 1. A `run_scenario()` function that describes the scenario logic using the sunya Python DSL.
-2. A `markdown_node` with a structured markdown section. This markdown section has a fixed format with **Steps** and **Diagram** subsections.
+2. A `markdown_node` with a structured markdown section. This markdown section has a fixed format with a **Diagram**
+   section (a flow chart) and a **Footnotes** subsection.
+
+`RULE`: by default, the diagram of a scenario is a flow chart, as described below. Only use the sequence-diagram
+format (see the `app-write-sequence-diagrams` skill) when I ask for it.
 
 ## Numbering
 
@@ -113,7 +117,7 @@ with the(r.frontend).calls_the(r.action).with_the(r.form):
 
 ### The markdown section
 
-`RULE:` The markdown section starts with a short description that should not duplicate the details that are already described in the steps. Avoid explaining the steps in the introduction and then explaining them again in the Steps section.
+`RULE:` The markdown section starts with a short description that should not duplicate the details that are already described in the diagram and the footnotes. Avoid explaining the flow in the introduction and then explaining it again in the diagram.
 
 `RULE:` Don't insert cross-references to other scenarios, as these go stale quickly. Instead, assume that the reader will find the related scenarios on their own.
 
@@ -122,23 +126,70 @@ The markdown section uses this fixed structure:
 ````
 A short description of the scenario.
 
-### Steps
-
-#### It does X
-
-Step description.</br>
-
-#### It does Y
-
-Step description.</br>
-
-### Diagram
+## Diagram
 
 \```mermaid
-sequenceDiagram
-    ...
+flowchart TD
+    start(["The user does X"]) --> check{{"Is Y the case?"}}:::choice
+    check -- yes --> done["Show Z [2]"]
+    check -- no --> step_a
+
+    subgraph goal_a ["Achieve goal A"]
+        step_a["Do A [1]"] --> step_b["Do B"]
+    end
+
+    step_b --> done
+
+    classDef choice color:#c9a227
 \```
+
+### Footnotes
+
+#### [1] - A claim about doing A
+
+Details of doing A, which mention the code-units that are involved (e.g. `create_foo` and `FooView`).</br>
+
+#### [2] - A claim about showing Z
+
+Details of showing Z.</br>
 ````
+
+### The flow chart
+
+The flow chart shows the workflow of the scenario as the reader would explain it: what triggers it, the choices
+along the way, and what the user ends up with. It reads top to bottom (`flowchart TD`).
+
+- The flow starts with a stadium-shaped node (`id(["..."])`) for what triggers the scenario, usually what the user
+  (or another actor) does.
+- A step is a box (`id["..."]`) with a short sentence: an instruction (e.g. "Create the local proxy") or what an
+  actor does (e.g. "The user sets the user name"). Use plain language, and mention a code-unit only when it helps to
+  understand the flow (e.g. "Show the WelcomeView").
+- A choice is a hexagon with a question (`id{{"Is this the first start?"}}:::choice`). Its edges are labelled with
+  the answers (`-- yes -->`, `-- no -->`, or `-- "the user cancels" -->`).
+- A loop, or a retry, is an edge back to an earlier node: from a choice (e.g. `more -- yes --> paragraph`), or
+  labelled with when it happens (e.g. `error -- "the user tries again" --> question_call`). When the loop doesn't
+  matter to the flow, a single step says that it is done for several items (e.g. "Fetch each new document").
+- The steps that achieve a goal of `run_scenario` are grouped in a `subgraph`, named after the goal (e.g.
+  `subgraph start ["Start the local proxy"]`). Steps outside a goal (such as the trigger and the steps that connect
+  the goals) stay outside the subgraphs.
+- The node ids are short snake_case names (e.g. `has_settings`).
+- When the chart has choices, it ends with `classDef choice color:#c9a227`, which colours them.
+- A scenario with independent goals (e.g. editing and deleting a blog post) has a trigger per goal, so that the
+  chart has several starting points.
+
+`RULE`: keep the nodes short. The details go into footnotes: a node refers to its footnote with a marker at the end
+of its label (e.g. `["Mark the interrupted calls [2]"]`). The footnotes are numbered in the order in which they
+appear in the chart.
+
+### The footnotes
+
+Each footnote is a `####` section, named `[n] - <claim>`, where the claim is the main point of the footnote (e.g.
+`#### [1] - The proxy only answers the SPA`). The body gives the details that the reader needs to understand the
+design, and mentions the code-units that are involved. Each sentence (or group of related sentences) ends with
+`</br>`.
+
+`RULE`: a footnote explains the high-level design, not the edge cases (see the goal of the spec files). Only add a
+footnote to a node when there is something to explain.
 
 ### The sunya DSL
 

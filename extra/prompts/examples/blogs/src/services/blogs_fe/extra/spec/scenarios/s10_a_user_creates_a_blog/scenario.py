@@ -26,38 +26,24 @@ def run_scenario():
 markdown_node = sunya.add_markdown_node(scenario, "A user creates a blog")
 
 markdown_node.markdown = """
-The user visits the blogs route and presses the create-blog button to open the blog form.
-After filling out the form and submitting, `BlogFormView` calls `CreateBlog` which creates
-and returns the new blog.
+The user creates a new blog from the blog list, with a form.
 
-### Steps
-
-#### It creates the blog
-
-The user visits the blogs route.</br>
-`DashboardFrame` shows the create-blog button in its top bar.</br>
-The user presses the create-blog button to open `BlogFormView`.</br>
-The user fills out and submits the blog form.</br>
-`BlogFormView` calls `CreateBlog` with the blog form data.</br>
-`CreateBlog` creates and returns the blog.</br>
-
-### Diagram
+## Diagram
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant BLV as BlogListView
-    participant DF as DashboardFrame
-    participant BFV as BlogFormView
-    participant CBM as CreateBlog (mutation)
+flowchart TD
+    visit(["The user visits the blogs route"]) --> button
 
-    Note over User,CBM: Create blog
-    User->>BLV: visits blogs route
-    DF-->>User: shows create-blog button
-    User->>BFV: presses create-blog button
-    User-->>BFV: submits blog form
-    BFV->>CBM: createBlog(blogFormData)
-    CBM->>CBM: create blog
-    CBM-->>BFV: blog
+    subgraph create_blog ["Create a blog for the user"]
+        button["Show the create-blog button in the top bar of the DashboardFrame"] --> press["The user presses the create-blog button"]
+        press --> form["The user fills out and submits the blog form"]
+        form --> create["Create the blog [1]"]
+    end
 ```
+
+### Footnotes
+
+#### [1] - The BlogFormView creates the blog with a mutation
+
+`BlogFormView` calls `CreateBlog` with the blog form data. `CreateBlog` creates and returns the blog.</br>
 """
