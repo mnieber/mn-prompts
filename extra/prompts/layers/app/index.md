@@ -6,12 +6,12 @@ When you are asked to work on an application (in any phase: design, tests, code 
 
 ### Development phases
 
-The five phases of developing a feature (design, test plan, tests, code and scenarios), and what to do in each of them. Start here.
+The five phases of developing a feature (design, test plan, tests, code and scenarios), and what to do in each of them: the design is written as draft scenarios, which are converted into final scenarios at the end. Start here.
 → [app-apply-development-phases](./skills/app-apply-development-phases.md)
 
 ### Writing specs
 
-How to write scenario specs: the spec layout (flat or per topic), implicit code-unit declarations, the sunya DSL (goals and steps), and the markdown section with its flow chart and footnotes.
+How to write scenario specs: the spec layout (flat or per topic), implicit code-unit declarations, the sunya DSL (goals and steps), the markdown section with its flow chart and footnotes, and draft scenarios.
 → [app-write-specs](./skills/app-write-specs.md)
 
 ### Writing scenarios with a sequence diagram

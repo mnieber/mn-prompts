@@ -78,6 +78,14 @@ Each scenario file contains:
 `RULE`: by default, the diagram of a scenario is a flow chart, as described below. Only use the sequence-diagram
 format (see the `app-write-sequence-diagrams` skill) when I ask for it.
 
+### Draft scenarios
+
+In the design phase, a new feature is described in a draft scenario (see the
+[development workflow](./app-apply-development-phases.md)): a scenario file without the `run_scenario` function, whose
+markdown ends with a `## Design notes (to be dropped)` section. In the scenarios phase, the draft is converted into a
+final scenario: the design notes are removed, and the `run_scenario` function is added. See
+`examples/bookie/extra/spec/scenarios/s20_a_user_exports_a_book/scenario.py` for an example of a draft scenario.
+
 ## Numbering
 
 Except in legacy spec directories, the initial scenarios use decadal numbering: s10_foo, s20_bar, s30_baz, etc.
