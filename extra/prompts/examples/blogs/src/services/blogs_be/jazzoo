@@ -47,8 +47,7 @@ generateschema():
 # (e.g. "mytest"), and a name that ends with __ selects only the test with that name.
 [interactive]
 pytest(kwargs=""):
-    🐆.safe-kwargs = 🐆.kwargs | ⚙️.sh-quote
-    case 🐆.safe-kwargs in -*) set -- 🐆.kwargs ;; *) set -- -k 🐆.safe-kwargs ;; esac; pytest --pdbcls=pudb.debugger:Debugger --pdb --capture=no "$@"
+    case 🐆!kwargs in -*) set -- 🐆.kwargs ;; *) set -- -k 🐆!kwargs ;; esac; pytest --pdbcls=pudb.debugger:Debugger --pdb --capture=no "$@"
 
 #
 # Stack

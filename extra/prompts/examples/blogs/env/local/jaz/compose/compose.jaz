@@ -47,10 +47,8 @@ restart(local=🐭.use-dockerfile-local(), no-cache=""):
 # Run cmd (default: the command of the service) in a new container of service.
 [interactive]
 run(service, cmd="", local=🐭.use-dockerfile-local()):
-    🐆.safe-service = 🐆.service | ⚙️.sh-quote
-    🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
     🐆.local-flag = "--local" if 🐆.local else ""
-    @⚙️.python 🐭.script run --root-dir=⚙️.root_module.dirname --service=🐆.safe-service --cmd=🐆.safe-cmd 🐆.local-flag
+    @⚙️.python 🐭.script run --root-dir=⚙️.root_module.dirname --service=🐆!service --cmd=🐆!cmd 🐆.local-flag
 
 # Compile the .env.in files of the services into .env files, with the values of
 # secrets.env.

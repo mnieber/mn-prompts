@@ -4,11 +4,8 @@
 # workdir if they are given.
 [interactive]
 exec(cmd, user="", workdir=""):
-    🐆.container = ⚙️.get_config(path="/services/fe/container") | ⚙️.sh-quote
-    🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
-    🐆.safe-user = 🐆.user | ⚙️.sh-quote
-    🐆.safe-workdir = 🐆.workdir | ⚙️.sh-quote
-    @⚙️.python 🐭.script run --container=🐆.container --cmd=🐆.safe-cmd --user=🐆.safe-user --workdir=🐆.safe-workdir
+    🐆.container = ⚙️.get_config(path="/services/fe/container")
+    @⚙️.python 🐭.script run --container=🐆!container --cmd=🐆!cmd --user=🐆!user --workdir=🐆!workdir
 
 # Run the server of blogs_fe in its container.
 [interactive]

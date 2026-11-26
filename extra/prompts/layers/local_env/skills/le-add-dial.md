@@ -123,7 +123,7 @@ RULE: `dial_cd` checks that the output is not empty before it calls `cd`: a bare
 directory.
 
 RULE: the targets are `[interactive]`, so that `jaz` does not capture their output, and they quote their string
-arguments with `⚙️.sh-quote`.
+arguments with `⚙️.sh-quote` (written as `🐆!x`).
 
 ## Requirements
 

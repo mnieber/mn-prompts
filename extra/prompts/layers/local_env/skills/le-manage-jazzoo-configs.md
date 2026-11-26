@@ -110,8 +110,8 @@ RULE: both targets are `[interactive]`, so that `jaz` does not capture their out
 for the editor, so that an editor that runs in the terminal (`vim`) works. A graphical editor that returns at
 once (`code`, an already running `gedit`) just makes the target end early.
 
-RULE: `config.print` quotes its `path` and `to-file` arguments with `⚙️.sh-quote`, because they are
-command-line arguments.
+RULE: `config.print` quotes its `path` and `to-file` arguments with `⚙️.sh-quote` (written as `🐆!path` and
+`🐆!to-file`), because they are command-line arguments.
 
 ## Requirements
 

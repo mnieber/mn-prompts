@@ -87,7 +87,8 @@ Each target calls `⚙️.python docker_tools.py <action> --name=<name> ...`. Th
 RULE: the targets are `[interactive]`, so that `jaz` does not capture their output: the picker asks the
 developer, and `exec` needs the terminal (`docker exec -it`).
 
-RULE: the targets quote their string arguments with `⚙️.sh-quote`, because they are command-line arguments.
+RULE: the targets quote their string arguments with `⚙️.sh-quote` (written as `🐆!x`), because they are command-line
+arguments.
 
 RULE: `commit` writes to the image that the container was started from, so that the next `up` uses it. It
 does not create a new image name.
@@ -119,11 +120,8 @@ shell would, but it does not run in a shell. Copy `service_tools.py` from `examp
 # workdir if they are given.
 [interactive]
 exec(cmd, user="", workdir=""):
-    🐆.container = ⚙️.get_config(path="/services/be/container") | ⚙️.sh-quote
-    🐆.safe-cmd = 🐆.cmd | ⚙️.sh-quote
-    🐆.safe-user = 🐆.user | ⚙️.sh-quote
-    🐆.safe-workdir = 🐆.workdir | ⚙️.sh-quote
-    @⚙️.python 🐭.script run --container=🐆.container --cmd=🐆.safe-cmd --user=🐆.safe-user --workdir=🐆.safe-workdir
+    🐆.container = ⚙️.get_config(path="/services/be/container")
+    @⚙️.python 🐭.script run --container=🐆!container --cmd=🐆!cmd --user=🐆!user --workdir=🐆!workdir
 
 # Run the server of blogs_be in its container.
 [interactive]

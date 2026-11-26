@@ -18,8 +18,7 @@ run-server():
 [interactive]
 npm-publish(package-dir):
     🐆.script = ⚙️.module.dirname / "extra/jaz/npm_tools.py"
-    🐆.safe-package-dir = 🐆.package-dir | ⚙️.sh-quote
-    @⚙️.python 🐆.script publish --package-dir=🐆.safe-package-dir
+    @⚙️.python 🐆.script publish --package-dir=🐆!package-dir
 
 #
 # Stack

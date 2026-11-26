@@ -10,5 +10,4 @@ pip-compile():
 # token) before the upload.
 [interactive]
 publish(package-dir):
-    🐆.safe-package-dir = 🐆.package-dir | ⚙️.sh-quote
-    @⚙️.python 🐭.script publish --root-dir=⚙️.root_module.dirname --package-dir=🐆.safe-package-dir
+    @⚙️.python 🐭.script publish --root-dir=⚙️.root_module.dirname --package-dir=🐆!package-dir

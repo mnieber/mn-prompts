@@ -4,10 +4,8 @@
 # of this project. Prints nothing when the key is not in the config.
 [interactive]
 get(number, group="default", dir=""):
-    🐆.safe-group = 🐆.group | ⚙️.sh-quote
-    🐆.safe-number = 🐆.number | ⚙️.sh-quote
     🐆.dir-flag = "--dir" if 🐆.dir else ""
-    @⚙️.python 🐭.script get --group=🐆.safe-group --number=🐆.safe-number --root-dir=⚙️.root_module.dirname 🐆.dir-flag
+    @⚙️.python 🐭.script get --group=🐆!group --number=🐆!number --root-dir=⚙️.root_module.dirname 🐆.dir-flag
 
 # Install the fish functions and key bindings of dial in the fish config directory.
 [interactive]

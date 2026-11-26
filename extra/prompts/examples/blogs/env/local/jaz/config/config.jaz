@@ -9,6 +9,4 @@ edit():
 # With to-file, write it to that file instead.
 [interactive]
 print(path="/", to-file=""):
-    🐆.safe-path = 🐆.path | ⚙️.sh-quote
-    🐆.safe-to-file = 🐆.to-file | ⚙️.sh-quote
-    @⚙️.python 🐭.script print --path=🐆.safe-path --to-file=🐆.safe-to-file
+    @⚙️.python 🐭.script print --path=🐆!path --to-file=🐆!to-file
